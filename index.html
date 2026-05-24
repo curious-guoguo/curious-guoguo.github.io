@@ -9,10 +9,9 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- 公共侧边栏容器 -->
     <div id="sidebar"></div>
 
-    <!-- 你的原有首页内容（完整保留，一丝未改） -->
+    <!-- 你的首页原有内容，100%保留 -->
     <main class="main-content">
         <div class="head-title">
             Hi<br>I'm 曾轶峡
@@ -41,13 +40,20 @@
         </div>
     </main>
 
-    <!-- 加载公共侧边栏 -->
+    <!-- 修正后的加载+高亮JS -->
     <script>
-        fetch('sidebar.html')
-        .then(res => res.text())
-        .then(html => {
-            document.getElementById('sidebar').innerHTML = html;
+    fetch('sidebar.html')
+    .then(res => res.text())
+    .then(html => {
+        document.getElementById('sidebar').innerHTML = html;
+        // 高亮当前页面
+        let currentFile = window.location.href.split('/').pop();
+        document.querySelectorAll('.sidebar a').forEach(item => {
+            if(item.getAttribute('href') === currentFile) {
+                item.classList.add('active');
+            }
         });
+    });
     </script>
 </body>
 </html>
