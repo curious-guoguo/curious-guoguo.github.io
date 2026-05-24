@@ -77,15 +77,3 @@
         </a></li>
     </ul>
 </aside>
-
-<!-- 修复：自动正确高亮当前页面 -->
-<script>
-// 获取当前页面文件名
-let currentFile = window.location.href.split('/').pop();
-// 匹配并高亮
-document.querySelectorAll('.sidebar a').forEach(item => {
-    if(item.getAttribute('href') === currentFile) {
-        item.classList.add('active');
-    }
-});
-</script>
