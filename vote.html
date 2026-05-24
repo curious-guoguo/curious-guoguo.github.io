@@ -9,38 +9,34 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- 引入公共侧边栏 -->
-    <div id="sidebar-container"></div>
-
-    <main class="main-content">
-        <div class="head-title">欢迎投票</div>
-        <div class="vote-section">
-            <table>
-                <tr>
-                    <td><img class="vote-img" src="https://vote.saobby.com/i/maNz2mYg/0?x-oss-process=image/resize,m_fill,h_170,w_225" loading="lazy"></td>
-                    <td><a href="https://vote.saobby.com/v/maNz2mYg/0" target="_blank" rel="noopener">蒟蒻</a></td>
-                </tr>
-                <tr>
-                    <td><img class="vote-img" src="https://vote.saobby.com/i/maNz2mYg/1?x-oss-process=image/resize,m_fill,h_170,w_225" loading="lazy"></td>
-                    <td><a href="https://vote.saobby.com/v/maNz2mYg/1" target="_blank" rel="noopener">老六</a></td>
-                </tr>
-                <tr>
-                    <td><img class="vote-img" src="https://vote.saobby.com/i/maNz2mYg/2?width=300" loading="lazy"></td>
-                    <td><a href="https://vote.saobby.com/v/maNz2mYg/2" target="_blank" rel="noopener">大佬六</a></td>
-                </tr>
-            </table>
-        </div>
-    </main>
-
-    <!-- 引入sidebar.html的JS -->
-    <script>
-        // 加载公共侧边栏
-        fetch('sidebar.html')
-            .then(response => response.text())
-            .then(html => {
-                document.getElementById('sidebar-container').innerHTML = html;
-            })
-            .catch(error => console.error('加载侧边栏失败:', error));
-    </script>
+<div id="sidebar"></div>
+<main class="main-content">
+    <div class="head-title">欢迎投票</div>
+    <div class="vote-section">
+        <table>
+            <tr>
+                <td><img class="vote-img" src="https://vote.saobby.com/i/maNz2mYg/0?x-oss-process=image/resize,m_fill,h_170,w_225" loading="lazy"></td>
+                <td><a href="https://vote.saobby.com/v/maNz2mYg/0" target="_blank" rel="noopener">蒟蒻</a></td>
+            </tr>
+            <tr>
+                <td><img class="vote-img" src="https://vote.saobby.com/i/maNz2mYg/1?x-oss-process=image/resize,m_fill,h_170,w_225" loading="lazy"></td>
+                <td><a href="https://vote.saobby.com/v/maNz2mYg/1" target="_blank" rel="noopener">老六</a></td>
+            </tr>
+            <tr>
+                <td><img class="vote-img" src="https://vote.saobby.com/i/maNz2mYg/2?width=300" loading="lazy"></td>
+                <td><a href="https://vote.saobby.com/v/maNz2mYg/2" target="_blank" rel="noopener">大佬六</a></td>
+            </tr>
+        </table>
+    </div>
+</main>
+<script>
+fetch('sidebar.html').then(res=>res.text()).then(html=>{
+    document.getElementById('sidebar').innerHTML=html;
+    let currentFile = window.location.href.split('/').pop();
+    document.querySelectorAll('.sidebar a').forEach(item=>{
+        if(item.getAttribute('href')===currentFile) item.classList.add('active');
+    });
+});
+</script>
 </body>
 </html>
