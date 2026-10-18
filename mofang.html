@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>魔方手感调校模拟器</title>
+<style>
+  :root{
+    --bg:#0f1218; --card:#171c26; --line:#2a3344;
+    --txt:#e8edf7; --dim:#8b97ad; --accent:#38bdf8;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    background:radial-gradient(1100px 600px at 15% -10%,#1b2740 0%,#0f1218 62%);
+    color:var(--txt); min-height:100vh; padding:28px 16px 60px;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1060px;margin:0 auto}
+  header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  h1{font-size:22px;font-weight:800;letter-spacing:.5px}
+  h1 span{color:var(--accent)}
+  .sub{color:var(--dim);font-size:13px;margin-top:6px}
+  .reset{
+    background:#202838;border:1px solid var(--line);color:var(--dim);
+    padding:8px 16px;border-radius:10px;font-size:13px;cursor:pointer;
+    transition:.2s;font-family:inherit;
+  }
+  .reset:hover{color:var(--txt);border-color:var(--accent);box-shadow:0 0 14px rgba(56,189,248,.25)}
+
+  .grid{display:grid;grid-template-columns:1.12fr .88fr;gap:20px;margin-top:24px;align-items:start}
+  @media (max-width:860px){ .grid{grid-template-columns:1fr} }
+
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px 20px 8px}
+  .result{padding:22px 20px 20px;position:sticky;top:20px}
+  @media (max-width:860px){ .result{position:static} }
+
+  /* ---------- 滑动条 ---------- */
+  .row{padding:10px 0 14px;border-bottom:1px dashed #212936}
+  .row:last-child{border-bottom:none}
+  .rowhead{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px}
+  .label{font-size:14px;font-weight:600}
+  .label em{font-style:normal;color:#5c687e;font-size:11px;margin-left:7px;letter-spacing:.4px}
+  .value{font-variant-numeric:tabular-nums;font-size:15px;font-weight:700;color:var(--accent)}
+  .value small{font-size:11px;color:var(--dim);font-weight:500;margin-left:3px}
+
+  input[type=range]{
+    -webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:99px;
+    background:linear-gradient(90deg,#38bdf8 0%,#38bdf8 var(--p,50%),#2a3344 var(--p,50%),#2a3344 100%);
+    outline:none;cursor:pointer;margin:9px 0 9px;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:19px;height:19px;border-radius:50%;
+    background:linear-gradient(150deg,#a5e4ff,#38bdf8);
+    border:2px solid #0b1220;
+    box-shadow:0 0 0 4px rgba(56,189,248,.13),0 0 16px rgba(56,189,248,.65);
+    transition:transform .12s ease;
+  }
+  input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.12)}
+  input[type=range]::-webkit-slider-thumb:active{transform:scale(1.22)}
+  input[type=range]::-moz-range-thumb{
+    width:17px;height:17px;border-radius:50%;border:2px solid #0b1220;
+    background:linear-gradient(150deg,#a5e4ff,#38bdf8);
+    box-shadow:0 0 12px rgba(56,189,248,.7);cursor:pointer;
+  }
+
+  .meta{display:flex;align-items:center;gap:10px}
+  .bar{flex:1;height:5px;background:#232b3a;border-radius:99px;overflow:hidden}
+  .bar i{display:block;height:100%;width:0;border-radius:99px;transition:width .25s ease,background .25s ease}
+  .pct{font-size:11px;color:var(--dim);font-variant-numeric:tabular-nums;width:34px;text-align:right}
+
+  /* ---------- 结果区 ---------- */
+  .gauge-wrap{position:relative;width:196px;height:196px;margin:0 auto}
+  .gauge{width:100%;height:100%;transform:rotate(-90deg);display:block}
+  .gauge circle{fill:none;stroke-width:13;stroke-linecap:round}
+  .gauge .track{stroke:#232b3a}
+  .gauge .prog{stroke:#38bdf8;transition:stroke-dashoffset .4s cubic-bezier(.3,.8,.3,1),stroke .4s ease}
+  .gauge-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .score{font-size:46px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-1px}
+  .score-unit{font-size:11px;color:var(--dim);margin-top:5px;letter-spacing:1px}
+
+  .grade{text-align:center;font-size:17px;font-weight:800;margin-top:14px;letter-spacing:1px}
+  .grade-sub{text-align:center;font-size:12px;color:var(--dim);margin-top:6px}
+
+  .tips{margin-top:18px;border-top:1px solid var(--line);padding-top:14px;display:flex;flex-direction:column;gap:8px}
+  .tip{display:flex;gap:8px;font-size:12.5px;line-height:1.5;color:#b9c4d6}
+  .tip::before{content:'';flex:0 0 6px;height:6px;border-radius:50%;margin-top:6px;background:#fb923c}
+  .tip.ok::before{background:#4ade80}
+  .tip.ok{color:#8fd8a8}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>魔方手感调校 <span>模拟器</span></h1>
+      <div class="sub">拉动滑杆调整参数，实时计算理论手感好用度（0–100 分）</div>
+    </div>
+    <button class="reset" id="reset">恢复默认参数</button>
+  </header>
+
+  <div class="grid">
+    <section class="panel" id="controls"></section>
+
+    <aside class="panel result">
+      <div class="gauge-wrap">
+        <svg class="gauge" viewBox="0 0 200 200">
+          <circle class="track" cx="100" cy="100" r="82"></circle>
+          <circle class="prog" id="ring" cx="100" cy="100" r="82"></circle>
+        </svg>
+        <div class="gauge-center">
+          <div class="score" id="score">0</div>
+          <div class="score-unit">/ 100 分</div>
+        </div>
+      </div>
+      <div class="grade" id="grade">—</div>
+      <div class="grade-sub" id="gradeSub">调校建议</div>
+      <div class="tips" id="tips"></div>
+    </aside>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   1. 参数定义 & 评分模型
+   ========================================================= */
+
+// 单侧高斯：x 小于最优值时用 sLow，大于时用 sHigh
+function gauss(x, mu, sLow, sHigh) {
+  const s = x < mu ? sLow : (sHigh === undefined ? sLow : sHigh);
+  return Math.exp(-0.5 * Math.pow((x - mu) / s, 2));
+}
+
+const DEFS = [
+  {
+    key:'weight', label:'重量', unit:'g', min:0, max:100, step:1, def:58, w:0.15,
+    score: v => gauss(v, 72, 16, 16),
+    hint: v => v < 62 ? '重量偏轻：转动惯性小、稳定性不足，容易发飘'
+            : v > 84 ? '重量偏重：长时间练习手腕易疲劳，起速慢'
+            : null
+  },
+  {
+    key:'magnets', label:'磁铁数量', unit:'颗', min:0, max:10000, step:50, def:900, w:0.20,
+    score: v => gauss(v, 2000, 700, 2600),
+    hint: v => v < 1200 ? '磁力偏弱：定位反馈不足，容错时容易过冲'
+            : v > 3400 ? '磁力过强：转动发涩，磁吸过冲明显，影响连贯'
+            : null
+  },
+  {
+    key:'auto', label:'自归位角度', unit:'°', min:0, max:45, step:1, def:15, w:0.15,
+    score: v => gauss(v, 28, 11, 13),
+    hint: v => v < 18 ? '自归位引导不足：松手后难以自动回正，收尾不够干脆'
+            : v > 38 ? '自归位过强：磁吸感过重，干扰连续转动的顺滑度'
+            : null
+  },
+  {
+    key:'corner', label:'正容错', unit:'°', min:0, max:60, step:1, def:28, w:0.18,
+    score: v => (1 - Math.exp(-v / 20)) * (1 - 0.28 * Math.max(0, (v - 50) / 10)),
+    hint: v => v < 25 ? '正容错不足：直线转动易卡顿，需要更精准的手法'
+            : v > 55 ? '正容错过大：轴距偏松，容易出现转角与松散感'
+            : null
+  },
+  {
+    key:'reverse', label:'逆容错', unit:'°', min:0, max:45, step:1, def:18, w:0.17,
+    score: v => (1 - Math.exp(-v / 16)) * (1 - 0.30 * Math.max(0, (v - 38) / 7)),
+    hint: v => v < 15 ? '逆容错不足：反向转动容易卡住，连贯性差'
+            : v > 41 ? '逆容错过大：转动稳定性下降，易出现滑过位'
+            : null
+  },
+  {
+    key:'ball', label:'球轴大小', unit:'mm', min:0, max:30, step:0.5, def:10, w:0.15,
+    score: v => gauss(v, 14, 5, 5),
+    hint: v => v < 9  ? '球轴偏小：转动支撑面不足，高速转动易晃动'
+            : v > 20 ? '球轴过大：转动阻力与整体重量增加，转速受限'
+            : null
+  }
+];
+
+/* =========================================================
+   2. 构建界面
+   ========================================================= */
+const state = {};
+const controlsEl = document.getElementById('controls');
+const inputs = {};
+
+function fmt(v, d){
+  if (d.key === 'ball')    return Number(v).toFixed(1);
+  if (d.key === 'magnets') return Math.round(v).toLocaleString('en-US');
+  return String(Math.round(v));
+}
+
+DEFS.forEach(d => {
+  state[d.key] = d.def;
+
+  const row = document.createElement('div');
+  row.className = 'row';
+  row.innerHTML = `
+    <div class="rowhead">
+      <span class="label">${d.label}<em>${d.key}</em></span>
+      <span class="value"><b id="v-${d.key}">${fmt(d.def, d)}</b><small>${d.unit}</small></span>
+    </div>
+    <input type="range" id="i-${d.key}" min="${d.min}" max="${d.max}"
+           step="${d.step}" value="${d.def}">
+    <div class="meta">
+      <div class="bar"><i id="b-${d.key}"></i></div>
+      <span class="pct" id="p-${d.key}">—</span>
+    </div>`;
+  controlsEl.appendChild(row);
+
+  const input = row.querySelector('input');
+  inputs[d.key] = input;
+
+  const paintTrack = () => {
+    const pct = (input.value - d.min) / (d.max - d.min) * 100;
+    input.style.setProperty('--p', pct + '%');
+  };
+  paintTrack();
+
+  input.addEventListener('input', () => {
+    state[d.key] = parseFloat(input.value);
+    paintTrack();
+    update();
+  });
+});
+
+/* =========================================================
+   3. 分数 → 颜色 / 等级
+   ========================================================= */
+function scoreColor(s){
+  if (s >= 85) return '#4ade80';
+  if (s >= 70) return '#a3e635';
+  if (s >= 55) return '#facc15';
+  if (s >= 40) return '#fb923c';
+  return '#f87171';
+}
+function gradeOf(t){
+  if (t >= 90) return { name:'神级手感', desc:'各项参数高度均衡，接近理想配置' };
+  if (t >= 80) return { name:'顶级手感', desc:'综合表现优秀，可微调冲击更高分' };
+  if (t >= 70) return { name:'优秀手感', desc:'整体顺手，个别参数仍有优化空间' };
+  if (t >= 58) return { name:'良好手感', desc:'日常可用，进阶操作可能略感吃力' };
+  if (t >= 45) return { name:'一般手感', desc:'存在明显短板，建议调整偏低的项目' };
+  if (t >= 30) return { name:'偏涩手感', desc:'多项参数偏离理想区间，转动阻力较大' };
+  return { name:'难以驾驭', desc:'参数严重失衡，几乎无法顺畅转动' };
+}
+
+/* =========================================================
+   4. 实时计算与渲染
+   ========================================================= */
+const PERIM = 2 * Math.PI * 82;
+const ringEl  = document.getElementById('ring');
+const scoreEl = document.getElementById('score');
+const gradeEl = document.getElementById('grade');
+const gradeSubEl = document.getElementById('gradeSub');
+const tipsEl  = document.getElementById('tips');
+
+ringEl.style.strokeDasharray  = PERIM;
+ringEl.style.strokeDashoffset = PERIM;
+
+function update(){
+  let total = 0;
+  const tips = [];
+
+  DEFS.forEach(d => {
+    const v = state[d.key];
+    // 单项得分（0~1），做一次安全裁剪
+    const s = Math.max(0, Math.min(1, d.score(v)));
+    total += s * d.w;                       // 加权累计
+
+    // 数值显示
+    document.getElementById('v-' + d.key).textContent = fmt(v, d);
+
+    // 单项得分条
+    const pct = Math.round(s * 100);
+    const barEl = document.getElementById('b-' + d.key);
+    barEl.style.width = pct + '%';
+    barEl.style.background = scoreColor(pct);
+    document.getElementById('p-' + d.key).textContent = pct;
+
+    // 收集诊断建议
+    const h = d.hint(v);
+    if (h) tips.push({ text: h, ok: false });
+  });
+
+  const totalScore = Math.round(total * 100);
+  const g = gradeOf(totalScore);
+
+  // 环形进度
+  ringEl.style.strokeDashoffset = PERIM * (1 - totalScore / 100);
+  ringEl.style.stroke = g.name === '神级手感' || g.name === '顶级手感' ? '#4ade80'
+                      : g.name === '优秀手感' ? '#a3e635'
+                      : g.name === '良好手感' ? '#facc15'
+                      : g.name === '一般手感' ? '#fb923c'
+                      : '#f87171';
+
+  scoreEl.textContent = totalScore;
+  scoreEl.style.color = ringEl.style.stroke;
+
+  gradeEl.textContent = g.name;
+  gradeEl.style.color = ringEl.style.stroke;
+  gradeSubEl.textContent = g.desc;
+
+  // 渲染建议
+  if (tips.length === 0){
+    tipsEl.innerHTML = '<div class="tip ok">所有参数均处于理想区间，手感配置相当出色！</div>';
+  } else {
+    // 按失分多少排序，最多显示 4 条
+    tips.sort((a, b) => 0);
+    tipsEl.innerHTML = tips.slice(0, 4)
+      .map(t => `<div class="tip">${t.text}</div>`).join('');
+  }
+}
+
+/* =========================================================
+   5. 重置
+   ========================================================= */
+document.getElementById('reset').addEventListener('click', () => {
+  DEFS.forEach(d => {
+    inputs[d.key].value = d.def;
+    state[d.key] = d.def;
+    const pct = (d.def - d.min) / (d.max - d.min) * 100;
+    inputs[d.key].style.setProperty('--p', pct + '%');
+  });
+  update();
+});
+
+// 启动
+update();
+</script>
+</body>
+</html>
