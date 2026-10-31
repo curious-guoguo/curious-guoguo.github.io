@@ -1,5 +1,125 @@
 /* =========================================================
-   获取 DOM
+   1. 高性能 WebGL 极光流体背景
+   ========================================================= */
+(function initWebGL() {
+  const canvas = document.getElementById('bg-canvas');
+  const gl = canvas.getContext('webgl');
+  if (!gl) return;
+
+  const vsSource = `
+    attribute vec2 position;
+    void main() { gl_Position = vec4(position, 0.0, 1.0); }
+  `;
+  const fsSource = `
+    precision highp float;
+    uniform float u_time;
+    uniform vec2 u_resolution;
+
+    vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+    vec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+    vec3 permute(vec3 x) { return mod289(((x*34.0)+1.0)*x); }
+    float snoise(vec2 v) {
+        const vec4 C = vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439);
+        vec2 i  = floor(v + dot(v, C.yy) );
+        vec2 x0 = v -   i + dot(i, C.xx);
+        vec2 i1;
+        i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+        vec4 x12 = x0.xyxy + C.xxzz;
+        x12.xy -= i1;
+        i = mod289(i);
+        vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 )) + i.x + vec3(0.0, i1.x, 1.0 ));
+        vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
+        m = m*m ; m = m*m ;
+        vec3 x = 2.0 * fract(p * C.www) - 1.0;
+        vec3 h = abs(x) - 0.5;
+        vec3 ox = floor(x + 0.5);
+        vec3 a0 = x - ox;
+        m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );
+        vec3 g;
+        g.x  = a0.x  * x0.x  + h.x  * x0.y;
+        g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+        return 130.0 * dot(m, g);
+    }
+
+    void main() {
+        vec2 uv = gl_FragCoord.xy / u_resolution.xy;
+        uv.x *= u_resolution.x / u_resolution.y;
+        float t = u_time * 0.15;
+        
+        vec2 p1 = vec2(0.2 + 0.15 * sin(t), 0.8 + 0.15 * cos(t));
+        vec2 p2 = vec2(0.8 + 0.15 * cos(t*0.8), 0.2 + 0.15 * sin(t*0.9));
+        vec2 p3 = vec2(0.5 + 0.2 * sin(t*0.7), 0.5 + 0.2 * cos(t*0.6));
+        
+        vec3 c1 = vec3(0.17, 0.30, 1.0);
+        vec3 c2 = vec3(0.61, 0.30, 0.86);
+        vec3 c3 = vec3(0.0, 0.7, 0.84);
+        
+        float d1 = length(uv - p1);
+        float d2 = length(uv - p2);
+        float d3 = length(uv - p3);
+        
+        float noise = snoise(uv * 3.0 + t * 2.0) * 0.1;
+        vec3 color = vec3(0.02, 0.03, 0.05);
+        
+        color += c1 * smoothstep(0.7, 0.0, d1 + noise) * 0.6;
+        color += c2 * smoothstep(0.8, 0.0, d2 - noise) * 0.5;
+        color += c3 * smoothstep(0.6, 0.0, d3 + noise) * 0.4;
+        
+        float vignette = smoothstep(1.2, 0.3, length(uv - vec2(0.5)));
+        color *= vignette;
+
+        gl_FragColor = vec4(color, 1.0);
+    }
+  `;
+
+  function createShader(gl, type, source) {
+    const shader = gl.createShader(type);
+    gl.shaderSource(shader, source);
+    gl.compileShader(shader);
+    return shader;
+  }
+
+  const vs = createShader(gl, gl.VERTEX_SHADER, vsSource);
+  const fs = createShader(gl, gl.FRAGMENT_SHADER, fsSource);
+  const program = gl.createProgram();
+  gl.attachShader(program, vs);
+  gl.attachShader(program, fs);
+  gl.linkProgram(program);
+  gl.useProgram(program);
+
+  const positions = new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]);
+  const buffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+  gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
+
+  const posAttr = gl.getAttribLocation(program, 'position');
+  gl.enableVertexAttribArray(posAttr);
+  gl.vertexAttribPointer(posAttr, 2, gl.FLOAT, false, 0, 0);
+
+  const uTime = gl.getUniformLocation(program, 'u_time');
+  const uRes = gl.getUniformLocation(program, 'u_resolution');
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    gl.viewport(0, 0, canvas.width, canvas.height);
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  let startTime = performance.now();
+  function render(time) {
+    gl.uniform1f(uTime, (time - startTime) * 0.001);
+    gl.uniform2f(uRes, canvas.width, canvas.height);
+    gl.drawArrays(gl.TRIANGLES, 0, 6);
+    requestAnimationFrame(render);
+  }
+  requestAnimationFrame(render);
+})();
+
+
+/* =========================================================
+   2. 获取 DOM
    ========================================================= */
 const slides = Array.from(document.querySelectorAll('.slide'));
 const menuLinks = Array.from(document.querySelectorAll('.sidebar-menu a'));
@@ -8,18 +128,17 @@ const deck = document.getElementById('deck');
 const tagFloat = document.getElementById('tagFloat');
 const tagText = document.getElementById('tagText');
 
-// 移动端汉堡菜单
 const hamburgerBtn = document.getElementById('hamburgerBtn');
 const mobileMenu = document.getElementById('mobileMenu');
 const mobileMenuClose = document.getElementById('mobileMenuClose');
 
-const NAV_MAP = [0, 1, 2, 3, 4, 5, 6, 7, -1]; // slide 索引 -> 侧边栏索引
+const NAV_MAP = [0, 1, 2, 3, 4, 5, 6, 7, -1];
 
 let idx = 0;
 let springs = [];
 
 /* =========================================================
-   1. 弹簧引擎
+   3. 弹簧引擎
    ========================================================= */
 class Spring {
   constructor(el, delay = 0) {
@@ -104,7 +223,7 @@ function playSprings(i) {
 }
 
 /* =========================================================
-   2. 飞行标签
+   4. 飞行标签
    ========================================================= */
 function slotRect(slot) {
   let x = 0, y = 0, el = slot;
@@ -157,7 +276,7 @@ function flyTag() {
 }
 
 /* =========================================================
-   3. 切页逻辑
+   5. 切页逻辑
    ========================================================= */
 function updateNav() {
   const navIdx = NAV_MAP[idx];
@@ -184,7 +303,7 @@ function go(target) {
 }
 
 /* =========================================================
-   4. 事件绑定
+   6. 事件绑定
    ========================================================= */
 menuLinks.forEach(a => {
   a.addEventListener('click', e => {
@@ -194,7 +313,6 @@ menuLinks.forEach(a => {
   });
 });
 
-// 移动端菜单事件
 if (hamburgerBtn) hamburgerBtn.addEventListener('click', () => mobileMenu.classList.add('active'));
 if (mobileMenuClose) mobileMenuClose.addEventListener('click', () => mobileMenu.classList.remove('active'));
 
@@ -203,18 +321,9 @@ mobileLinks.forEach(a => {
     e.preventDefault();
     const t = parseInt(a.dataset.slide, 10);
     if (!Number.isNaN(t)) go(t);
-    mobileMenu.classList.remove('active'); // 点击后自动关闭全屏
+    mobileMenu.classList.remove('active');
   });
 });
-
-/* 卡片光斑跟随 */
-document.addEventListener('pointermove', e => {
-  const card = e.target.closest('.link-card, .vote-card');
-  if (!card) return;
-  const r = card.getBoundingClientRect();
-  card.style.setProperty('--mx', (e.clientX - r.left) + 'px');
-  card.style.setProperty('--my', (e.clientY - r.top) + 'px');
-}, { passive: true });
 
 /* 复制链接 */
 window.copyLink = function (text) {
@@ -254,7 +363,7 @@ function toast(msg) {
 }
 
 /* =========================================================
-   5. 初始化
+   7. 初始化
    ========================================================= */
 window.addEventListener('load', () => {
   initTag();

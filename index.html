@@ -10,11 +10,8 @@
 </head>
 <body>
 
-<!-- 背景光球 -->
-<div class="bg-blob blob-1"></div>
-<div class="bg-blob blob-2"></div>
-<div class="bg-blob blob-3"></div>
-<div class="bg-blob blob-4"></div>
+<!-- 高性能 WebGL 背景 -->
+<canvas id="bg-canvas"></canvas>
 
 <!-- 桌面端侧边栏 -->
 <aside class="sidebar" id="sidebar">
@@ -46,12 +43,10 @@
   </ul>
 </aside>
 
-<!-- 左上角汉堡按钮（仅窄屏显示） -->
 <button class="hamburger-btn" id="hamburgerBtn" aria-label="菜单">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
 </button>
 
-<!-- 全屏移动端菜单 -->
 <div class="mobile-menu" id="mobileMenu">
   <button class="mobile-menu-close" id="mobileMenuClose" aria-label="关闭菜单">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -76,12 +71,9 @@
   </ul>
 </div>
 
-<!-- 飞行标签 -->
 <div class="tag-float" id="tagFloat"><span class="tag-text" id="tagText"></span></div>
 
-<!-- 幻灯片舞台 -->
 <main class="deck" id="deck">
-
   <!-- 1 首页 -->
   <section class="slide active">
     <div class="tag-slot" data-text="首页"></div>
@@ -360,7 +352,6 @@
       </div>
     </div>
   </section>
-
 </main>
 
 <script src="main.js"></script>

@@ -24,57 +24,17 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* =========================================================
-   背景光球
-   ========================================================= */
-.bg-blob {
-  --blob-noise-a: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='a' x='-25%25' y='-25%25' width='150%25' height='150%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.011' numOctaves='3' seed='3' stitchTiles='stitch'/%3E%3CfeDisplacementMap in='SourceGraphic' scale='110' xChannelSelector='R' yChannelSelector='G'/%3E%3C/filter%3E%3C/svg%3E%23a");
-  --blob-noise-b: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='b' x='-25%25' y='-25%25' width='150%25' height='150%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.011' numOctaves='3' seed='11' stitchTiles='stitch'/%3E%3CfeDisplacementMap in='SourceGraphic' scale='110' xChannelSelector='R' yChannelSelector='G'/%3E%3C/filter%3E%3C/svg%3E%23b");
+/* WebGL 背景画布 */
+#bg-canvas {
   position: fixed;
-  width: 78vmax;
-  height: 78vmax;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
   z-index: -2;
   pointer-events: none;
-  opacity: .30;
-  filter: blur(34px) saturate(125%);
-  will-change: transform;
 }
-
-.bg-blob::before,
-.bg-blob::after {
-  content: "";
-  position: absolute;
-  inset: 7%;
-  border-radius: 42% 58% 63% 37% / 55% 38% 62% 45%;
-  background: var(--c, #5a7bff);
-  will-change: transform, opacity;
-}
-.bg-blob::before { filter: var(--blob-noise-a); animation: morphA 17s ease-in-out infinite alternate; }
-.bg-blob::after  { filter: var(--blob-noise-b); animation: morphB 17s ease-in-out infinite alternate-reverse; }
-
-@keyframes morphA {
-  0%   { transform: rotate(0deg)  scale(1, .94);   opacity: 1; }
-  50%  { transform: rotate(34deg) scale(1.07, 1);  opacity: .5; }
-  100% { transform: rotate(68deg) scale(.95, 1.06);opacity: .9; }
-}
-@keyframes morphB {
-  0%   { transform: rotate(0deg)   scale(1.03, .96); opacity: .3; }
-  50%  { transform: rotate(-30deg) scale(.94, 1.04); opacity: .85; }
-  100% { transform: rotate(-64deg) scale(1.05, .97); opacity: .4; }
-}
-
-.blob-1 { --c: #2b4dff; top: -12vmax; left: -16vmax;  animation: drift1 22s ease-in-out infinite alternate; }
-.blob-2 { --c: #9d4edd; top: -12vmax; right: -16vmax; animation: drift2 26s ease-in-out infinite alternate; }
-.blob-3 { --c: #00b4d8; bottom: -12vmax; left: -16vmax;  animation: drift3 24s ease-in-out infinite alternate; }
-.blob-4 { --c: #ff006e; bottom: -12vmax; right: -16vmax; animation: drift4 28s ease-in-out infinite alternate; }
-
-@keyframes drift1 { 0%{transform:translate(0,0) scale(1)}      50%{transform:translate(9vw,6vh) scale(1.12)}  100%{transform:translate(4vw,10vh) scale(1.04)} }
-@keyframes drift2 { 0%{transform:translate(0,0) scale(1)}      50%{transform:translate(-8vw,7vh) scale(1.10)} 100%{transform:translate(-11vw,3vh) scale(1.05)} }
-@keyframes drift3 { 0%{transform:translate(0,0) scale(1)}      50%{transform:translate(10vw,-6vh) scale(1.11)}100%{transform:translate(5vw,-10vh) scale(1.03)} }
-@keyframes drift4 { 0%{transform:translate(0,0) scale(1)}      50%{transform:translate(-9vw,-7vh) scale(1.13)}100%{transform:translate(-4vw,-4vh) scale(1.05)} }
 
 /* =========================================================
-   侧边栏 & 汉堡按钮
+   侧边栏 & 汉堡按钮 (保留磨砂)
    ========================================================= */
 .sidebar {
   position: fixed;
@@ -85,10 +45,10 @@ body {
   max-height: calc(100vh - 80px);
   padding: .7rem .5rem;
   border-radius: 26px;
-  background: linear-gradient(135deg, rgba(255,255,255,.16), rgba(255,255,255,.04));
-  backdrop-filter: blur(30px) saturate(180%);
-  -webkit-backdrop-filter: blur(30px) saturate(180%);
-  border: 1px solid rgba(255,255,255,.22);
+  background: rgba(255,255,255,.08);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255,255,255,.15);
   box-shadow: 0 20px 60px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.35);
   overflow-x: hidden;
   overflow-y: auto;
@@ -116,7 +76,6 @@ body {
 .sidebar-menu .label { opacity: 0; transform: translateX(-6px); transition: opacity .2s .04s, transform .3s var(--bounce-soft); }
 .sidebar:hover .label { opacity: 1; transform: translateX(0); }
 
-/* 汉堡按钮和移动端菜单，默认隐藏 */
 .hamburger-btn, .mobile-menu { display: none; }
 
 /* =========================================================
@@ -136,12 +95,12 @@ body {
   position: fixed; top: 0; left: 0; height: var(--tag-h);
   padding: 0 1.2rem; display: flex; align-items: center;
   font-size: .82rem; letter-spacing: .18em; color: rgba(205, 228, 255, .95);
-  background: linear-gradient(135deg, rgba(255,255,255,.18), rgba(255,255,255,.05));
-  border: 1px solid rgba(255,255,255,.28); border-radius: 999px;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.2); border-radius: 999px;
   white-space: nowrap; overflow: hidden; pointer-events: none;
   z-index: 90; transform-origin: top left;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.4), 0 8px 30px rgba(0,0,0,.35);
-  backdrop-filter: blur(20px) saturate(160%); -webkit-backdrop-filter: blur(20px) saturate(160%);
+  box-shadow: 0 8px 30px rgba(0,0,0,.35);
+  backdrop-filter: blur(16px) saturate(160%); -webkit-backdrop-filter: blur(16px) saturate(160%);
   will-change: transform, width;
 }
 .tag-float .tag-text { display: inline-block; will-change: transform, opacity; }
@@ -150,14 +109,6 @@ body {
    舞台 / 幻灯片
    ========================================================= */
 .deck { position: relative; width: 100vw; height: 100vh; overflow: hidden; isolation: isolate; }
-.deck::before {
-  content: ""; position: absolute; inset: 0;
-  background-image:
-    linear-gradient(rgba(150,190,255,.10) 1.5px, transparent 1.5px),
-    linear-gradient(90deg, rgba(150,190,255,.10) 1.5px, transparent 1.5px);
-  background-size: 80px 80px; background-position: center;
-  z-index: 0; pointer-events: none;
-}
 
 .slide {
   position: absolute; inset: 0; display: flex; flex-direction: column;
@@ -172,7 +123,6 @@ body {
   z-index: 2;
 }
 
-/* 【关键】悬停展开侧边栏时，让所有 slide 内容避开导航栏 */
 .sidebar:hover ~ .deck .slide { padding-left: 276px; }
 
 .slide-body {
@@ -193,27 +143,22 @@ body {
 }
 
 /* =========================================================
-   卡片
+   卡片（性能优化：移除磨砂滤镜，用高光渐变模拟）
    ========================================================= */
 .card-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(238px, 1fr)); gap: 1rem; }
 .link-card {
   position: relative; display: block; padding: 1.15rem 1.25rem; border-radius: 20px;
   text-decoration: none; color: inherit; cursor: pointer; overflow: hidden;
-  background: linear-gradient(135deg, rgba(255,255,255,.14), rgba(255,255,255,.045));
-  backdrop-filter: blur(24px) saturate(170%); -webkit-backdrop-filter: blur(24px) saturate(170%);
-  border: 1px solid rgba(255,255,255,.2);
-  box-shadow: 0 12px 40px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.32);
-  transition: transform .38s var(--bounce), box-shadow .38s, border-color .38s;
+  background: linear-gradient(135deg, rgba(255,255,255,.12) 0%, rgba(255,255,255,.03) 100%);
+  border: 1px solid rgba(255,255,255,.15);
+  box-shadow: 0 10px 30px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.2);
+  transition: transform .38s var(--bounce), box-shadow .38s, border-color .38s, background .38s;
 }
-.link-card::before {
-  content: ""; position: absolute; inset: 0; border-radius: inherit;
-  background: radial-gradient(320px circle at var(--mx, 50%) var(--my, -20%), rgba(156,196,255,.18), transparent 62%);
-  opacity: 0; transition: opacity .35s; pointer-events: none;
-}
-.link-card:hover::before { opacity: 1; }
 .link-card:hover {
-  transform: translateY(-6px) scale(1.012); border-color: rgba(255,255,255,.38);
-  box-shadow: 0 24px 62px rgba(0,0,0,.5), 0 0 0 1px rgba(156,196,255,.18), inset 0 1px 0 rgba(255,255,255,.5);
+  transform: translateY(-6px) scale(1.012);
+  background: linear-gradient(135deg, rgba(255,255,255,.18) 0%, rgba(255,255,255,.06) 100%);
+  border-color: rgba(255,255,255,.3);
+  box-shadow: 0 20px 40px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.4);
 }
 .link-card:active { transform: translateY(-2px) scale(.998); }
 .link-title { display: flex; align-items: center; gap: 10px; font-size: 1.02rem; font-weight: 600; color: #dce9ff; line-height: 1.35; }
@@ -232,10 +177,9 @@ body {
 .home-stat {
   margin-top: 2.2rem; display: inline-flex; flex-direction: column; gap: .55rem; align-self: flex-start;
   padding: 1rem 1.5rem; border-radius: 20px;
-  background: linear-gradient(135deg, rgba(255,255,255,.13), rgba(255,255,255,.04));
-  backdrop-filter: blur(26px) saturate(170%); -webkit-backdrop-filter: blur(26px) saturate(170%);
-  border: 1px solid rgba(255,255,255,.2);
-  box-shadow: 0 14px 44px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.35);
+  background: linear-gradient(135deg, rgba(255,255,255,.12) 0%, rgba(255,255,255,.03) 100%);
+  border: 1px solid rgba(255,255,255,.15);
+  box-shadow: 0 10px 30px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.2);
 }
 .visit { display: flex; align-items: center; flex-wrap: wrap; gap: .35rem; font-size: .92rem; color: var(--ink-2); }
 .visit img { height: 20px; vertical-align: middle; opacity: .92; }
@@ -262,17 +206,16 @@ body {
   text-decoration: none;
   color: inherit;
   overflow: hidden;
-  background: linear-gradient(135deg, rgba(255,255,255,.14), rgba(255,255,255,.045));
-  backdrop-filter: blur(24px) saturate(170%);
-  -webkit-backdrop-filter: blur(24px) saturate(170%);
-  border: 1px solid rgba(255,255,255,.2);
-  box-shadow: 0 14px 44px rgba(0,0,0,.38), inset 0 1px 0 rgba(255,255,255,.32);
-  transition: transform .4s var(--bounce), box-shadow .38s, border-color .38s;
+  background: linear-gradient(135deg, rgba(255,255,255,.12) 0%, rgba(255,255,255,.03) 100%);
+  border: 1px solid rgba(255,255,255,.15);
+  box-shadow: 0 10px 30px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.2);
+  transition: transform .4s var(--bounce), box-shadow .38s, border-color .38s, background .38s;
 }
 .vote-card:hover {
   transform: translateY(-4px);
-  border-color: rgba(255,255,255,.4);
-  box-shadow: 0 22px 58px rgba(0,0,0,.5), 0 0 0 1px rgba(196,160,255,.22), inset 0 1px 0 rgba(255,255,255,.5);
+  background: linear-gradient(135deg, rgba(255,255,255,.18) 0%, rgba(255,255,255,.06) 100%);
+  border-color: rgba(255,255,255,.3);
+  box-shadow: 0 20px 40px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.4);
 }
 
 .vote-thumb {
@@ -311,7 +254,7 @@ body {
 .end-sub a:hover { color: #fff; }
 
 /* =========================================================
-   弹簧入场辅助 & Toast
+   弹簧辅助 & Toast
    ========================================================= */
 .springing { transition: none !important; }
 .toast {
@@ -330,35 +273,27 @@ body {
    ========================================================= */
 @media (max-width: 900px) {
   .card-container { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: .85rem; }
-  .bg-blob { width: 95vmax; height: 95vmax; filter: blur(26px) saturate(110%); opacity: .26; }
-  .bg-blob::before, .bg-blob::after { animation: none; opacity: .7; }
-  .blob-1 { top: -14vmax; left: -18vmax; }
-  .blob-2 { top: -14vmax; right: -18vmax; }
-  .blob-3, .blob-4 { display: none; }
 }
 
-/* 768px 以下：隐藏侧边栏，启用汉堡全屏菜单 */
 @media (max-width: 768px) {
   .sidebar { display: none; }
-  .sidebar:hover ~ .deck .slide { padding-left: 20px; } /* 取消推开 */
+  .sidebar:hover ~ .deck .slide { padding-left: 20px; }
   
   .slide { padding-left: 20px; padding-right: 20px; padding-top: 86px; }
   .home-stat { padding: .8rem 1rem; }
   .vote-card { width: 100%; }
   
-  /* 汉堡按钮 */
   .hamburger-btn {
     display: flex; position: fixed; top: 20px; left: 20px; z-index: 200;
     width: 46px; height: 46px; align-items: center; justify-content: center; border-radius: 14px;
-    background: linear-gradient(135deg, rgba(255,255,255,.16), rgba(255,255,255,.04));
-    backdrop-filter: blur(30px) saturate(180%); -webkit-backdrop-filter: blur(30px) saturate(180%);
-    border: 1px solid rgba(255,255,255,.22);
+    background: rgba(255,255,255,.08);
+    backdrop-filter: blur(24px) saturate(180%); -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid rgba(255,255,255,.15);
     box-shadow: 0 10px 30px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.35);
     color: #fff; cursor: pointer;
   }
   .hamburger-btn svg { width: 22px; height: 22px; }
 
-  /* 全屏菜单 */
   .mobile-menu {
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     position: fixed; inset: 0; z-index: 300;
