@@ -1,16 +1,19 @@
 /* =========================================================
-   侧边栏 / 舞台
+   获取 DOM
    ========================================================= */
-const slides   = Array.from(document.querySelectorAll('.slide'));
-const menuLinks= Array.from(document.querySelectorAll('.sidebar-menu a'));
-const deck     = document.getElementById('deck');
-const counter  = document.getElementById('counter');
-const prevBtn  = document.getElementById('prevBtn');
-const nextBtn  = document.getElementById('nextBtn');
+const slides = Array.from(document.querySelectorAll('.slide'));
+const menuLinks = Array.from(document.querySelectorAll('.sidebar-menu a'));
+const mobileLinks = Array.from(document.querySelectorAll('.mobile-menu-list a'));
+const deck = document.getElementById('deck');
 const tagFloat = document.getElementById('tagFloat');
-const tagText  = document.getElementById('tagText');
+const tagText = document.getElementById('tagText');
 
-const NAV_MAP = [0, 1, 2, 3, 4, 5, 6, 7, -1]; // slide 索引 -> 侧边栏索引（结尾页无）
+// 移动端汉堡菜单
+const hamburgerBtn = document.getElementById('hamburgerBtn');
+const mobileMenu = document.getElementById('mobileMenu');
+const mobileMenuClose = document.getElementById('mobileMenuClose');
+
+const NAV_MAP = [0, 1, 2, 3, 4, 5, 6, 7, -1]; // slide 索引 -> 侧边栏索引
 
 let idx = 0;
 let springs = [];
@@ -56,11 +59,11 @@ class Spring {
 
     const ay = (this.ty - this.y) * this.k - this.vy * this.d;
     this.vy += ay * dt;
-    this.y  += this.vy * dt;
+    this.y += this.vy * dt;
 
     const as = (this.ts - this.s) * this.k - this.vs * this.d;
     this.vs += as * dt;
-    this.s  += this.vs * dt;
+    this.s += this.vs * dt;
 
     this.el.style.transform = `translateY(${this.y}px) scale(${this.s})`;
 
@@ -72,13 +75,8 @@ class Spring {
     this.frame = requestAnimationFrame(this.tick);
   };
 
-  finish() {
-    this.reset();
-  }
-
-  cancel() {
-    this.reset();
-  }
+  finish() { this.reset(); }
+  cancel() { this.reset(); }
 
   reset() {
     this.running = false;
@@ -159,15 +157,12 @@ function flyTag() {
 }
 
 /* =========================================================
-   3. 切页
+   3. 切页逻辑
    ========================================================= */
 function updateNav() {
-  counter.textContent = (idx + 1) + ' / ' + slides.length;
-  prevBtn.disabled = idx === 0;
-  nextBtn.disabled = idx === slides.length - 1;
-
   const navIdx = NAV_MAP[idx];
   menuLinks.forEach((a, k) => a.classList.toggle('active', k === navIdx));
+  mobileLinks.forEach((a, k) => a.classList.toggle('active', k === navIdx));
 }
 
 function go(target) {
@@ -188,9 +183,6 @@ function go(target) {
   flyTag();
 }
 
-function next() { if (idx < slides.length - 1) go(idx + 1); }
-function prev() { if (idx > 0) go(idx - 1); }
-
 /* =========================================================
    4. 事件绑定
    ========================================================= */
@@ -202,8 +194,18 @@ menuLinks.forEach(a => {
   });
 });
 
-prevBtn.addEventListener('click', prev);
-nextBtn.addEventListener('click', next);
+// 移动端菜单事件
+if (hamburgerBtn) hamburgerBtn.addEventListener('click', () => mobileMenu.classList.add('active'));
+if (mobileMenuClose) mobileMenuClose.addEventListener('click', () => mobileMenu.classList.remove('active'));
+
+mobileLinks.forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    const t = parseInt(a.dataset.slide, 10);
+    if (!Number.isNaN(t)) go(t);
+    mobileMenu.classList.remove('active'); // 点击后自动关闭全屏
+  });
+});
 
 /* 卡片光斑跟随 */
 document.addEventListener('pointermove', e => {
