@@ -8,8 +8,6 @@
   --ink-2: rgba(230, 238, 255, .82);
   --ink-3: rgba(190, 205, 230, .58);
   --accent: #9cc4ff;
-  --accent-2: #c4a0ff;
-  --tag-h: 2.1rem;
   --bounce: cubic-bezier(.34, 1.56, .64, 1);
   --bounce-soft: cubic-bezier(.22, 1.2, .36, 1);
 }
@@ -22,38 +20,30 @@ body {
   color: var(--ink);
   overflow: hidden;
   -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
 }
 
-/* WebGL 背景画布 */
 #bg-canvas {
-  position: fixed;
-  top: 0; left: 0;
+  position: fixed; top: 0; left: 0;
   width: 100vw; height: 100vh;
-  z-index: -2;
-  pointer-events: none;
+  z-index: -2; pointer-events: none;
 }
 
 /* =========================================================
-   侧边栏 & 汉堡按钮 (保留磨砂)
+   侧边栏 & 汉堡菜单
    ========================================================= */
 .sidebar {
-  position: fixed;
-  left: 18px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 66px;
-  max-height: calc(100vh - 80px);
-  padding: .7rem .5rem;
+  position: fixed; left: 18px; top: 50%; transform: translateY(-50%);
+  width: 66px; max-height: calc(100vh - 80px); padding: .7rem .5rem;
   border-radius: 26px;
   background: rgba(255,255,255,.08);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  backdrop-filter: blur(24px) saturate(180%); -webkit-backdrop-filter: blur(24px) saturate(180%);
   border: 1px solid rgba(255,255,255,.15);
   box-shadow: 0 20px 60px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.35);
-  overflow-x: hidden;
-  overflow-y: auto;
-  transition: width .38s var(--bounce-soft);
-  z-index: 120;
+  overflow-x: hidden; overflow-y: auto;
+  transition: width .38s var(--bounce-soft); z-index: 120;
 }
 .sidebar::-webkit-scrollbar { width: 0; }
 .sidebar:hover { width: 208px; }
@@ -77,33 +67,6 @@ body {
 .sidebar:hover .label { opacity: 1; transform: translateX(0); }
 
 .hamburger-btn, .mobile-menu { display: none; }
-
-/* =========================================================
-   飞行标签
-   ========================================================= */
-.tag-slot {
-  height: var(--tag-h); align-self: flex-start; visibility: hidden;
-  margin-bottom: .9rem; flex: 0 0 auto;
-}
-.tag-slot::before {
-  content: attr(data-text); display: inline-block;
-  height: var(--tag-h); line-height: var(--tag-h);
-  padding: 0 1.2rem; font-size: .82rem; letter-spacing: .18em;
-  white-space: nowrap; box-sizing: border-box;
-}
-.tag-float {
-  position: fixed; top: 0; left: 0; height: var(--tag-h);
-  padding: 0 1.2rem; display: flex; align-items: center;
-  font-size: .82rem; letter-spacing: .18em; color: rgba(205, 228, 255, .95);
-  background: rgba(255,255,255,.08);
-  border: 1px solid rgba(255,255,255,.2); border-radius: 999px;
-  white-space: nowrap; overflow: hidden; pointer-events: none;
-  z-index: 90; transform-origin: top left;
-  box-shadow: 0 8px 30px rgba(0,0,0,.35);
-  backdrop-filter: blur(16px) saturate(160%); -webkit-backdrop-filter: blur(16px) saturate(160%);
-  will-change: transform, width;
-}
-.tag-float .tag-text { display: inline-block; will-change: transform, opacity; }
 
 /* =========================================================
    舞台 / 幻灯片
@@ -143,7 +106,7 @@ body {
 }
 
 /* =========================================================
-   卡片（性能优化：移除磨砂滤镜，用高光渐变模拟）
+   卡片
    ========================================================= */
 .card-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(238px, 1fr)); gap: 1rem; }
 .link-card {
@@ -162,11 +125,10 @@ body {
 }
 .link-card:active { transform: translateY(-2px) scale(.998); }
 .link-title { display: flex; align-items: center; gap: 10px; font-size: 1.02rem; font-weight: 600; color: #dce9ff; line-height: 1.35; }
-.card-icon { width: 21px; height: 21px; flex: 0 0 21px; color: var(--accent); }
 .link-card .desc { font-size: .84rem; color: var(--ink-3); margin-top: .55rem; line-height: 1.55; }
 
 /* =========================================================
-   首页
+   首页 & 投票
    ========================================================= */
 .hero-body { display: flex; }
 .hero { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: .5rem; padding-bottom: 60px; }
@@ -187,25 +149,10 @@ body {
 .thanks a { color: var(--accent); text-decoration: none; border-bottom: 1px dashed rgba(156,196,255,.5); }
 .thanks a:hover { color: #fff; }
 
-/* =========================================================
-   投票 (等宽网格，固定包住图片)
-   ========================================================= */
-.vote-grid {
-  display: inline-grid;
-  grid-template-columns: max-content; 
-  gap: 1rem;
-  max-width: 100%;
-}
-
+.vote-grid { display: inline-grid; grid-template-columns: max-content; gap: 1rem; max-width: 100%; }
 .vote-card {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  padding: .75rem 1.25rem;
-  border-radius: 18px;
-  text-decoration: none;
-  color: inherit;
-  overflow: hidden;
+  width: 100%; display: flex; flex-direction: column; padding: .75rem 1.25rem;
+  border-radius: 18px; text-decoration: none; color: inherit; overflow: hidden;
   background: linear-gradient(135deg, rgba(255,255,255,.12) 0%, rgba(255,255,255,.03) 100%);
   border: 1px solid rgba(255,255,255,.15);
   box-shadow: 0 10px 30px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.2);
@@ -217,24 +164,10 @@ body {
   border-color: rgba(255,255,255,.3);
   box-shadow: 0 20px 40px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.4);
 }
-
-.vote-thumb {
-  height: 60px;
-  width: fit-content;
-  align-self: center;
-  border-radius: 8px;
-  overflow: hidden;
-}
-.vote-thumb img {
-  display: block; height: 60px; width: auto; border-radius: 8px;
-  transition: transform .6s var(--bounce-soft);
-}
+.vote-thumb { height: 60px; width: fit-content; align-self: center; border-radius: 8px; overflow: hidden; }
+.vote-thumb img { display: block; height: 60px; width: auto; border-radius: 8px; transition: transform .6s var(--bounce-soft); }
 .vote-card:hover .vote-thumb img { transform: scale(1.03); }
-
-.vote-info {
-  display: flex; align-items: center; justify-content: center;
-  gap: 1rem; padding-top: .8rem;
-}
+.vote-info { display: flex; align-items: center; justify-content: center; gap: 1rem; padding-top: .8rem; }
 .vote-name { font-size: 1.5rem; font-weight: 700; color: #eaf2ff; letter-spacing: .02em; }
 .vote-btn {
   font-size: 1rem; padding: .55rem 1.5rem; border-radius: 999px;
@@ -244,17 +177,35 @@ body {
 .vote-card:hover .vote-btn { background: rgba(156,196,255,.3); color: #fff; }
 
 /* =========================================================
-   结尾
+   其他页专属（彩蛋与特效）
    ========================================================= */
-.end-body { display: flex; }
-.end-wrap { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 1.2rem; padding-bottom: 70px; }
-.big { font-size: clamp(2.4rem, 5.5vw, 4.6rem); font-weight: 900; line-height: 1.25; letter-spacing: .01em; }
-.end-sub { font-size: .95rem; color: var(--ink-3); letter-spacing: .04em; }
-.end-sub a { color: var(--accent); text-decoration: none; border-bottom: 1px dashed rgba(156,196,255,.5); }
-.end-sub a:hover { color: #fff; }
+.fatal-error-overlay {
+  position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  font-family: sans-serif; animation: fadeIn .2s ease forwards;
+}
+.fatal-error-overlay.blue-screen { background: #0078D7; color: white; }
+.fatal-error-overlay.mac-screen { background: #000; color: white; }
+.fatal-error-overlay.404-screen { background: #fff; color: #000; }
+
+.fatal-error-overlay h1 { font-size: 8rem; margin-bottom: 1rem; }
+.fatal-error-overlay p { font-size: 1.5rem; letter-spacing: .1em; }
+.fatal-error-overlay .countdown { margin-top: 2rem; font-size: 2rem; font-weight: bold; color: #ff4d4d; }
+
+.ghost-overlay {
+  position: fixed; inset: 0; z-index: 8000; background: rgba(30, 0, 50, 0.6); pointer-events: none; transition: opacity 1s;
+}
+.ghost-emoji {
+  position: absolute; top: -50px; font-size: 2rem; animation: fallDown linear forwards;
+}
+@keyframes fallDown {
+  0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(110vh) rotate(360deg); opacity: 0.5; }
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes spin { 100% { transform: rotate(360deg); } }
 
 /* =========================================================
-   弹簧辅助 & Toast
+   Toast
    ========================================================= */
 .springing { transition: none !important; }
 .toast {
@@ -278,7 +229,6 @@ body {
 @media (max-width: 768px) {
   .sidebar { display: none; }
   .sidebar:hover ~ .deck .slide { padding-left: 20px; }
-  
   .slide { padding-left: 20px; padding-right: 20px; padding-top: 86px; }
   .home-stat { padding: .8rem 1rem; }
   .vote-card { width: 100%; }

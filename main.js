@@ -119,84 +119,55 @@
 
 
 /* =========================================================
-   2. 获取 DOM
+   2. 基础变量与切页逻辑
    ========================================================= */
 const slides = Array.from(document.querySelectorAll('.slide'));
 const menuLinks = Array.from(document.querySelectorAll('.sidebar-menu a'));
 const mobileLinks = Array.from(document.querySelectorAll('.mobile-menu-list a'));
-const deck = document.getElementById('deck');
-const tagFloat = document.getElementById('tagFloat');
-const tagText = document.getElementById('tagText');
-
 const hamburgerBtn = document.getElementById('hamburgerBtn');
 const mobileMenu = document.getElementById('mobileMenu');
 const mobileMenuClose = document.getElementById('mobileMenuClose');
 
-const NAV_MAP = [0, 1, 2, 3, 4, 5, 6, 7, -1];
-
 let idx = 0;
 let springs = [];
 
-/* =========================================================
-   3. 弹簧引擎
-   ========================================================= */
 class Spring {
   constructor(el, delay = 0) {
     this.el = el;
     this.delay = delay;
-    this.y = 34;
-    this.s = 0.92;
-    this.vy = 0;
-    this.vs = 0;
-    this.k = 160;
-    this.d = 16;
-    this.ty = 0;
-    this.ts = 1;
-    this.running = false;
-    this.timer = null;
-    this.frame = null;
-    this.last = 0;
+    this.y = 34; this.s = 0.92;
+    this.vy = 0; this.vs = 0;
+    this.k = 160; this.d = 16;
+    this.ty = 0; this.ts = 1;
+    this.running = false; this.timer = null; this.frame = null; this.last = 0;
 
     el.classList.add('springing');
     el.style.opacity = '0';
     el.style.transform = `translateY(${this.y}px) scale(${this.s})`;
   }
-
   start() {
     this.timer = setTimeout(() => {
       this.el.style.opacity = '1';
-      this.running = true;
-      this.last = performance.now();
+      this.running = true; this.last = performance.now();
       this.frame = requestAnimationFrame(this.tick);
     }, this.delay);
   }
-
   tick = (now) => {
     if (!this.running) return;
     const dt = Math.min((now - this.last) / 1000, 1 / 30);
     this.last = now;
-
     const ay = (this.ty - this.y) * this.k - this.vy * this.d;
-    this.vy += ay * dt;
-    this.y += this.vy * dt;
-
+    this.vy += ay * dt; this.y += this.vy * dt;
     const as = (this.ts - this.s) * this.k - this.vs * this.d;
-    this.vs += as * dt;
-    this.s += this.vs * dt;
-
+    this.vs += as * dt; this.s += this.vs * dt;
     this.el.style.transform = `translateY(${this.y}px) scale(${this.s})`;
-
-    if (Math.abs(this.y) < .06 && Math.abs(this.vy) < .06 &&
-        Math.abs(this.s - 1) < .0006 && Math.abs(this.vs) < .0006) {
-      this.finish();
-      return;
+    if (Math.abs(this.y) < .06 && Math.abs(this.vy) < .06 && Math.abs(this.s - 1) < .0006 && Math.abs(this.vs) < .0006) {
+      this.finish(); return;
     }
     this.frame = requestAnimationFrame(this.tick);
   };
-
   finish() { this.reset(); }
   cancel() { this.reset(); }
-
   reset() {
     this.running = false;
     cancelAnimationFrame(this.frame);
@@ -210,100 +181,246 @@ class Spring {
 function playSprings(i) {
   springs.forEach(s => s.cancel());
   springs = [];
-
   const slide = slides[i];
   if (!slide) return;
-
   const els = slide.querySelectorAll('.link-card, .vote-card, .rise');
   els.forEach((el, k) => {
+    if (el.style.display === 'none') return;
     const sp = new Spring(el, 50 + k * 38);
     springs.push(sp);
     sp.start();
   });
 }
 
-/* =========================================================
-   4. 飞行标签
-   ========================================================= */
-function slotRect(slot) {
-  let x = 0, y = 0, el = slot;
-  while (el && el !== document.body) {
-    x += el.offsetLeft;
-    y += el.offsetTop;
-    el = el.offsetParent;
-  }
-  return { left: x, top: y, width: slot.offsetWidth };
-}
-
-function initTag() {
-  const slot = slides[idx] && slides[idx].querySelector('.tag-slot');
-  if (!slot) return;
-  const r = slotRect(slot);
-
-  tagFloat.style.transition = 'none';
-  tagFloat.style.transform = `translate(${r.left}px, ${r.top}px)`;
-  tagFloat.style.width = r.width + 'px';
-
-  tagText.textContent = slot.dataset.text || '';
-  tagText.style.transition = 'none';
-  tagText.style.opacity = '1';
-  tagText.style.transform = 'translateX(0)';
-}
-
-function flyTag() {
-  const slot = slides[idx] && slides[idx].querySelector('.tag-slot');
-  if (!slot) return;
-  const r = slotRect(slot);
-
-  tagText.style.transition = 'opacity .1s ease, transform .14s ease';
-  tagText.style.opacity = '0';
-  tagText.style.transform = 'translateX(-14px)';
-
-  setTimeout(() => {
-    tagText.textContent = slot.dataset.text || '';
-    tagText.style.transition = 'none';
-    tagText.style.transform = 'translateX(14px)';
-    void tagText.offsetWidth;
-    tagText.style.transition = 'opacity .22s ease, transform .26s cubic-bezier(.22,1,.36,1)';
-    tagText.style.opacity = '1';
-    tagText.style.transform = 'translateX(0)';
-  }, 110);
-
-  tagFloat.style.transition =
-    'transform .92s cubic-bezier(.22,1.2,.36,1), width .92s cubic-bezier(.22,1.2,.36,1)';
-  tagFloat.style.transform = `translate(${r.left}px, ${r.top}px)`;
-  tagFloat.style.width = r.width + 'px';
-}
-
-/* =========================================================
-   5. 切页逻辑
-   ========================================================= */
 function updateNav() {
-  const navIdx = NAV_MAP[idx];
-  menuLinks.forEach((a, k) => a.classList.toggle('active', k === navIdx));
-  mobileLinks.forEach((a, k) => a.classList.toggle('active', k === navIdx));
+  menuLinks.forEach((a, k) => a.classList.toggle('active', k === idx));
+  mobileLinks.forEach((a, k) => a.classList.toggle('active', k === idx));
 }
 
 function go(target) {
   if (target < 0 || target >= slides.length || target === idx) return;
-
   springs.forEach(s => s.cancel());
   springs = [];
-
   slides[idx].classList.remove('active');
   const body = slides[target].querySelector('.slide-body');
   if (body) body.scrollTop = 0;
-
   idx = target;
   slides[idx].classList.add('active');
-
   updateNav();
   playSprings(idx);
-  flyTag();
 }
 
+
 /* =========================================================
-   6. 事件绑定
+   3. 其他页面彩蛋机制
+   ========================================================= */
+const trapCard = document.getElementById('trapCard');
+const trapProgress = document.getElementById('trapProgress');
+const eggGhost = document.getElementById('eggGhost');
+const eggEscape = document.getElementById('eggEscape');
+const otherContainer = document.getElementById('otherContainer');
+
+let pressTimer = null;
+let progressInterval = null;
+let pressStartTime = 0;
+let isLongPressed = false;
+let isUnlocked = false;
+
+function handlePressStart(e) {
+  if (e.type === 'mousedown' && e.button !== 0) return; // 只响应左键
+  if (e.type === 'touchstart') e.preventDefault();
+  
+  isLongPressed = false;
+  pressStartTime = Date.now();
+  trapProgress.style.width = '0%';
+  
+  let start = Date.now();
+  progressInterval = setInterval(() => {
+    let elapsed = Date.now() - start;
+    let percent = Math.min((elapsed / 3000) * 100, 100);
+    trapProgress.style.width = percent + '%';
+  }, 20);
+  
+  pressTimer = setTimeout(() => {
+    isLongPressed = true;
+    clearInterval(progressInterval);
+    trapProgress.style.width = '100%';
+    
+    if (!isUnlocked) {
+      isUnlocked = true;
+      eggGhost.style.display = 'block';
+      eggEscape.style.display = 'block';
+      toast('发现隐藏彩蛋！');
+      playSprings(idx); // 重新触发入场动画
+    }
+    
+    // 长按成功后自动复位进度条
+    setTimeout(() => { trapProgress.style.width = '0%'; }, 300);
+  }, 3000);
+}
+
+function handlePressEnd(e) {
+  if (e.type === 'touchend') e.preventDefault();
+  
+  clearTimeout(pressTimer);
+  clearInterval(progressInterval);
+  
+  if (!isLongPressed) {
+    trapProgress.style.width = '0%';
+    const duration = Date.now() - pressStartTime;
+    // 大于 100ms 且小于 3秒，才算单击。防止滑动误触
+    if (duration < 3000) {
+      triggerRandomEvent();
+    }
+  }
+}
+
+// 绑定事件
+trapCard.addEventListener('mousedown', handlePressStart);
+trapCard.addEventListener('touchstart', handlePressStart, { passive: false });
+
+trapCard.addEventListener('mouseup', handlePressEnd);
+trapCard.addEventListener('touchend', handlePressEnd);
+
+trapCard.addEventListener('mouseleave', () => {
+  if (!isLongPressed) {
+    clearTimeout(pressTimer);
+    clearInterval(progressInterval);
+    trapProgress.style.width = '0%';
+  }
+});
+
+// 随机报错或跳转
+function triggerRandomEvent() {
+  const rickroll = 'https://www.bilibili.com/video/BV1GJ411x7h7';
+  const rand = Math.floor(Math.random() * 4);
+
+  if (rand === 0) {
+    window.open(rickroll, '_blank');
+  } else if (rand === 1) {
+    showErrorOverlay('blue');
+  } else if (rand === 2) {
+    showErrorOverlay('mac');
+  } else {
+    showErrorOverlay('404');
+  }
+}
+
+function showErrorOverlay(type) {
+  const overlay = document.createElement('div');
+  overlay.className = 'fatal-error-overlay';
+  let html = '';
+
+  if (type === 'blue') {
+    overlay.classList.add('blue-screen');
+    html = `<h1>:(</h1><p>你的电脑遇到问题，需要重新启动。</p><div class="countdown" id="errCount">3</div>`;
+  } else if (type === 'mac') {
+    overlay.classList.add('mac-screen');
+    html = `<div style="width:40px;height:40px;border:4px solid #ccc;border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:20px;"></div><p>系统无响应，正在重启...</p><div class="countdown" id="errCount" style="color:#fff;">3</div>`;
+  } else {
+    overlay.classList.add('404-screen');
+    html = `<h1>404</h1><p>网页已崩溃，数据丢失。</p><div class="countdown" id="errCount">3</div>`;
+  }
+
+  overlay.innerHTML = html;
+  document.body.appendChild(overlay);
+
+  let count = 3;
+  const countdownEl = overlay.querySelector('#errCount');
+  const timer = setInterval(() => {
+    count--;
+    if (countdownEl) countdownEl.textContent = count;
+    if (count <= 0) {
+      clearInterval(timer);
+      // 不跳转，不消失，永远卡死
+      if (countdownEl) countdownEl.textContent = '0';
+    }
+  }, 1000);
+}
+
+// 百鬼夜行
+eggGhost.addEventListener('click', () => {
+  const overlay = document.createElement('div');
+  overlay.className = 'ghost-overlay';
+  document.body.appendChild(overlay);
+
+  const emojis = ['👻', '🎃', '🦇', '🧛', '🧟', '🕷️', '🕸️'];
+  
+  for (let i = 0; i < 50; i++) {
+    setTimeout(() => {
+      const span = document.createElement('span');
+      span.className = 'ghost-emoji';
+      span.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      span.style.left = Math.random() * 100 + 'vw';
+      span.style.fontSize = (Math.random() * 2 + 1) + 'rem';
+      span.style.animationDuration = (Math.random() * 2 + 2) + 's';
+      overlay.appendChild(span);
+    }, i * 100); 
+  }
+
+  setTimeout(() => {
+    overlay.style.opacity = '0';
+    setTimeout(() => overlay.remove(), 1000);
+  }, 5000);
+});
+
+// 愚人节逃跑 (全局距离检测)
+function dodge() {
+  if (eggEscape.style.display === 'none') return;
+
+  const cRect = otherContainer.getBoundingClientRect();
+  const eRect = eggEscape.getBoundingClientRect();
+
+  const maxX = cRect.width - eRect.width;
+  const maxY = cRect.height - eRect.height;
+
+  if (maxX <= 0 || maxY <= 0) return;
+
+  // 随机生成新位置
+  const newX = Math.random() * maxX;
+  const newY = Math.random() * maxY;
+
+  eggEscape.style.left = `${newX}px`;
+  eggEscape.style.top = `${newY}px`;
+  
+  eggEscape.style.transition = 'left 0.2s ease, top 0.2s ease';
+  setTimeout(() => { eggEscape.style.transition = 'none'; }, 200);
+}
+
+// 监听鼠标位置，距离小于 150px 则逃跑
+otherContainer.addEventListener('mousemove', (e) => {
+  if (eggEscape.style.display === 'none') return;
+  
+  const eRect = eggEscape.getBoundingClientRect();
+  const centerX = eRect.left + eRect.width / 2;
+  const centerY = eRect.top + eRect.height / 2;
+  
+  const dist = Math.hypot(e.clientX - centerX, e.clientY - centerY);
+  
+  if (dist < 150) {
+    dodge();
+  }
+});
+
+// 手机端全局触摸检测
+otherContainer.addEventListener('touchmove', (e) => {
+  if (eggEscape.style.display === 'none' || !e.touches.length) return;
+  
+  const touch = e.touches[0];
+  const eRect = eggEscape.getBoundingClientRect();
+  const centerX = eRect.left + eRect.width / 2;
+  const centerY = eRect.top + eRect.height / 2;
+  
+  const dist = Math.hypot(touch.clientX - centerX, touch.clientY - centerY);
+  
+  if (dist < 150) {
+    dodge();
+  }
+}, { passive: true });
+
+
+/* =========================================================
+   4. 通用事件与初始化
    ========================================================= */
 menuLinks.forEach(a => {
   a.addEventListener('click', e => {
@@ -325,7 +442,6 @@ mobileLinks.forEach(a => {
   });
 });
 
-/* 复制链接 */
 window.copyLink = function (text) {
   const done = () => toast('已复制链接：' + text);
   const fallback = () => {
@@ -362,17 +478,7 @@ function toast(msg) {
   toastTimer = setTimeout(() => el.classList.remove('show'), 2000);
 }
 
-/* =========================================================
-   7. 初始化
-   ========================================================= */
 window.addEventListener('load', () => {
-  initTag();
   playSprings(idx);
 });
-window.addEventListener('resize', () => {
-  tagFloat.style.transition = 'none';
-  initTag();
-});
-
 updateNav();
-requestAnimationFrame(initTag);
