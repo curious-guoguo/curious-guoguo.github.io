@@ -14,6 +14,7 @@
     precision highp float;
     uniform float u_time;
     uniform vec2 u_resolution;
+    uniform float u_brightness;
 
     vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
     vec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
@@ -67,6 +68,7 @@
         
         float vignette = smoothstep(1.2, 0.3, length(uv - vec2(0.5)));
         color *= vignette;
+        color *= u_brightness;
 
         gl_FragColor = vec4(color, 1.0);
     }
@@ -98,6 +100,7 @@
 
   const uTime = gl.getUniformLocation(program, 'u_time');
   const uRes = gl.getUniformLocation(program, 'u_resolution');
+  const uBrightness = gl.getUniformLocation(program, 'u_brightness');
 
   function resize() {
     canvas.width = window.innerWidth;
@@ -108,7 +111,14 @@
   resize();
 
   let startTime = performance.now();
+  let targetBrightness = 1.0;
+  let currentBrightness = 1.0;
+
+  window.setBgBrightness = (val) => { targetBrightness = val; };
+
   function render(time) {
+    currentBrightness += (targetBrightness - currentBrightness) * 0.05;
+    gl.uniform1f(uBrightness, currentBrightness);
     gl.uniform1f(uTime, (time - startTime) * 0.001);
     gl.uniform2f(uRes, canvas.width, canvas.height);
     gl.drawArrays(gl.TRIANGLES, 0, 6);
@@ -212,13 +222,203 @@ function go(target) {
 
 
 /* =========================================================
-   3. 其他页面彩蛋机制
+   3. 8-bit 音乐合成器
+   ========================================================= */
+class AudioSynth {
+  constructor() {
+    this.ctx = null;
+    this.currentNodes = [];
+  }
+
+  init() {
+    if (!this.ctx) {
+      this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (this.ctx.state === 'suspended') {
+      this.ctx.resume();
+    }
+  }
+
+  stop() {
+    this.currentNodes.forEach(n => {
+      try { n.stop(); } catch(e) {}
+    });
+    this.currentNodes = [];
+  }
+
+  playTone(freq, duration, type = 'square', startTime = 0) {
+    if (!this.ctx) return;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    
+    osc.type = type;
+    osc.frequency.value = freq;
+    
+    const now = this.ctx.currentTime + startTime;
+    gain.gain.setValueAtTime(0, now);
+    gain.gain.linearRampToValueAtTime(0.1, now + 0.05);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    
+    osc.start(now);
+    osc.stop(now + duration);
+    
+    this.currentNodes.push(osc);
+  }
+}
+
+const synth = new AudioSynth();
+
+const NOTES = {
+  'C4': 261.63, 'D4': 293.66, 'E4': 329.63, 'F4': 349.23, 'G4': 392.00, 'A4': 440.00, 'B4': 493.88,
+  'C5': 523.25, 'D5': 587.33, 'E5': 659.25, 'F5': 698.46, 'G5': 783.99, 'A5': 880.00, 'B5': 987.77,
+};
+
+function playJingleBells() {
+  synth.init();
+  synth.stop();
+  const seq = [
+    ['E5', 0.25], ['E5', 0.25], ['E5', 0.5],
+    ['E5', 0.25], ['E5', 0.25], ['E5', 0.5],
+    ['E5', 0.25], ['G5', 0.25], ['C5', 0.5], ['D5', 0.25], ['E5', 1.0],
+    ['F5', 0.25], ['F5', 0.25], ['F5', 0.25], ['F5', 0.25],
+    ['F5', 0.25], ['E5', 0.25], ['E5', 0.25], ['E5', 0.25],
+    ['E5', 0.25], ['D5', 0.25], ['D5', 0.25], ['E5', 0.25], ['D5', 0.5], ['G5', 0.5]
+  ];
+  let t = 0;
+  for (let [note, dur] of seq) {
+    synth.playTone(NOTES[note], dur, 'square', t);
+    t += dur;
+  }
+}
+
+function playSpookySound() {
+  synth.init();
+  synth.stop();
+  synth.playTone(150, 0.5, 'sawtooth', 0);
+  synth.playTone(130, 0.5, 'sawtooth', 0.5);
+  synth.playTone(100, 1.0, 'sawtooth', 1.0);
+}
+
+function playHappySound() {
+  synth.init();
+  synth.stop();
+  synth.playTone(NOTES['C5'], 0.15, 'sine', 0);
+  synth.playTone(NOTES['E5'], 0.15, 'sine', 0.15);
+  synth.playTone(NOTES['G5'], 0.3, 'sine', 0.3);
+}
+
+function playFireworkSound() {
+  synth.init();
+  synth.stop();
+  synth.playTone(800, 0.2, 'triangle', 0);
+  synth.playTone(600, 0.3, 'triangle', 0.2);
+}
+
+
+/* =========================================================
+   4. 节日配置与日期计算
+   ========================================================= */
+function getEasterDate(year) {
+  const f = Math.floor, G = year % 19, C = f(year / 100), H = (C - f(C / 4) - f((8 * C + 13) / 25) + 19 * G + 15) % 30;
+  const I = H - f(H / 28) * (1 - f(29 / (H + 1)) * f((21 - G) / 11)), J = (year + f(year / 4) + I + 2 - C + f(C / 4)) % 7;
+  const L = I - J, month = 3 + f((L + 40) / 44), day = L + 28 - 31 * f(month / 4);
+  return new Date(year, month - 1, day);
+}
+
+const FESTIVALS = [
+  {
+    id: 'new_year', name: '🎆 元旦快乐', desc: '新年烟花，点亮夜空',
+    check: (d) => d.getMonth() === 0 && d.getDate() === 1,
+    emojis: ['🎆', '🎇', '🥂', '✨'],
+    action: () => { playFireworkSound(); window.setBgBrightness(1.8); }
+  },
+  {
+    id: 'april_fool', name: '🤡 愚人节快乐', desc: '你永远也抓不到我！',
+    check: (d) => d.getMonth() === 3 && d.getDate() === 1,
+    isEscape: true,
+    emojis: [],
+    action: () => {}
+  },
+  {
+    id: 'easter', name: '🐰 复活节', desc: '寻找属于你的彩蛋',
+    check: (d) => {
+      const e = getEasterDate(d.getFullYear());
+      return d.getMonth() === e.getMonth() && d.getDate() === e.getDate();
+    },
+    emojis: ['🐰', '🥚', '🌷', '🐣'],
+    bounce: true,
+    action: () => { playHappySound(); window.setBgBrightness(1.2); }
+  },
+  {
+    id: 'mother', name: '🌷 母亲节', desc: '妈妈辛苦了',
+    check: (d) => {
+      if (d.getMonth() !== 4) return false;
+      const firstDay = new Date(d.getFullYear(), 4, 1).getDay();
+      const secondSunday = (firstDay === 0) ? 8 : 15 - firstDay;
+      return d.getDate() === secondSunday;
+    },
+    emojis: ['💖', '🌸', '💐', '💝'],
+    action: () => { playHappySound(); window.setBgBrightness(1.3); }
+  },
+  {
+    id: 'father', name: '👔 父亲节', desc: '爸爸辛苦了',
+    check: (d) => {
+      if (d.getMonth() !== 5) return false;
+      const firstDay = new Date(d.getFullYear(), 5, 1).getDay();
+      const thirdSunday = (firstDay === 0) ? 15 : 22 - firstDay;
+      return d.getDate() === thirdSunday;
+    },
+    emojis: ['👔', '🎣', '🎁', '🍺'],
+    action: () => { playHappySound(); window.setBgBrightness(1.2); }
+  },
+  {
+    id: 'halloween_eve', name: '🎃 万圣节前夜', desc: '百鬼夜行，群魔乱舞',
+    check: (d) => d.getMonth() === 9 && d.getDate() === 30,
+    emojis: ['👻', '🎃', '🦇', '🧛'],
+    action: () => { playSpookySound(); window.setBgBrightness(0.4); }
+  },
+  {
+    id: 'halloween', name: '🎃 万圣节', desc: '不给糖就捣蛋',
+    check: (d) => d.getMonth() === 9 && d.getDate() === 31,
+    emojis: ['👻', '🎃', '🦇', '🧟'],
+    action: () => { playSpookySound(); window.setBgBrightness(0.4); }
+  },
+  {
+    id: 'thanksgiving', name: '🦃 感恩节', desc: '感恩节大餐',
+    check: (d) => {
+      if (d.getMonth() !== 10) return false;
+      const firstDay = new Date(d.getFullYear(), 10, 1).getDay();
+      const fourthThursday = (firstDay <= 4) ? 22 + (4 - firstDay) : 29 - (firstDay - 4);
+      return d.getDate() === fourthThursday;
+    },
+    emojis: ['🦃', '🍗', '🥧', '🍂'],
+    action: () => { playHappySound(); window.setBgBrightness(1.2); }
+  },
+  {
+    id: 'xmas_eve', name: '🎄 平安夜', desc: '圣诞前夕，雪花飘落',
+    check: (d) => d.getMonth() === 11 && d.getDate() === 24,
+    emojis: ['❄️', '🎁', '🎅', '🦌'],
+    action: () => { playJingleBells(); window.setBgBrightness(1.5); }
+  },
+  {
+    id: 'xmas', name: '🎄 圣诞节', desc: 'Merry Christmas!',
+    check: (d) => d.getMonth() === 11 && d.getDate() === 25,
+    emojis: ['❄️', '🎄', '🎁', '🎅'],
+    action: () => { playJingleBells(); window.setBgBrightness(1.5); }
+  }
+];
+
+
+/* =========================================================
+   5. 其他页彩蛋与卡片生成逻辑
    ========================================================= */
 const trapCard = document.getElementById('trapCard');
 const trapProgress = document.getElementById('trapProgress');
-const eggGhost = document.getElementById('eggGhost');
-const eggEscape = document.getElementById('eggEscape');
 const otherContainer = document.getElementById('otherContainer');
+const cardsHolder = document.getElementById('festival-cards-holder');
 
 let pressTimer = null;
 let progressInterval = null;
@@ -226,8 +426,83 @@ let pressStartTime = 0;
 let isLongPressed = false;
 let isUnlocked = false;
 
+function initHolidays() {
+  const today = new Date();
+  const activeHolidays = FESTIVALS.filter(f => f.check(today));
+  activeHolidays.forEach(f => renderFestivalCard(f));
+}
+
+function renderFestivalCard(f) {
+  if (document.getElementById(`card-${f.id}`)) return;
+
+  const card = document.createElement('div');
+  card.id = `card-${f.id}`;
+  card.className = 'link-card';
+  
+  if (f.isEscape) {
+    card.style.position = 'fixed'; // 破出网格，全屏定位
+    card.style.zIndex = '9999';    // 置顶，防止被遮挡
+    card.style.width = '200px';
+    card.style.display = 'none';   // 初始隐藏，长按才显示
+    card.innerHTML = `<div class="link-title" style="color: #c4a0ff;">${f.name}</div><div class="desc">${f.desc}</div>`;
+  } else {
+    card.innerHTML = `<div class="link-title" style="color: #ff9d00;">${f.name}</div><div class="desc">${f.desc}</div>`;
+    card.addEventListener('click', () => {
+      playFestivalEffect(f);
+    });
+  }
+
+  cardsHolder.appendChild(card);
+}
+
+function playFestivalEffect(f) {
+  synth.stop();
+  window.setBgBrightness(1.0);
+  
+  const existingOverlay = document.querySelector('.effect-overlay');
+  if (existingOverlay) existingOverlay.remove();
+
+  f.action();
+
+  if (f.emojis.length === 0) return;
+
+  const overlay = document.createElement('div');
+  overlay.className = 'effect-overlay';
+  document.body.appendChild(overlay);
+
+  const animClass = f.bounce ? 'bouncing-emoji' : 'falling-emoji';
+
+  for (let i = 0; i < 60; i++) {
+    setTimeout(() => {
+      const span = document.createElement('span');
+      span.className = animClass;
+      span.textContent = f.emojis[Math.floor(Math.random() * f.emojis.length)];
+      
+      if (f.bounce) {
+        span.style.left = '-50px';
+        span.style.top = '0px';
+        span.style.animationDuration = (Math.random() * 1 + 1.5) + 's';
+        span.style.animationDelay = '0s';
+      } else {
+        span.style.left = Math.random() * 100 + 'vw';
+        span.style.fontSize = (Math.random() * 2 + 1) + 'rem';
+        span.style.animationDuration = (Math.random() * 2 + 2) + 's';
+      }
+      overlay.appendChild(span);
+    }, i * 80);
+  }
+
+  setTimeout(() => {
+    overlay.style.opacity = '0';
+    setTimeout(() => {
+      overlay.remove();
+      window.setBgBrightness(1.0); 
+    }, 1000);
+  }, 5000);
+}
+
 function handlePressStart(e) {
-  if (e.type === 'mousedown' && e.button !== 0) return; // 只响应左键
+  if (e.type === 'mousedown' && e.button !== 0) return;
   if (e.type === 'touchstart') e.preventDefault();
   
   isLongPressed = false;
@@ -248,13 +523,15 @@ function handlePressStart(e) {
     
     if (!isUnlocked) {
       isUnlocked = true;
-      eggGhost.style.display = 'block';
-      eggEscape.style.display = 'block';
-      toast('发现隐藏彩蛋！');
-      playSprings(idx); // 重新触发入场动画
+      FESTIVALS.forEach(f => {
+        renderFestivalCard(f);
+        const card = document.getElementById(`card-${f.id}`);
+        if (card && card.style.display === 'none') card.style.display = 'block';
+      });
+      toast('发现全部隐藏彩蛋！');
+      playSprings(idx);
     }
     
-    // 长按成功后自动复位进度条
     setTimeout(() => { trapProgress.style.width = '0%'; }, 300);
   }, 3000);
 }
@@ -268,20 +545,16 @@ function handlePressEnd(e) {
   if (!isLongPressed) {
     trapProgress.style.width = '0%';
     const duration = Date.now() - pressStartTime;
-    // 大于 100ms 且小于 3秒，才算单击。防止滑动误触
     if (duration < 3000) {
       triggerRandomEvent();
     }
   }
 }
 
-// 绑定事件
 trapCard.addEventListener('mousedown', handlePressStart);
 trapCard.addEventListener('touchstart', handlePressStart, { passive: false });
-
 trapCard.addEventListener('mouseup', handlePressEnd);
 trapCard.addEventListener('touchend', handlePressEnd);
-
 trapCard.addEventListener('mouseleave', () => {
   if (!isLongPressed) {
     clearTimeout(pressTimer);
@@ -290,137 +563,136 @@ trapCard.addEventListener('mouseleave', () => {
   }
 });
 
-// 随机报错或跳转
 function triggerRandomEvent() {
   const rickroll = 'https://www.bilibili.com/video/BV1GJ411x7h7';
   const rand = Math.floor(Math.random() * 4);
 
+  const reqFullscreen = () => {
+    const el = document.documentElement;
+    if (el.requestFullscreen) el.requestFullscreen().catch(() => {});
+    else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen().catch(() => {});
+  };
+
   if (rand === 0) {
+    // B站：不全屏，直接打开新标签页
     window.open(rickroll, '_blank');
   } else if (rand === 1) {
+    // 蓝屏：全屏 + 永久卡死
+    reqFullscreen();
     showErrorOverlay('blue');
   } else if (rand === 2) {
+    // Mac：全屏 + 永久卡死
+    reqFullscreen();
     showErrorOverlay('mac');
   } else {
+    // 404：不全屏 + 永久卡死
     showErrorOverlay('404');
   }
 }
 
 function showErrorOverlay(type) {
+  if (document.querySelector('.fatal-error-overlay')) return;
+
   const overlay = document.createElement('div');
   overlay.className = 'fatal-error-overlay';
   let html = '';
 
   if (type === 'blue') {
     overlay.classList.add('blue-screen');
-    html = `<h1>:(</h1><p>你的电脑遇到问题，需要重新启动。</p><div class="countdown" id="errCount">3</div>`;
+    html = `<h1>:(</h1><p>你的电脑遇到问题，需要重新启动。</p>`;
   } else if (type === 'mac') {
     overlay.classList.add('mac-screen');
-    html = `<div style="width:40px;height:40px;border:4px solid #ccc;border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:20px;"></div><p>系统无响应，正在重启...</p><div class="countdown" id="errCount" style="color:#fff;">3</div>`;
+    html = `<div style="width:40px;height:40px;border:4px solid #ccc;border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:20px;"></div><p>系统无响应，正在重启...</p>`;
   } else {
     overlay.classList.add('404-screen');
-    html = `<h1>404</h1><p>网页已崩溃，数据丢失。</p><div class="countdown" id="errCount">3</div>`;
+    html = `<h1>404</h1><p>网页已崩溃，数据丢失。</p>`;
   }
 
   overlay.innerHTML = html;
   document.body.appendChild(overlay);
-
-  let count = 3;
-  const countdownEl = overlay.querySelector('#errCount');
-  const timer = setInterval(() => {
-    count--;
-    if (countdownEl) countdownEl.textContent = count;
-    if (count <= 0) {
-      clearInterval(timer);
-      // 不跳转，不消失，永远卡死
-      if (countdownEl) countdownEl.textContent = '0';
-    }
-  }, 1000);
 }
-
-// 百鬼夜行
-eggGhost.addEventListener('click', () => {
-  const overlay = document.createElement('div');
-  overlay.className = 'ghost-overlay';
-  document.body.appendChild(overlay);
-
-  const emojis = ['👻', '🎃', '🦇', '🧛', '🧟', '🕷️', '🕸️'];
-  
-  for (let i = 0; i < 50; i++) {
-    setTimeout(() => {
-      const span = document.createElement('span');
-      span.className = 'ghost-emoji';
-      span.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-      span.style.left = Math.random() * 100 + 'vw';
-      span.style.fontSize = (Math.random() * 2 + 1) + 'rem';
-      span.style.animationDuration = (Math.random() * 2 + 2) + 's';
-      overlay.appendChild(span);
-    }, i * 100); 
-  }
-
-  setTimeout(() => {
-    overlay.style.opacity = '0';
-    setTimeout(() => overlay.remove(), 1000);
-  }, 5000);
-});
-
-// 愚人节逃跑 (全局距离检测)
-function dodge() {
-  if (eggEscape.style.display === 'none') return;
-
-  const cRect = otherContainer.getBoundingClientRect();
-  const eRect = eggEscape.getBoundingClientRect();
-
-  const maxX = cRect.width - eRect.width;
-  const maxY = cRect.height - eRect.height;
-
-  if (maxX <= 0 || maxY <= 0) return;
-
-  // 随机生成新位置
-  const newX = Math.random() * maxX;
-  const newY = Math.random() * maxY;
-
-  eggEscape.style.left = `${newX}px`;
-  eggEscape.style.top = `${newY}px`;
-  
-  eggEscape.style.transition = 'left 0.2s ease, top 0.2s ease';
-  setTimeout(() => { eggEscape.style.transition = 'none'; }, 200);
-}
-
-// 监听鼠标位置，距离小于 150px 则逃跑
-otherContainer.addEventListener('mousemove', (e) => {
-  if (eggEscape.style.display === 'none') return;
-  
-  const eRect = eggEscape.getBoundingClientRect();
-  const centerX = eRect.left + eRect.width / 2;
-  const centerY = eRect.top + eRect.height / 2;
-  
-  const dist = Math.hypot(e.clientX - centerX, e.clientY - centerY);
-  
-  if (dist < 150) {
-    dodge();
-  }
-});
-
-// 手机端全局触摸检测
-otherContainer.addEventListener('touchmove', (e) => {
-  if (eggEscape.style.display === 'none' || !e.touches.length) return;
-  
-  const touch = e.touches[0];
-  const eRect = eggEscape.getBoundingClientRect();
-  const centerX = eRect.left + eRect.width / 2;
-  const centerY = eRect.top + eRect.height / 2;
-  
-  const dist = Math.hypot(touch.clientX - centerX, touch.clientY - centerY);
-  
-  if (dist < 150) {
-    dodge();
-  }
-}, { passive: true });
 
 
 /* =========================================================
-   4. 通用事件与初始化
+   6. 愚人节磁铁排斥 (限制转向速度 + 三点一线反方向 R 距离)
+   ========================================================= */
+let mouseX = 0, mouseY = 0;
+let currentAngle = Math.PI; // 卡片当前所处的角度
+let isEscaping = false;
+
+function startEscapeLoop() {
+  if (isEscaping) return;
+  isEscaping = true;
+
+  function update() {
+    const eggEscape = document.getElementById('card-april_fool');
+    // 如果卡片不存在或未显示，停止循环
+    if (!eggEscape || eggEscape.style.display === 'none') {
+      isEscaping = false;
+      return;
+    }
+
+    const rect = eggEscape.getBoundingClientRect();
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
+
+    // 计算鼠标相对于屏幕中心的角度
+    let dx = mouseX - centerX;
+    let dy = mouseY - centerY;
+    if (Math.abs(dx) < 1 && Math.abs(dy) < 1) {
+      dx = 1; dy = 0;
+    }
+
+    const mouseAngle = Math.atan2(dy, dx);
+    // 目标角度是鼠标的反方向 (加上 PI)
+    const targetAngle = mouseAngle + Math.PI;
+
+    // 【关键逻辑】计算角度差，并限制每次转向的速度
+    let deltaAngle = targetAngle - currentAngle;
+    
+    // 规范化角度差到 -PI 到 PI 之间，保证走最短路径
+    while (deltaAngle > Math.PI) deltaAngle -= Math.PI * 2;
+    while (deltaAngle < -Math.PI) deltaAngle += Math.PI * 2;
+
+    // 【控制转向速度】0.08 是转向速度，越小转得越慢越平滑
+    const turnSpeed = 0.08; 
+    currentAngle += deltaAngle * turnSpeed;
+
+    // 半径 R = 屏幕短边的 50%
+    const R = Math.min(window.innerWidth, window.innerHeight) * 0.5;
+
+    // 根据平滑过渡后的当前角度，计算卡片的绝对坐标
+    const targetCx = mouseX + Math.cos(currentAngle) * R;
+    const targetCy = mouseY + Math.sin(currentAngle) * R;
+
+    // 绝对定位，不加 transition (因为 rAF 循环本身就是在逐帧做动画)
+    eggEscape.style.transition = 'none';
+    eggEscape.style.left = `${targetCx - rect.width / 2}px`;
+    eggEscape.style.top = `${targetCy - rect.height / 2}px`;
+
+    requestAnimationFrame(update);
+  }
+
+  requestAnimationFrame(update);
+}
+
+// 监听鼠标，只负责更新坐标
+window.addEventListener('mousemove', (e) => {
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+  startEscapeLoop();
+});
+
+// 手机端触摸监听
+window.addEventListener('touchmove', (e) => {
+  if (!e.touches.length) return;
+  mouseX = e.touches[0].clientX;
+  mouseY = e.touches[0].clientY;
+  startEscapeLoop();
+}, { passive: true });
+
+/* =========================================================
+   7. 通用事件与初始化
    ========================================================= */
 menuLinks.forEach(a => {
   a.addEventListener('click', e => {
@@ -479,6 +751,7 @@ function toast(msg) {
 }
 
 window.addEventListener('load', () => {
+  initHolidays();
   playSprings(idx);
 });
 updateNav();

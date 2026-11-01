@@ -85,7 +85,6 @@ body {
   transition: opacity .5s ease, transform .6s var(--bounce-soft), visibility 0s, padding-left .38s var(--bounce-soft);
   z-index: 2;
 }
-
 .sidebar:hover ~ .deck .slide { padding-left: 276px; }
 
 .slide-body {
@@ -106,9 +105,15 @@ body {
 }
 
 /* =========================================================
-   卡片
+   卡片 (网格对齐修复)
    ========================================================= */
-.card-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(238px, 1fr)); gap: 1rem; }
+.card-container { 
+  display: grid; 
+  grid-template-columns: repeat(auto-fill, minmax(238px, 1fr)); 
+  gap: 1rem; 
+  align-items: start; /* 【关键修复】让卡片不被拉长，保持自身高度 */
+}
+
 .link-card {
   position: relative; display: block; padding: 1.15rem 1.25rem; border-radius: 20px;
   text-decoration: none; color: inherit; cursor: pointer; overflow: hidden;
@@ -177,29 +182,40 @@ body {
 .vote-card:hover .vote-btn { background: rgba(156,196,255,.3); color: #fff; }
 
 /* =========================================================
-   其他页专属（彩蛋与特效）
+   彩蛋特效与报错
    ========================================================= */
 .fatal-error-overlay {
-  position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  position: fixed; inset: 0; z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center;
   font-family: sans-serif; animation: fadeIn .2s ease forwards;
+  pointer-events: auto; cursor: not-allowed;
 }
 .fatal-error-overlay.blue-screen { background: #0078D7; color: white; }
 .fatal-error-overlay.mac-screen { background: #000; color: white; }
 .fatal-error-overlay.404-screen { background: #fff; color: #000; }
-
 .fatal-error-overlay h1 { font-size: 8rem; margin-bottom: 1rem; }
 .fatal-error-overlay p { font-size: 1.5rem; letter-spacing: .1em; }
-.fatal-error-overlay .countdown { margin-top: 2rem; font-size: 2rem; font-weight: bold; color: #ff4d4d; }
 
-.ghost-overlay {
-  position: fixed; inset: 0; z-index: 8000; background: rgba(30, 0, 50, 0.6); pointer-events: none; transition: opacity 1s;
+/* 掉落与弹跳特效 */
+.effect-overlay {
+  position: fixed; inset: 0; z-index: 8000; pointer-events: none; transition: opacity 1s;
 }
-.ghost-emoji {
+.falling-emoji {
   position: absolute; top: -50px; font-size: 2rem; animation: fallDown linear forwards;
 }
+.bouncing-emoji {
+  position: absolute; font-size: 2.5rem; animation: bounceAround 2s linear forwards;
+}
+
 @keyframes fallDown {
   0% { transform: translateY(0) rotate(0deg); opacity: 1; }
   100% { transform: translateY(110vh) rotate(360deg); opacity: 0.5; }
+}
+@keyframes bounceAround {
+  0% { transform: translate(0, 100vh) scale(1); opacity: 1; }
+  25% { transform: translate(25vw, 50vh) scale(1.2); }
+  50% { transform: translate(50vw, 10vh) scale(1); }
+  75% { transform: translate(75vw, 60vh) scale(0.8); }
+  100% { transform: translate(100vw, 100vh) scale(0.5); opacity: 0; }
 }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes spin { 100% { transform: rotate(360deg); } }
