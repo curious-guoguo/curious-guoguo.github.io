@@ -376,13 +376,13 @@ const FESTIVALS = [
   },
   {
     id: 'halloween_eve', name: '🎃 万圣节前夜', desc: '百鬼夜行，群魔乱舞',
-    check: (d) => d.getMonth() === 9 && d.getDate() === 30,
+    check: (d) => d.getMonth() === 9 && d.getDate() === 31, // 10月31日
     emojis: ['👻', '🎃', '🦇', '🧛'],
     action: () => { playSpookySound(); window.setBgBrightness(0.4); }
   },
   {
     id: 'halloween', name: '🎃 万圣节', desc: '不给糖就捣蛋',
-    check: (d) => d.getMonth() === 9 && d.getDate() === 31,
+    check: (d) => d.getMonth() === 10 && d.getDate() === 1, // 11月1日
     emojis: ['👻', '🎃', '🦇', '🧟'],
     action: () => { playSpookySound(); window.setBgBrightness(0.4); }
   },
@@ -440,10 +440,10 @@ function renderFestivalCard(f) {
   card.className = 'link-card';
   
   if (f.isEscape) {
-    card.style.position = 'fixed'; // 破出网格，全屏定位
-    card.style.zIndex = '9999';    // 置顶，防止被遮挡
+    card.style.position = 'fixed';
+    card.style.zIndex = '9999';
     card.style.width = '200px';
-    card.style.display = 'none';   // 初始隐藏，长按才显示
+    card.style.display = 'none'; 
     card.innerHTML = `<div class="link-title" style="color: #c4a0ff;">${f.name}</div><div class="desc">${f.desc}</div>`;
   } else {
     card.innerHTML = `<div class="link-title" style="color: #ff9d00;">${f.name}</div><div class="desc">${f.desc}</div>`;
@@ -574,18 +574,14 @@ function triggerRandomEvent() {
   };
 
   if (rand === 0) {
-    // B站：不全屏，直接打开新标签页
     window.open(rickroll, '_blank');
   } else if (rand === 1) {
-    // 蓝屏：全屏 + 永久卡死
     reqFullscreen();
     showErrorOverlay('blue');
   } else if (rand === 2) {
-    // Mac：全屏 + 永久卡死
     reqFullscreen();
     showErrorOverlay('mac');
   } else {
-    // 404：不全屏 + 永久卡死
     showErrorOverlay('404');
   }
 }
@@ -614,10 +610,10 @@ function showErrorOverlay(type) {
 
 
 /* =========================================================
-   6. 愚人节磁铁排斥 (限制转向速度 + 三点一线反方向 R 距离)
+   6. 愚人节磁铁排斥逃跑 (百分比自适应 + 限制转向速度 + 不旋转)
    ========================================================= */
 let mouseX = 0, mouseY = 0;
-let currentAngle = Math.PI; // 卡片当前所处的角度
+let currentAngle = Math.PI; // 初始朝向
 let isEscaping = false;
 
 function startEscapeLoop() {
@@ -665,10 +661,13 @@ function startEscapeLoop() {
     const targetCx = mouseX + Math.cos(currentAngle) * R;
     const targetCy = mouseY + Math.sin(currentAngle) * R;
 
-    // 绝对定位，不加 transition (因为 rAF 循环本身就是在逐帧做动画)
+    // 绝对定位，不加 transition
     eggEscape.style.transition = 'none';
     eggEscape.style.left = `${targetCx - rect.width / 2}px`;
     eggEscape.style.top = `${targetCy - rect.height / 2}px`;
+    
+    // 确保卡片不旋转
+    eggEscape.style.transform = 'none';
 
     requestAnimationFrame(update);
   }
@@ -690,6 +689,7 @@ window.addEventListener('touchmove', (e) => {
   mouseY = e.touches[0].clientY;
   startEscapeLoop();
 }, { passive: true });
+
 
 /* =========================================================
    7. 通用事件与初始化
