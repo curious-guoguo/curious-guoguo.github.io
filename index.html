@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="description" content="curious-guoguo 个人主页">
 <meta name="author" content="curious-guoguo">
 <title>curious-guoguo | 首页</title>
@@ -40,27 +40,77 @@
   </ul>
 </aside>
 
-<button class="hamburger-btn" id="hamburgerBtn" aria-label="菜单">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-</button>
+<!-- 移动端遮罩层 -->
+<div class="mobile-drawer-overlay" id="mobileDrawerOverlay"></div>
 
-<div class="mobile-menu" id="mobileMenu">
-  <button class="mobile-menu-close" id="mobileMenuClose" aria-label="关闭菜单">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-  </button>
-  <ul class="mobile-menu-list">
-    <li><a href="#" data-slide="0" data-i18n="nav_home">首页</a></li>
-    <li><a href="#" data-slide="1" data-i18n="nav_guestbook">留言板</a></li>
-    <li><a href="#" data-slide="2" data-i18n="nav_vote">打榜</a></li>
-    <li><a href="#" data-slide="3" data-i18n="nav_about">关于我</a></li>
-    <li><a href="#" data-slide="4" data-i18n="nav_arcade">游乐场</a></li>
-    <li><a href="#" data-slide="5" data-i18n="nav_tools">百宝箱</a></li>
-    <li><a href="#" data-slide="6" data-i18n="nav_secret">隐藏关</a></li>
-  </ul>
-</div>
+<!-- 移动端变形胶囊 (底栏 + 抽屉) -->
+<nav class="mobile-bottom-nav" id="mobileBottomNav">
+  <!-- 快捷栏 -->
+  <div class="nav-shortcuts">
+    <a href="#" class="nav-item active" data-slide="0">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+      <span data-i18n="nav_home">首页</span>
+    </a>
+    <a href="#" class="nav-item" data-slide="1">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+      <span data-i18n="nav_guestbook">留言板</span>
+    </a>
+    <a href="#" class="nav-item" data-slide="4">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+      <span data-i18n="nav_arcade">游乐场</span>
+    </a>
+    <div class="nav-item" id="mobileMoreBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
+      <span>更多</span>
+    </div>
+  </div>
+
+  <!-- 展开后的抽屉内容 (3x3 网格) -->
+  <div class="nav-expanded">
+    <div class="drawer-divider"></div>
+    <div class="grid-menu">
+      <a href="#" data-slide="0" class="grid-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        <span data-i18n="nav_home">首页</span>
+      </a>
+      <a href="#" data-slide="1" class="grid-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+        <span data-i18n="nav_guestbook">留言板</span>
+      </a>
+      <a href="#" data-slide="4" class="grid-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+        <span data-i18n="nav_arcade">游乐场</span>
+      </a>
+      <a href="#" data-slide="2" class="grid-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12h6"></path><path d="M12 9v6"></path><circle cx="12" cy="12" r="10"></circle></svg>
+        <span data-i18n="nav_vote">打榜</span>
+      </a>
+      <a href="#" data-slide="3" class="grid-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        <span data-i18n="nav_about">关于我</span>
+      </a>
+      <a href="#" data-slide="5" class="grid-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+        <span data-i18n="nav_tools">百宝箱</span>
+      </a>
+      <a href="#" data-slide="6" class="grid-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
+        <span data-i18n="nav_secret">隐藏关</span>
+      </a>
+    </div>
+    <div class="drawer-divider"></div>
+    <div class="drawer-lang">
+      <span style="color:var(--ink-3); font-size:.9rem;">Language</span>
+      <div class="lang-btns">
+        <button onclick="applyLanguage('zh')">中文</button>
+        <button onclick="applyLanguage('en')">EN</button>
+      </div>
+    </div>
+  </div>
+</nav>
 
 <main class="deck" id="deck">
-  
+
   <!-- 1 首页 -->
   <section class="slide active">
     <div class="slide-body hero-body">
@@ -68,7 +118,7 @@
         <div class="hero-greet rise">Hi</div>
         <h1 class="hero-title rise">I'm <span class="grad">curious-guoguo</span></h1>
         <p class="hero-sub rise" data-i18n="hero_sub">写代码 · 打游戏 · 折腾各种东西</p>
-        
+
         <div class="home-stat rise">
           <div class="visit">
             <span data-i18n="home_visit_1">这里一共有</span>
@@ -274,7 +324,7 @@
     <h2 class="slide-title" data-i18n="nav_secret">隐藏关</h2>
     <div class="slide-body" id="otherSlideBody">
       <div class="card-container" id="otherContainer" style="position: relative;">
-        
+
         <!-- 千万别点 -->
         <div class="link-card" id="trapCard" role="button" tabindex="0" style="position: relative; overflow: hidden;">
           <div class="link-title" style="color: #ff7b7b;" data-i18n="card_trap">千万别点</div>
