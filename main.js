@@ -622,7 +622,6 @@ function startEscapeLoop() {
 
   function update() {
     const eggEscape = document.getElementById('card-april_fool');
-    // 如果卡片不存在或未显示，停止循环
     if (!eggEscape || eggEscape.style.display === 'none') {
       isEscaping = false;
       return;
@@ -632,7 +631,6 @@ function startEscapeLoop() {
     const centerX = window.innerWidth / 2;
     const centerY = window.innerHeight / 2;
 
-    // 计算鼠标相对于屏幕中心的角度
     let dx = mouseX - centerX;
     let dy = mouseY - centerY;
     if (Math.abs(dx) < 1 && Math.abs(dy) < 1) {
@@ -640,33 +638,23 @@ function startEscapeLoop() {
     }
 
     const mouseAngle = Math.atan2(dy, dx);
-    // 目标角度是鼠标的反方向 (加上 PI)
     const targetAngle = mouseAngle + Math.PI;
 
-    // 【关键逻辑】计算角度差，并限制每次转向的速度
     let deltaAngle = targetAngle - currentAngle;
-    
-    // 规范化角度差到 -PI 到 PI 之间，保证走最短路径
     while (deltaAngle > Math.PI) deltaAngle -= Math.PI * 2;
     while (deltaAngle < -Math.PI) deltaAngle += Math.PI * 2;
 
-    // 【控制转向速度】0.08 是转向速度，越小转得越慢越平滑
     const turnSpeed = 0.08; 
     currentAngle += deltaAngle * turnSpeed;
 
-    // 半径 R = 屏幕短边的 50%
     const R = Math.min(window.innerWidth, window.innerHeight) * 0.5;
 
-    // 根据平滑过渡后的当前角度，计算卡片的绝对坐标
     const targetCx = mouseX + Math.cos(currentAngle) * R;
     const targetCy = mouseY + Math.sin(currentAngle) * R;
 
-    // 绝对定位，不加 transition
     eggEscape.style.transition = 'none';
     eggEscape.style.left = `${targetCx - rect.width / 2}px`;
     eggEscape.style.top = `${targetCy - rect.height / 2}px`;
-    
-    // 确保卡片不旋转
     eggEscape.style.transform = 'none';
 
     requestAnimationFrame(update);
@@ -675,14 +663,12 @@ function startEscapeLoop() {
   requestAnimationFrame(update);
 }
 
-// 监听鼠标，只负责更新坐标
 window.addEventListener('mousemove', (e) => {
   mouseX = e.clientX;
   mouseY = e.clientY;
   startEscapeLoop();
 });
 
-// 手机端触摸监听
 window.addEventListener('touchmove', (e) => {
   if (!e.touches.length) return;
   mouseX = e.touches[0].clientX;
