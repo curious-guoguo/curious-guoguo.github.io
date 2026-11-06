@@ -18,25 +18,25 @@
   <ul class="sidebar-menu">
     <li><a href="#" data-slide="0" class="active">
       <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-      <span class="label">首页</span></a></li>
+      <span class="label" data-i18n="nav_home">首页</span></a></li>
     <li><a href="#" data-slide="1">
       <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-      <span class="label">留言板</span></a></li>
+      <span class="label" data-i18n="nav_guestbook">留言板</span></a></li>
     <li><a href="#" data-slide="2">
       <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12h6"></path><path d="M12 9v6"></path><circle cx="12" cy="12" r="10"></circle></svg>
-      <span class="label">打榜</span></a></li>
+      <span class="label" data-i18n="nav_vote">打榜</span></a></li>
     <li><a href="#" data-slide="3">
       <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-      <span class="label">关于我</span></a></li>
+      <span class="label" data-i18n="nav_about">关于我</span></a></li>
     <li><a href="#" data-slide="4">
       <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
-      <span class="label">游乐场</span></a></li>
+      <span class="label" data-i18n="nav_arcade">游乐场</span></a></li>
     <li><a href="#" data-slide="5">
       <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
-      <span class="label">百宝箱</span></a></li>
+      <span class="label" data-i18n="nav_tools">百宝箱</span></a></li>
     <li><a href="#" data-slide="6">
       <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
-      <span class="label">隐藏关</span></a></li>
+      <span class="label" data-i18n="nav_secret">隐藏关</span></a></li>
   </ul>
 </aside>
 
@@ -49,13 +49,13 @@
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
   </button>
   <ul class="mobile-menu-list">
-    <li><a href="#" data-slide="0">首页</a></li>
-    <li><a href="#" data-slide="1">留言板</a></li>
-    <li><a href="#" data-slide="2">打榜</a></li>
-    <li><a href="#" data-slide="3">关于我</a></li>
-    <li><a href="#" data-slide="4">游乐场</a></li>
-    <li><a href="#" data-slide="5">百宝箱</a></li>
-    <li><a href="#" data-slide="6">隐藏关</a></li>
+    <li><a href="#" data-slide="0" data-i18n="nav_home">首页</a></li>
+    <li><a href="#" data-slide="1" data-i18n="nav_guestbook">留言板</a></li>
+    <li><a href="#" data-slide="2" data-i18n="nav_vote">打榜</a></li>
+    <li><a href="#" data-slide="3" data-i18n="nav_about">关于我</a></li>
+    <li><a href="#" data-slide="4" data-i18n="nav_arcade">游乐场</a></li>
+    <li><a href="#" data-slide="5" data-i18n="nav_tools">百宝箱</a></li>
+    <li><a href="#" data-slide="6" data-i18n="nav_secret">隐藏关</a></li>
   </ul>
 </div>
 
@@ -67,122 +67,217 @@
       <div class="hero">
         <div class="hero-greet rise">Hi</div>
         <h1 class="hero-title rise">I'm <span class="grad">curious-guoguo</span></h1>
-        <p class="hero-sub rise">写代码 · 打游戏 · 折腾各种东西</p>
+        <p class="hero-sub rise" data-i18n="hero_sub">写代码 · 打游戏 · 折腾各种东西</p>
+        
         <div class="home-stat rise">
           <div class="visit">
-            这里一共有
-            <img src="https://w.saobby.com/w/50x439dc" alt="访问ID数" loading="lazy">
-            个 ID 访问，总共
-            <img src="https://w.saobby.com/w/x6o8wm41" alt="访问次数" loading="lazy">
-            次
+            <span data-i18n="home_visit_1">这里一共有</span>
+            <img src="https://w.saobby.com/w/50x439dc" alt="访问ID数" loading="lazy" style="position: relative; top: 2px;">
+            <span data-i18n="home_visit_2">个 ID 访问，总共</span>
+            <img src="https://w.saobby.com/w/x6o8wm41" alt="访问次数" loading="lazy" style="position: relative; top: 2px;">
+            <span data-i18n="home_visit_3">次</span>
           </div>
-          <div class="thanks">感谢 <a href="https://www.saobby.com/" target="_blank" rel="noopener">saobby</a> 提供访问统计与投票服务</div>
+          <div class="thanks" data-i18n="home_thanks">感谢 saobby 提供访问统计与投票服务</div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- 2 留言板 (Giscus) -->
+  <!-- 2 留言板 -->
   <section class="slide">
-    <h2 class="slide-title">留言板</h2>
+    <h2 class="slide-title" data-i18n="nav_guestbook">留言板</h2>
     <div class="slide-body">
-      <!-- 使用暗黑玻璃卡片包裹评论区 -->
-      <div class="link-card" style="padding: 1.5rem; border-radius: 20px; display: block;">
-        <div class="giscus"></div>
-        <script src="https://giscus.app/client.js"
-                data-repo="curious-guoguo/curious-guoguo.github.io"
-                data-repo-id="R_kgDOSc14mw"
-                data-category="Announcements"
-                data-category-id="DIC_kwDOSc14m84DKhvT"
-                data-mapping="pathname"
-                data-strict="0"
-                data-reactions-enabled="1"
-                data-emit-metadata="0"
-                data-input-position="bottom"
-                data-theme="preferred_color_scheme"
-                data-lang="zh-CN"
-                data-loading="lazy"
-                crossorigin="anonymous"
-                async>
-        </script>
-      </div>
+      <div class="giscus" style="margin-top: 1rem;"></div>
+      <script src="https://giscus.app/client.js"
+              data-repo="curious-guoguo/curious-guoguo.github.io"
+              data-repo-id="R_kgDOSc14mw"
+              data-category="Announcements"
+              data-category-id="DIC_kwDOSc14m84DKhvT"
+              data-mapping="pathname"
+              data-strict="0"
+              data-reactions-enabled="1"
+              data-emit-metadata="0"
+              data-input-position="bottom"
+              data-theme="preferred_color_scheme"
+              data-lang="zh-CN"
+              data-loading="lazy"
+              crossorigin="anonymous"
+              async>
+      </script>
     </div>
   </section>
 
-  <!-- 3 打榜 (原投票) -->
+  <!-- 3 打榜 -->
   <section class="slide">
-    <h2 class="slide-title">打榜投票</h2>
+    <h2 class="slide-title" data-i18n="nav_vote">打榜投票</h2>
     <div class="slide-body">
       <div class="vote-grid">
         <a class="vote-card" href="https://vote.saobby.com/v/maNz2mYg/0">
           <div class="vote-thumb"><img src="https://vote.saobby.com/i/maNz2mYg/0" alt="蒟蒻" loading="lazy"></div>
-          <div class="vote-info"><span class="vote-name">蒟蒻</span><span class="vote-btn">去投票 →</span></div>
+          <div class="vote-info"><span class="vote-name" data-i18n="vote_1">蒟蒻</span><span class="vote-btn" data-i18n="vote_btn">去投票 →</span></div>
         </a>
         <a class="vote-card" href="https://vote.saobby.com/v/maNz2mYg/1">
           <div class="vote-thumb"><img src="https://vote.saobby.com/i/maNz2mYg/1" alt="老六" loading="lazy"></div>
-          <div class="vote-info"><span class="vote-name">老六</span><span class="vote-btn">去投票 →</span></div>
+          <div class="vote-info"><span class="vote-name" data-i18n="vote_2">老六</span><span class="vote-btn" data-i18n="vote_btn">去投票 →</span></div>
         </a>
         <a class="vote-card" href="https://vote.saobby.com/v/maNz2mYg/2">
           <div class="vote-thumb"><img src="https://vote.saobby.com/i/maNz2mYg/2" alt="大佬六" loading="lazy"></div>
-          <div class="vote-info"><span class="vote-name">大佬六</span><span class="vote-btn">去投票 →</span></div>
+          <div class="vote-info"><span class="vote-name" data-i18n="vote_3">大佬六</span><span class="vote-btn" data-i18n="vote_btn">去投票 →</span></div>
         </a>
       </div>
     </div>
   </section>
 
-  <!-- 4 关于我 (原个人主页) -->
+  <!-- 4 关于我 -->
   <section class="slide">
-    <h2 class="slide-title">关于我</h2>
+    <h2 class="slide-title" data-i18n="nav_about">关于我</h2>
     <div class="slide-body">
       <div class="card-container">
-        <a class="link-card" href="https://space.bilibili.com/3546821257333694" target="_blank" rel="noopener"><div class="link-title">bilibili</div><div class="desc">我的B站个人空间</div></a>
-        <a class="link-card" href="https://www.ccw.site/student/685528f84b57da1266fa5bab" target="_blank" rel="noopener"><div class="link-title">共创世界</div><div class="desc">共创世界个人主页</div></a>
-        <a class="link-card" href="https://www.luogu.com.cn/user/949470" target="_blank" rel="noopener"><div class="link-title">洛谷</div><div class="desc">洛谷编程平台个人主页</div></a>
-        <a class="link-card" href="mailto:guoguogg2014@163.com"><div class="link-title">联系邮箱</div><div class="desc">guoguogg2014@163.com</div></a>
+        <a class="link-card" href="https://space.bilibili.com/3546821257333694" target="_blank" rel="noopener">
+          <div class="link-title" style="align-items: center;">
+            <img src="https://www.bilibili.com/favicon.ico" style="width: 20px; height: 20px; object-fit: contain; margin-right: 8px;" alt="Bilibili">
+            bilibili
+          </div>
+          <div class="desc" data-i18n="desc_bili">我的B站个人空间</div>
+        </a>
+        <a class="link-card" href="https://github.com/curious-guoguo" target="_blank" rel="noopener">
+          <div class="link-title" style="align-items: center;">
+            <img src="https://github.com/favicon.ico" style="width: 20px; height: 20px; object-fit: contain; margin-right: 8px;" alt="GitHub">
+            GitHub
+          </div>
+          <div class="desc" data-i18n="desc_github">我的开源代码仓库</div>
+        </a>
+        <a class="link-card" href="https://www.ccw.site/student/685528f84b57da1266fa5bab" target="_blank" rel="noopener">
+          <div class="link-title" style="align-items: center;">
+            <img src="https://m.ccw.site/community/images/head-logo-v3.png" style="height: 20px; width: auto; max-width: 60px; object-fit: contain; margin-right: 8px;" alt="CCW">
+            <span data-i18n="card_ccw">共创世界</span>
+          </div>
+          <div class="desc" data-i18n="desc_ccw">共创世界个人主页</div>
+        </a>
+        <a class="link-card" href="https://www.luogu.com.cn/user/949470" target="_blank" rel="noopener">
+          <div class="link-title" style="align-items: center;">
+            <img src="https://www.luogu.com.cn/favicon.ico" style="width: 20px; height: 20px; object-fit: contain; margin-right: 8px;" alt="Luogu">
+            <span data-i18n="card_luogu">洛谷</span>
+          </div>
+          <div class="desc" data-i18n="desc_luogu">洛谷编程平台个人主页</div>
+        </a>
+        <a class="link-card" href="mailto:guoguogg2014@163.com">
+          <div class="link-title" style="align-items: center;">
+            <svg style="width: 20px; height: 20px; flex: 0 0 20px; color: var(--accent); margin-right: 8px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+            <span data-i18n="card_email">联系邮箱</span>
+          </div>
+          <div class="desc">guoguogg2014@163.com</div>
+        </a>
       </div>
     </div>
   </section>
 
-  <!-- 5 游乐场 (原游戏) -->
+  <!-- 5 游乐场 -->
   <section class="slide">
-    <h2 class="slide-title">游乐场</h2>
+    <h2 class="slide-title" data-i18n="nav_arcade">游乐场</h2>
     <div class="slide-body">
       <div class="card-container">
-        <div class="link-card" role="button" tabindex="0" onclick="copyLink('chrome://dino/')"><div class="link-title">chrome小恐龙</div><div class="desc">点击复制链接后自行打开</div></div>
-        <a class="link-card" href="https://tafang123.com/" target="_blank" rel="noopener"><div class="link-title">塔防（1）</div><div class="desc">经典塔防小游戏</div></a>
-        <a class="link-card" href="https://yorg.io/" target="_blank" rel="noopener"><div class="link-title">塔防（2）</div><div class="desc">Yorg 塔防在线游玩</div></a>
-        <a class="link-card" href="https://yorg3.io/" target="_blank" rel="noopener"><div class="link-title">塔防（3）</div><div class="desc">Yorg3 塔防游戏</div></a>
-        <a class="link-card" href="https://florr.io/" target="_blank" rel="noopener"><div class="link-title">花朵</div><div class="desc">Florr.io 花朵生存游戏</div></a>
-        <a class="link-card" href="https://poki.com" target="_blank" rel="noopener"><div class="link-title">poki</div><div class="desc">在线免费小游戏平台</div></a>
-        <a class="link-card" href="https://slay.one/" target="_blank" rel="noopener"><div class="link-title">slay.one</div><div class="desc">多人在线射击 IO 游戏</div></a>
+        <div class="link-card" role="button" tabindex="0" onclick="copyLink('chrome://dino/')">
+          <div class="link-title" data-i18n="card_dino">chrome小恐龙</div>
+          <div class="desc" data-i18n="desc_dino">点击复制链接后自行打开</div>
+        </div>
+        <a class="link-card" href="https://tafang123.com/" target="_blank" rel="noopener">
+          <div class="link-title" data-i18n="card_td1">塔防（1）</div>
+          <div class="desc" data-i18n="desc_td1">经典塔防小游戏</div>
+        </a>
+        <a class="link-card" href="https://yorg.io/" target="_blank" rel="noopener">
+          <div class="link-title" style="align-items: center;">
+            <img src="https://yorg.io/favicon.ico" style="width: 20px; height: 20px; object-fit: contain; margin-right: 8px;" alt="Yorg">
+            <span data-i18n="card_td2">塔防（2）</span>
+          </div>
+          <div class="desc" data-i18n="desc_td2">Yorg 塔防在线游玩</div>
+        </a>
+        <a class="link-card" href="https://yorg3.io/" target="_blank" rel="noopener">
+          <div class="link-title" style="align-items: center;">
+            <img src="https://yorg3.io/favicon.ico" style="width: 20px; height: 20px; object-fit: contain; margin-right: 8px;" alt="Yorg3">
+            <span data-i18n="card_td3">塔防（3）</span>
+          </div>
+          <div class="desc" data-i18n="desc_td3">Yorg3 塔防游戏</div>
+        </a>
+        <a class="link-card" href="https://florr.io/" target="_blank" rel="noopener">
+          <div class="link-title" style="align-items: center;">
+            <img src="https://florr.io/favicon.ico" style="width: 20px; height: 20px; object-fit: contain; margin-right: 8px;" alt="Florr">
+            <span data-i18n="card_florr">花朵</span>
+          </div>
+          <div class="desc" data-i18n="desc_florr">Florr.io 花朵生存游戏</div>
+        </a>
+        <a class="link-card" href="https://poki.com" target="_blank" rel="noopener">
+          <div class="link-title" style="align-items: center;">
+            <img src="https://poki.com/favicon.ico" style="width: 20px; height: 20px; object-fit: contain; margin-right: 8px;" alt="Poki">
+            poki
+          </div>
+          <div class="desc" data-i18n="desc_poki">在线免费小游戏平台</div>
+        </a>
+        <a class="link-card" href="https://slay.one/" target="_blank" rel="noopener">
+          <div class="link-title">slay.one</div>
+          <div class="desc" data-i18n="desc_slay">多人在线射击 IO 游戏</div>
+        </a>
       </div>
     </div>
   </section>
 
-  <!-- 6 百宝箱 (原工具) -->
+  <!-- 6 百宝箱 -->
   <section class="slide">
-    <h2 class="slide-title">百宝箱</h2>
+    <h2 class="slide-title" data-i18n="nav_tools">百宝箱</h2>
     <div class="slide-body">
       <div class="card-container">
-        <a class="link-card" href="https://tool.lu/" target="_blank" rel="noopener"><div class="link-title">综合工具箱</div><div class="desc">tool.lu 在线工具集</div></a>
-        <a class="link-card" href="https://ssoier.cn/" target="_blank" rel="noopener"><div class="link-title">信奥工具</div><div class="desc">ssoier 学习与工具站</div></a>
-        <a class="link-card" href="https://www.saobby.com/" target="_blank" rel="noopener"><div class="link-title">建站工具</div><div class="desc">saobby 建站服务平台</div></a>
-        <a class="link-card" href="https://note.ms/" target="_blank" rel="noopener"><div class="link-title">云端剪贴板</div><div class="desc">note.ms 在线文本分享</div></a>
-        <a class="link-card" href="https://easychuan.cn/" target="_blank" rel="noopener"><div class="link-title">轻松传</div><div class="desc">跨设备文件极速传输</div></a>
-        <a class="link-card" href="https://chat.deepseek.com/sign_in" target="_blank" rel="noopener"><div class="link-title">DeepSeek AI 助手</div><div class="desc">深度求索对话大模型</div></a>
+        <a class="link-card" href="https://tool.lu/" target="_blank" rel="noopener">
+          <div class="link-title" style="align-items: center;">
+            <img src="https://tool.lu/favicon.ico" style="width: 20px; height: 20px; object-fit: contain; margin-right: 8px;" alt="Tool.lu">
+            <span data-i18n="card_tool1">综合工具箱</span>
+          </div>
+          <div class="desc" data-i18n="desc_tool1">tool.lu 在线工具集</div>
+        </a>
+        <a class="link-card" href="https://ssoier.cn/" target="_blank" rel="noopener">
+          <div class="link-title" style="align-items: center;">
+            <img src="https://ssoier.cn/favicon.ico" style="width: 20px; height: 20px; object-fit: contain; margin-right: 8px;" alt="Ssoier">
+            <span data-i18n="card_tool2">信奥工具</span>
+          </div>
+          <div class="desc" data-i18n="desc_tool2">ssoier 学习与工具站</div>
+        </a>
+        <a class="link-card" href="https://www.saobby.com/" target="_blank" rel="noopener">
+          <div class="link-title" style="align-items: center;">
+            <img src="https://www.saobby.com/favicon.ico" style="width: 20px; height: 20px; object-fit: contain; margin-right: 8px;" alt="Saobby">
+            <span data-i18n="card_tool3">建站工具</span>
+          </div>
+          <div class="desc" data-i18n="desc_tool3">saobby 建站服务平台</div>
+        </a>
+        <a class="link-card" href="https://note.ms/" target="_blank" rel="noopener">
+          <div class="link-title" data-i18n="card_tool4">云端剪贴板</div>
+          <div class="desc" data-i18n="desc_tool4">note.ms 在线文本分享</div>
+        </a>
+        <a class="link-card" href="https://easychuan.cn/" target="_blank" rel="noopener">
+          <div class="link-title" style="align-items: center;">
+            <img src="https://static.easychuan.cn/favicon.png" style="width: 20px; height: 20px; object-fit: contain; margin-right: 8px;" alt="EasyChuan">
+            <span data-i18n="card_tool5">轻松传</span>
+          </div>
+          <div class="desc" data-i18n="desc_tool5">跨设备文件极速传输</div>
+        </a>
+        <a class="link-card" href="https://chat.deepseek.com/sign_in" target="_blank" rel="noopener">
+          <div class="link-title" style="align-items: center;">
+            <img src="https://fe-static.deepseek.com/chat/favicon.svg" style="width: 20px; height: 20px; object-fit: contain; margin-right: 8px;" alt="DeepSeek">
+            DeepSeek AI
+          </div>
+          <div class="desc" data-i18n="desc_tool6">深度求索对话大模型</div>
+        </a>
       </div>
     </div>
   </section>
 
-  <!-- 7 隐藏关 (原其他) -->
+  <!-- 7 隐藏关 -->
   <section class="slide" id="other-slide">
-    <h2 class="slide-title">隐藏关</h2>
+    <h2 class="slide-title" data-i18n="nav_secret">隐藏关</h2>
     <div class="slide-body" id="otherSlideBody">
       <div class="card-container" id="otherContainer" style="position: relative;">
         
         <!-- 千万别点 -->
         <div class="link-card" id="trapCard" role="button" tabindex="0" style="position: relative; overflow: hidden;">
-          <div class="link-title" style="color: #ff7b7b;">千万别点</div>
+          <div class="link-title" style="color: #ff7b7b;" data-i18n="card_trap">千万别点</div>
           <div id="trapProgress" style="position: absolute; bottom: 0; left: 0; height: 4px; width: 0%; background: #ff4d4d; transition: width 0.05s linear;"></div>
         </div>
 

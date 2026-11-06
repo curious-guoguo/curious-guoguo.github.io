@@ -105,13 +105,13 @@ body {
 }
 
 /* =========================================================
-   卡片 (网格对齐修复)
+   卡片
    ========================================================= */
 .card-container { 
   display: grid; 
   grid-template-columns: repeat(auto-fill, minmax(238px, 1fr)); 
   gap: 1rem; 
-  align-items: start; /* 【关键修复】让卡片不被拉长，保持自身高度 */
+  align-items: start;
 }
 
 .link-card {
@@ -130,6 +130,7 @@ body {
 }
 .link-card:active { transform: translateY(-2px) scale(.998); }
 .link-title { display: flex; align-items: center; gap: 10px; font-size: 1.02rem; font-weight: 600; color: #dce9ff; line-height: 1.35; }
+.card-icon { width: 21px; height: 21px; flex: 0 0 21px; color: var(--accent); }
 .link-card .desc { font-size: .84rem; color: var(--ink-3); margin-top: .55rem; line-height: 1.55; }
 
 /* =========================================================
@@ -141,8 +142,9 @@ body {
 .hero-title { font-size: clamp(2.8rem, 7vw, 5.6rem); font-weight: 900; line-height: 1.06; letter-spacing: .01em; }
 .grad { background: linear-gradient(90deg, #8fc4ff, #c4a0ff 60%, #ffb3d9); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
 .hero-sub { font-size: clamp(1.05rem, 1.7vw, 1.4rem); color: var(--ink-2); margin-top: .4rem; letter-spacing: .06em; }
+
 .home-stat {
-  margin-top: 2.2rem; display: inline-flex; flex-direction: column; gap: .55rem; align-self: flex-start;
+  margin-top: 1.5rem; display: inline-flex; flex-direction: column; gap: .55rem; align-self: flex-start;
   padding: 1rem 1.5rem; border-radius: 20px;
   background: linear-gradient(135deg, rgba(255,255,255,.12) 0%, rgba(255,255,255,.03) 100%);
   border: 1px solid rgba(255,255,255,.15);
@@ -182,20 +184,24 @@ body {
 .vote-card:hover .vote-btn { background: rgba(156,196,255,.3); color: #fff; }
 
 /* =========================================================
-   彩蛋特效与报错
+   全屏报错层 (不自动消失，卡死)
    ========================================================= */
 .fatal-error-overlay {
-  position: fixed; inset: 0; z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  position: fixed; inset: 0; z-index: 99999; 
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
   font-family: sans-serif; animation: fadeIn .2s ease forwards;
   pointer-events: auto; cursor: not-allowed;
 }
 .fatal-error-overlay.blue-screen { background: #0078D7; color: white; }
 .fatal-error-overlay.mac-screen { background: #000; color: white; }
 .fatal-error-overlay.404-screen { background: #fff; color: #000; }
+
 .fatal-error-overlay h1 { font-size: 8rem; margin-bottom: 1rem; }
 .fatal-error-overlay p { font-size: 1.5rem; letter-spacing: .1em; }
 
-/* 掉落与弹跳特效 */
+/* =========================================================
+   节日特效层 (掉落 / 弹跳)
+   ========================================================= */
 .effect-overlay {
   position: fixed; inset: 0; z-index: 8000; pointer-events: none; transition: opacity 1s;
 }
@@ -229,11 +235,82 @@ body {
   padding: .7rem 1.4rem; border-radius: 999px;
   background: rgba(18, 28, 48, .88); border: 1px solid rgba(255,255,255,.22);
   backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-  color: #dbe8ff; font-size: .88rem; z-index: 300; opacity: 0; pointer-events: none;
+  color: #dbe8ff; font-size: .88rem; z-index: 100000; opacity: 0; pointer-events: none;
   transition: opacity .25s, transform .38s var(--bounce-soft);
   box-shadow: 0 14px 44px rgba(0,0,0,.5);
 }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+/* =========================================================
+   左上角悬停展开语言菜单
+   ========================================================= */
+.lang-menu-wrapper {
+  position: fixed;
+  top: 24px;
+  left: 24px;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  border-radius: 23px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 10px 30px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.35);
+  cursor: pointer;
+  overflow: hidden;
+  z-index: 1000;
+  transition: opacity 0.3s, visibility 0.3s;
+  /* 默认隐藏，由 JS 在首页时显示 */
+  opacity: 0;
+  visibility: hidden;
+}
+
+.lang-menu-wrapper.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.lang-icon {
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s var(--bounce);
+}
+
+.lang-menu-wrapper:hover .lang-icon {
+  transform: rotate(90deg);
+}
+
+.lang-options {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  opacity: 0;
+  width: 0;
+  transition: all 0.35s var(--bounce-soft);
+  white-space: nowrap;
+  margin-left: 0;
+}
+
+.lang-menu-wrapper:hover .lang-options {
+  opacity: 1;
+  width: 100px;
+  margin-left: 12px;
+}
+
+.lang-options span {
+  font-size: 0.85rem;
+  color: rgba(220, 232, 255, 0.7);
+  transition: color 0.2s;
+}
+
+.lang-options span:hover {
+  color: #fff;
+  font-weight: bold;
+}
 
 /* =========================================================
    响应式适配
@@ -289,4 +366,10 @@ body {
     color: #fff;
   }
   .mobile-menu-list .icon { width: 24px; height: 24px; }
+  
+  /* 移动端语言按钮避开汉堡键 */
+  .lang-menu-wrapper {
+    left: 80px; 
+    top: 20px;
+  }
 }
