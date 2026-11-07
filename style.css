@@ -12,7 +12,12 @@
   --bounce-soft: cubic-bezier(.22, 1.2, .36, 1);
 }
 
-html, body { height: 100%; }
+/* ★ iOS 适配：补 min-height 兜底 + 禁用橡皮筋/下拉刷新 */
+html, body {
+  height: 100%;
+  min-height: -webkit-fill-available;
+  overscroll-behavior: none;
+}
 
 body {
   font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
@@ -37,32 +42,32 @@ html.lang-en-pending [data-i18n-html] { visibility: hidden; }
 }
 
 /* =========================================================
-   【新增】站点 Logo
+   站点 Logo
    ========================================================= */
 .site-logo {
   position: fixed;
-  top: 24px;
-  left: 24px;
+  /* ★ iOS 适配：吃顶部/左侧安全区，刘海横屏不被切 */
+  top: calc(24px + env(safe-area-inset-top, 0px));
+  left: calc(24px + env(safe-area-inset-left, 0px));
   width: 46px;
   height: 46px;
   z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.4s var(--bounce);
+  transition: transform .4s var(--bounce);
   -webkit-tap-highlight-color: transparent;
 }
-.site-logo svg {
+.site-logo img {
   width: 100%;
   height: 100%;
   object-fit: contain;
+  display: block;
+  user-select: none;
+  -webkit-user-drag: none;
 }
-.site-logo:hover {
-  transform: scale(1.15) rotate(5deg);
-}
-.site-logo:active {
-  transform: scale(0.95);
-}
+.site-logo:hover  { transform: scale(1.08) rotate(-8deg); }
+.site-logo:active { transform: scale(.94); }
 
 /* 卡片图标通用类 */
 .card-favicon { width: 20px; height: 20px; flex: 0 0 20px; object-fit: contain; }
@@ -72,7 +77,10 @@ html.lang-en-pending [data-i18n-html] { visibility: hidden; }
    桌面端侧边栏
    ========================================================= */
 .sidebar {
-  position: fixed; left: 18px; top: 50%; transform: translateY(-50%);
+  position: fixed;
+  /* ★ iOS 适配：左侧安全区 */
+  left: calc(18px + env(safe-area-inset-left, 0px));
+  top: 50%; transform: translateY(-50%);
   width: 66px; max-height: calc(100vh - 80px); padding: .7rem .5rem;
   border-radius: 26px;
   background: rgba(255,255,255,.08);
@@ -132,6 +140,7 @@ html.lang-en-pending [data-i18n-html] { visibility: hidden; }
 
 .slide-body {
   flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden;
+  -webkit-overflow-scrolling: touch; /* ★ iOS 惯性滚动兜底 */
   padding-bottom: 104px; padding-right: 6px;
   scrollbar-width: thin; scrollbar-color: rgba(140,180,255,.3) transparent;
   user-select: text;
@@ -313,7 +322,10 @@ html.lang-en-pending [data-i18n-html] { visibility: hidden; }
    桌面端左上角悬停语言菜单
    ========================================================= */
 .lang-menu-wrapper {
-  position: fixed; top: 24px; left: 24px; /* 默认位置 */
+  position: fixed;
+  /* ★ iOS 适配：顶部/左侧安全区 */
+  top: calc(24px + env(safe-area-inset-top, 0px));
+  left: calc(24px + env(safe-area-inset-left, 0px));
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -334,10 +346,10 @@ html.lang-en-pending [data-i18n-html] { visibility: hidden; }
 .lang-menu-wrapper.show { opacity: 1; visibility: visible; }
 .lang-menu-wrapper:focus-within { opacity: 1; visibility: visible; }
 
-/* 【修改】给新增的 Logo 让出空间，向右位移 */
+/* 给 Logo 让出空间，向右位移；★ iOS 适配：加左侧安全区 */
 @media (min-width: 769px) {
   .lang-menu-wrapper {
-    left: 85px;
+    left: calc(85px + env(safe-area-inset-left, 0px));
   }
 }
 
@@ -425,15 +437,21 @@ html.lang-en-pending [data-i18n-html] { visibility: hidden; }
 @media (max-width: 768px) {
   .sidebar, .lang-menu-wrapper { display: none !important; }
 
-  /* 【新增】移动端 Logo 适配 */
+  /* ★ 移动端 Logo：挪到右上角，并吃顶部/右侧安全区 */
   .site-logo {
-    top: 20px;
-    left: 20px;
+    top: calc(20px + env(safe-area-inset-top, 0px));
+    right: calc(20px + env(safe-area-inset-right, 0px));
+    left: auto;
     width: 40px;
     height: 40px;
   }
 
-  .slide { padding-left: 20px; padding-right: 20px; padding-top: 30px; }
+  /* ★ iOS 适配：顶部安全区，避免被状态栏/灵动岛压住 */
+  .slide {
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: calc(30px + env(safe-area-inset-top, 0px));
+  }
   .slide-body { padding-bottom: calc(100px + env(safe-area-inset-bottom)); }
   .home-stat { padding: .8rem 1rem; }
   .vote-card { width: 100%; }
@@ -443,7 +461,8 @@ html.lang-en-pending [data-i18n-html] { visibility: hidden; }
     flex-direction: column;
     position: fixed;
     bottom: calc(16px + env(safe-area-inset-bottom));
-    left: 16px; right: 16px;
+    left: calc(16px + env(safe-area-inset-left, 0px));
+    right: calc(16px + env(safe-area-inset-right, 0px));
     background: rgba(255,255,255,.08);
     backdrop-filter: blur(24px) saturate(180%); -webkit-backdrop-filter: blur(24px) saturate(180%);
     border: 1px solid rgba(255,255,255,.15);
@@ -562,7 +581,7 @@ html.lang-en-pending [data-i18n-html] { visibility: hidden; }
   }
 
   /* =======================================================
-     【修复】移动端语言菜单布局问题
+     移动端语言菜单布局
      ======================================================= */
   .drawer-lang {
     display: flex;
@@ -572,10 +591,10 @@ html.lang-en-pending [data-i18n-html] { visibility: hidden; }
     padding: 0 8px;
   }
 
-  .lang-btns { 
+  .lang-btns {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 8px; 
+    gap: 8px;
     width: 100%;
   }
 
