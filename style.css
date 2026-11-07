@@ -10,9 +10,14 @@
   --accent: #9cc4ff;
   --bounce: cubic-bezier(.34, 1.56, .64, 1);
   --bounce-soft: cubic-bezier(.22, 1.2, .36, 1);
+
+  /* ★ 中心对齐：共享几何参数 */
+  --slide-pad-top: clamp(30px, 5vh, 64px);
+  --slide-title-size: clamp(1.8rem, 3.2vw, 2.7rem);
+  --slide-title-line: 1.2;
 }
 
-/* ★ iOS 适配：补 min-height 兜底 + 禁用橡皮筋/下拉刷新 */
+/* ★ iOS 适配：min-height 兜底 + 禁用橡皮筋/下拉刷新 */
 html, body {
   height: 100%;
   min-height: -webkit-fill-available;
@@ -46,9 +51,10 @@ html.lang-en-pending [data-i18n-html] { visibility: hidden; }
    ========================================================= */
 .site-logo {
   position: fixed;
-  /* ★ iOS 适配：吃顶部/左侧安全区，刘海横屏不被切 */
-  top: calc(24px + env(safe-area-inset-top, 0px));
-  left: calc(24px + env(safe-area-inset-left, 0px));
+  /* ★ 中心对齐：top = 标题顶部 + 标题半行高 - Logo半高(23px) */
+  top: calc(var(--slide-pad-top) + var(--slide-title-size) * var(--slide-title-line) / 2 - 23px);
+  /* ★ 中心对齐：left = 侧边栏 left(18) + 侧边栏半宽(33) - Logo半宽(23) = 28px */
+  left: calc(28px + env(safe-area-inset-left, 0px));
   width: 46px;
   height: 46px;
   z-index: 1000;
@@ -78,8 +84,7 @@ html.lang-en-pending [data-i18n-html] { visibility: hidden; }
    ========================================================= */
 .sidebar {
   position: fixed;
-  /* ★ iOS 适配：左侧安全区 */
-  left: calc(18px + env(safe-area-inset-left, 0px));
+  left: calc(18px + env(safe-area-inset-left, 0px)); /* 与 Logo 同一水平中心轴 */
   top: 50%; transform: translateY(-50%);
   width: 66px; max-height: calc(100vh - 80px); padding: .7rem .5rem;
   border-radius: 26px;
@@ -125,7 +130,8 @@ html.lang-en-pending [data-i18n-html] { visibility: hidden; }
 
 .slide {
   position: absolute; inset: 0; display: flex; flex-direction: column;
-  padding: clamp(30px, 5vh, 64px) clamp(20px, 4vw, 56px) 0 clamp(104px, 9vw, 134px);
+  /* ★ 中心对齐：顶部 padding 用变量，与 Logo/语言菜单共享 */
+  padding: var(--slide-pad-top) clamp(20px, 4vw, 56px) 0 clamp(104px, 9vw, 134px);
   opacity: 0; visibility: hidden; transform: translateY(16px) scale(.988);
   transition: opacity .42s ease, transform .55s var(--bounce-soft), visibility 0s .42s, padding-left .38s var(--bounce-soft);
   overflow: hidden; z-index: 1;
@@ -152,7 +158,10 @@ html.lang-en-pending [data-i18n-html] { visibility: hidden; }
 .slide-body::-webkit-scrollbar-thumb:hover { background: rgba(140,180,255,.45); }
 
 .slide-title {
-  font-size: clamp(1.8rem, 3.2vw, 2.7rem); font-weight: 800;
+  font-size: var(--slide-title-size);
+  /* ★ 中心对齐：显式行高，保证公式可算 */
+  line-height: var(--slide-title-line);
+  font-weight: 800;
   letter-spacing: .01em; margin-bottom: 1.6rem; flex: 0 0 auto;
   background: linear-gradient(90deg, #eef3ff, #b9d0ff 60%, #d4bcff);
   -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
@@ -323,9 +332,10 @@ html.lang-en-pending [data-i18n-html] { visibility: hidden; }
    ========================================================= */
 .lang-menu-wrapper {
   position: fixed;
-  /* ★ iOS 适配：顶部/左侧安全区 */
-  top: calc(24px + env(safe-area-inset-top, 0px));
-  left: calc(24px + env(safe-area-inset-left, 0px));
+  /* ★ 中心对齐：与 Logo 同一条垂直中心线（菜单高 44px，半高 22px） */
+  top: calc(var(--slide-pad-top) + var(--slide-title-size) * var(--slide-title-line) / 2 - 22px);
+  /* Logo left 28 + 宽 46 = 74，再留 15px 间距 */
+  left: calc(89px + env(safe-area-inset-left, 0px));
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -345,13 +355,6 @@ html.lang-en-pending [data-i18n-html] { visibility: hidden; }
 }
 .lang-menu-wrapper.show { opacity: 1; visibility: visible; }
 .lang-menu-wrapper:focus-within { opacity: 1; visibility: visible; }
-
-/* 给 Logo 让出空间，向右位移；★ iOS 适配：加左侧安全区 */
-@media (min-width: 769px) {
-  .lang-menu-wrapper {
-    left: calc(85px + env(safe-area-inset-left, 0px));
-  }
-}
 
 .lang-icon {
   color: #fff;
@@ -435,22 +438,26 @@ html.lang-en-pending [data-i18n-html] { visibility: hidden; }
 }
 
 @media (max-width: 768px) {
+  :root {
+    /* ★ 中心对齐：移动端顶部 padding 吃安全区，公式自动跟着变 */
+    --slide-pad-top: calc(30px + env(safe-area-inset-top, 0px));
+  }
+
   .sidebar, .lang-menu-wrapper { display: none !important; }
 
-  /* ★ 移动端 Logo：挪到右上角，并吃顶部/右侧安全区 */
+  /* ★ 中心对齐：移动端 Logo 与标题中心对齐（Logo 高 40px，半高 20px） */
   .site-logo {
-    top: calc(20px + env(safe-area-inset-top, 0px));
+    top: calc(var(--slide-pad-top) + var(--slide-title-size) * var(--slide-title-line) / 2 - 20px);
     right: calc(20px + env(safe-area-inset-right, 0px));
     left: auto;
     width: 40px;
     height: 40px;
   }
 
-  /* ★ iOS 适配：顶部安全区，避免被状态栏/灵动岛压住 */
   .slide {
     padding-left: 20px;
     padding-right: 20px;
-    padding-top: calc(30px + env(safe-area-inset-top, 0px));
+    padding-top: var(--slide-pad-top);
   }
   .slide-body { padding-bottom: calc(100px + env(safe-area-inset-bottom)); }
   .home-stat { padding: .8rem 1rem; }
