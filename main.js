@@ -2,12 +2,12 @@ let idx = 0;
 let springs = [];
 let isUnlocked = false;
 
-
 /* =========================================================
-   2. 高性能 WebGL 背景
+   2. 高性能 WebGL 背景（★ 支持浅色/深色主题）
    ========================================================= */
 (function initWebGL() {
   window.setBgBrightness = () => {};
+  window.setBgTheme = () => {};
 
   const canvas = document.getElementById('bg-canvas');
   if (!canvas) return;
@@ -26,6 +26,7 @@ let isUnlocked = false;
     uniform float u_time;
     uniform vec2 u_resolution;
     uniform float u_brightness;
+    uniform float u_theme;
 
     vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
     vec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
@@ -71,13 +72,18 @@ let isUnlocked = false;
         float d3 = length(uv - p3);
 
         float noise = snoise(uv * 3.0 + t * 2.0) * 0.1;
-        vec3 color = vec3(0.02, 0.03, 0.05);
 
-        color += c1 * smoothstep(0.7, 0.0, d1 + noise) * 0.6;
-        color += c2 * smoothstep(0.8, 0.0, d2 - noise) * 0.5;
-        color += c3 * smoothstep(0.6, 0.0, d3 + noise) * 0.4;
+        vec3 baseDark = vec3(0.02, 0.03, 0.05);
+        vec3 baseLight = vec3(0.88, 0.91, 0.97);
+        vec3 color = mix(baseDark, baseLight, u_theme);
+
+        float glowAmt = mix(1.0, 0.60, u_theme);
+        color += c1 * smoothstep(0.7, 0.0, d1 + noise) * 0.6 * glowAmt;
+        color += c2 * smoothstep(0.8, 0.0, d2 - noise) * 0.5 * glowAmt;
+        color += c3 * smoothstep(0.6, 0.0, d3 + noise) * 0.4 * glowAmt;
 
         float vignette = smoothstep(1.2, 0.3, length(uv - vec2(0.5)));
+        vignette = mix(vignette, mix(0.88, 1.0, vignette), u_theme);
         color *= vignette;
         color *= u_brightness;
 
@@ -97,12 +103,21 @@ let isUnlocked = false;
     return s;
   }
 
-  let program = null, uTime = null, uRes = null, uBrightness = null;
+  let program = null, uTime = null, uRes = null, uBrightness = null, uTheme = null;
   let vbo = null;
   let elapsed = 0;
   let lastTime = 0;
   let targetBrightness = 1.0;
   let currentBrightness = 1.0;
+
+  let targetTheme = 0;
+  try {
+    const pref = safeGet('site_theme') || 'auto';
+    const isDark = pref === 'dark' || (pref === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    targetTheme = isDark ? 0 : 1;
+  } catch (e) {}
+  let currentTheme = targetTheme;
+
   let rafId = null;
   let glLost = false;
   let visible = !document.hidden;
@@ -141,6 +156,7 @@ let isUnlocked = false;
     uTime = gl.getUniformLocation(program, 'u_time');
     uRes = gl.getUniformLocation(program, 'u_resolution');
     uBrightness = gl.getUniformLocation(program, 'u_brightness');
+    uTheme = gl.getUniformLocation(program, 'u_theme');
     return true;
   }
 
@@ -173,9 +189,12 @@ let isUnlocked = false;
     lastTime = time;
 
     currentBrightness += (targetBrightness - currentBrightness) * 0.05;
+    currentTheme += (targetTheme - currentTheme) * 0.05;
+
     gl.uniform1f(uBrightness, currentBrightness);
     gl.uniform1f(uTime, elapsed);
     gl.uniform2f(uRes, canvas.width, canvas.height);
+    gl.uniform1f(uTheme, currentTheme);
     gl.drawArrays(gl.TRIANGLES, 0, 6);
 
     rafId = requestAnimationFrame(render);
@@ -187,12 +206,12 @@ let isUnlocked = false;
     stopLoop();
     program = null;
     vbo = null;
-    uTime = uRes = uBrightness = null;
+    uTime = uRes = uBrightness = uTheme = null;
   });
   canvas.addEventListener('webglcontextrestored', () => {
     program = null;
     vbo = null;
-    uTime = uRes = uBrightness = null;
+    uTime = uRes = uBrightness = uTheme = null;
     if (buildResources()) {
       resize();
       glLost = false;
@@ -209,14 +228,12 @@ let isUnlocked = false;
   window.addEventListener('resize', scheduleResize);
 
   window.setBgBrightness = (val) => { targetBrightness = val; };
+  window.setBgTheme = (isLight) => { targetTheme = isLight ? 1 : 0; };
 
   document.addEventListener('visibilitychange', () => {
     visible = !document.hidden;
-    if (!visible) {
-      stopLoop();
-    } else if (!glLost && program) {
-      startLoop();
-    }
+    if (!visible) stopLoop();
+    else if (!glLost && program) startLoop();
   });
 
   window.addEventListener('pagehide', stopLoop);
@@ -361,8 +378,34 @@ function closeMobileDrawer() {
   const expanded = document.getElementById('mobileNavExpanded');
   if (expanded) expanded.setAttribute('aria-hidden', 'true');
 
+  // 移动端设置面板返回九宫格
+  const settingsPanel = document.getElementById('mobileSettingsPanel');
+  const gridMenu = document.getElementById('mobileGridMenu');
+  const settingsBtn = document.getElementById('mobileSettingsBtn');
+  if (settingsPanel && !settingsPanel.classList.contains('is-hidden')) {
+    settingsPanel.classList.add('is-hidden');
+    settingsPanel.querySelectorAll('.mobile-settings-sub').forEach(sub => sub.classList.remove('open'));
+    settingsPanel.querySelectorAll('.mobile-settings-trigger').forEach(t => t.setAttribute('aria-expanded', 'false'));
+    if (gridMenu) gridMenu.classList.remove('is-hidden');
+    if (settingsBtn) settingsBtn.setAttribute('aria-expanded', 'false');
+  }
+
   if (wasExpanded && focusInside) mobileMoreBtn.focus({ preventScroll: true });
   updateToastPosition();
+}
+
+/* ★ 留言板自动滚到底部 */
+function scrollGuestbookToBottom() {
+  const slide = slides[1];
+  if (!slide || !slide.classList.contains('active')) return;
+  const body = slide.querySelector('.slide-body');
+  if (!body) return;
+  body.scrollTop = body.scrollHeight;
+}
+
+function scheduleGuestbookScroll() {
+  scrollGuestbookToBottom();
+  [150, 400, 800, 1500, 2500].forEach(d => setTimeout(scrollGuestbookToBottom, d));
 }
 
 function go(target) {
@@ -386,13 +429,16 @@ function go(target) {
   updateDocumentTitle();
   playSprings(idx);
 
-  const langMenu = document.getElementById('langMenu');
-  if (langMenu) {
-    if (idx === 0) langMenu.classList.add('show');
-    else langMenu.classList.remove('show');
+  const settingsMenu = document.getElementById('settingsMenu');
+  if (settingsMenu) {
+    if (idx === 0) settingsMenu.classList.add('show');
+    else settingsMenu.classList.remove('show');
   }
 
-  if (target === 1) setTimeout(syncGiscusLang, 500);
+  if (target === 1) {
+    setTimeout(syncGiscusLang, 500);
+    scheduleGuestbookScroll();
+  }
 
   if (target === 6) requestAnimationFrame(startEscapeLoop);
 }
@@ -407,9 +453,7 @@ class AudioSynth {
     try {
       if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
       if (this.ctx.state === 'suspended') this.ctx.resume();
-    } catch (e) {
-      this.ctx = null;
-    }
+    } catch (e) { this.ctx = null; }
   }
   stop() { this.currentNodes.forEach(n => { try { n.stop(); } catch (e) {} }); this.currentNodes = []; }
   playTone(freq, duration, type = 'square', startTime = 0) {
@@ -422,9 +466,7 @@ class AudioSynth {
     osc.connect(gain); gain.connect(this.ctx.destination);
     osc.start(now); osc.stop(now + duration);
     this.currentNodes.push(osc);
-    osc.onended = () => {
-      this.currentNodes = this.currentNodes.filter(n => n !== osc);
-    };
+    osc.onended = () => { this.currentNodes = this.currentNodes.filter(n => n !== osc); };
   }
   close() {
     if (this.ctx) { try { this.ctx.close(); } catch (e) {} this.ctx = null; }
@@ -742,7 +784,6 @@ function showErrorOverlay(type) {
     overlay.style.animation = 'none';
     overlay.style.transition = 'opacity .35s ease';
     overlay.style.opacity = '0';
-    // 【优化】支持键盘关闭
     document.removeEventListener('keydown', onKey);
     setTimeout(() => {
       overlay.remove();
@@ -752,8 +793,7 @@ function showErrorOverlay(type) {
       enteredFullscreen = false;
     }, 360);
   };
-  
-  // 【优化】按 Esc 或 Enter 关闭报错层
+
   const onKey = (e) => {
     if (e.key === 'Escape' || e.key === 'Enter') closeOverlay();
   };
@@ -778,6 +818,12 @@ function startEscapeLoop() {
   if (isEscaping) return;
   const eggEscape = document.getElementById('card-april_fool');
   if (!eggEscape || eggEscape.style.display === 'none' || !eggEscape.isConnected) return;
+
+  if (mouseX === 0 && mouseY === 0) {
+    mouseX = window.innerWidth / 2;
+    mouseY = window.innerHeight * 0.6;
+  }
+
   isEscaping = true;
   const generation = ++escapeGeneration;
 
@@ -823,7 +869,6 @@ function startEscapeLoop() {
   requestAnimationFrame(update);
 }
 
-// 【优化】简化 restartEscapeLoop 逻辑
 function restartEscapeLoop() {
   if (!isEscaping) return;
   isEscaping = false;
@@ -839,6 +884,178 @@ window.addEventListener('resize', () => {
 
 window.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; startEscapeLoop(); });
 window.addEventListener('touchmove', (e) => { if (!e.touches.length) return; mouseX = e.touches[0].clientX; mouseY = e.touches[0].clientY; startEscapeLoop(); }, { passive: true });
+
+
+/* =========================================================
+   ★ UI：语言按钮刷新 + 桌面设置胶囊 + 移动设置面板
+   （从 lang.js 迁入，UI 交互归 main.js）
+   ========================================================= */
+
+function updateLangButtons(lang) {
+  document.querySelectorAll('button[data-lang]').forEach(btn => {
+    btn.setAttribute('aria-pressed', btn.dataset.lang === lang ? 'true' : 'false');
+  });
+}
+
+function initSettingsMenu() {
+  if (document.getElementById('settingsMenu')) return;
+
+  const menuHTML = `
+    <div id="settingsMenu" class="settings-menu-wrapper" tabindex="0" aria-label="${i18n[currentLang].settings_label}">
+      <div class="settings-icon">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+      </div>
+      <div class="settings-options">
+        <div class="settings-group" data-group="lang">
+          <button type="button" class="settings-trigger">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+            <span data-i18n="settings_lang">${i18n[currentLang].settings_lang}</span>
+          </button>
+          <div class="settings-sub">${buildLangButtonsHTML()}</div>
+        </div>
+        <div class="settings-group" data-group="theme">
+          <button type="button" class="settings-trigger">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a7 7 0 0 0 0 14c1.5 0 2-1 2-2s-.5-1-2-1a5 5 0 0 1 0-10z" fill="currentColor" stroke="none"></path></svg>
+            <span data-i18n="settings_theme">${i18n[currentLang].settings_theme}</span>
+          </button>
+          <div class="settings-sub">${buildThemeButtonsHTML()}</div>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML('beforeend', menuHTML);
+
+  const menu = document.getElementById('settingsMenu');
+
+  let hideTimer = null;
+
+  function cancelHide() {
+    if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; }
+  }
+
+  function closeMenuNow() {
+    cancelHide();
+    menu.classList.remove('is-open');
+    menu.querySelectorAll('.settings-group').forEach(g => g.classList.remove('sub-open'));
+  }
+
+  function scheduleHide(delay = 2000) {
+    cancelHide();
+    hideTimer = setTimeout(closeMenuNow, delay);
+  }
+
+  menu.addEventListener('mouseenter', () => {
+    cancelHide();
+    menu.classList.add('is-open');
+  });
+
+  /* 全局 mousemove：侧面移出立即收起，上下方向 2s */
+  document.addEventListener('mousemove', (e) => {
+    if (!menu.classList.contains('is-open')) return;
+    if (menu.contains(document.activeElement)) return;
+
+    const rect = menu.getBoundingClientRect();
+    const padX = 20;
+    const padTop = 20;
+    const extraBottom = 260;
+
+    // 侧面（x 超左右边界）：立即收起
+    if (e.clientX < rect.left - padX || e.clientX > rect.right + padX) {
+      closeMenuNow();
+      return;
+    }
+
+    // 上下方向：安全区内保持，出区 2 秒后收起
+    if (e.clientY >= rect.top - padTop && e.clientY <= rect.bottom + extraBottom) {
+      cancelHide();
+    } else {
+      scheduleHide(2000);
+    }
+  });
+
+  /* 二级：同一时间只展开一组 */
+  menu.querySelectorAll('.settings-group').forEach(group => {
+    group.addEventListener('mouseenter', () => {
+      cancelHide();
+      menu.querySelectorAll('.settings-group').forEach(g => {
+        if (g !== group) g.classList.remove('sub-open');
+      });
+      group.classList.add('sub-open');
+    });
+  });
+
+  /* 按钮点击 */
+  menu.querySelectorAll('button[data-lang]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      applyLanguage(btn.dataset.lang);
+      if (e.detail !== 0) btn.blur();
+    });
+  });
+
+  menu.querySelectorAll('button[data-theme]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      applyTheme(btn.dataset.theme);
+      if (e.detail !== 0) btn.blur();
+    });
+  });
+
+  updateThemeButtons(themePreference);
+  updateLangButtons(currentLang);
+}
+
+function initMobileSettingsPanel() {
+  const gridMenu = document.getElementById('mobileGridMenu');
+  const panel = document.getElementById('mobileSettingsPanel');
+  const settingsBtn = document.getElementById('mobileSettingsBtn');
+  const backBtn = document.getElementById('mobileSettingsBack');
+  if (!gridMenu || !panel || !settingsBtn || !backBtn) return;
+
+  const langSub = document.getElementById('mobileSubLang');
+  const themeSub = document.getElementById('mobileSubTheme');
+  if (langSub && !langSub.innerHTML.trim()) langSub.innerHTML = buildLangButtonsHTML();
+  if (themeSub && !themeSub.innerHTML.trim()) themeSub.innerHTML = buildThemeButtonsHTML();
+
+  langSub.querySelectorAll('button[data-lang]').forEach(btn => {
+    btn.addEventListener('click', () => applyLanguage(btn.dataset.lang));
+  });
+
+  themeSub.querySelectorAll('button[data-theme]').forEach(btn => {
+    btn.addEventListener('click', () => applyTheme(btn.dataset.theme));
+  });
+
+  settingsBtn.addEventListener('click', () => {
+    gridMenu.classList.add('is-hidden');
+    panel.classList.remove('is-hidden');
+    settingsBtn.setAttribute('aria-expanded', 'true');
+  });
+
+  backBtn.addEventListener('click', () => {
+    panel.classList.add('is-hidden');
+    gridMenu.classList.remove('is-hidden');
+    settingsBtn.setAttribute('aria-expanded', 'false');
+    panel.querySelectorAll('.mobile-settings-sub').forEach(sub => sub.classList.remove('open'));
+    panel.querySelectorAll('.mobile-settings-trigger').forEach(t => t.setAttribute('aria-expanded', 'false'));
+  });
+
+  panel.querySelectorAll('.mobile-settings-trigger').forEach(trigger => {
+    trigger.addEventListener('click', () => {
+      const target = document.getElementById(trigger.dataset.target);
+      const isOpen = trigger.getAttribute('aria-expanded') === 'true';
+      panel.querySelectorAll('.mobile-settings-sub').forEach(sub => sub.classList.remove('open'));
+      panel.querySelectorAll('.mobile-settings-trigger').forEach(t => t.setAttribute('aria-expanded', 'false'));
+      if (!isOpen && target) {
+        trigger.setAttribute('aria-expanded', 'true');
+        target.classList.add('open');
+      }
+    });
+  });
+
+  updateThemeButtons(themePreference);
+  updateLangButtons(currentLang);
+}
 
 
 /* =========================================================
@@ -875,6 +1092,18 @@ mobileMoreBtn.addEventListener('click', (e) => {
   mobileMoreBtn.setAttribute('aria-expanded', 'true');
   const expanded = document.getElementById('mobileNavExpanded');
   if (expanded) expanded.setAttribute('aria-hidden', 'false');
+
+  // 每次打开抽屉都回到九宫格
+  const settingsPanel = document.getElementById('mobileSettingsPanel');
+  const gridMenu = document.getElementById('mobileGridMenu');
+  const settingsBtn = document.getElementById('mobileSettingsBtn');
+  if (settingsPanel) {
+    settingsPanel.classList.add('is-hidden');
+    settingsPanel.querySelectorAll('.mobile-settings-sub').forEach(sub => sub.classList.remove('open'));
+    settingsPanel.querySelectorAll('.mobile-settings-trigger').forEach(t => t.setAttribute('aria-expanded', 'false'));
+  }
+  if (gridMenu) gridMenu.classList.remove('is-hidden');
+  if (settingsBtn) settingsBtn.setAttribute('aria-expanded', 'false');
 
   const first = document.querySelector('#mobileNavExpanded a, #mobileNavExpanded button');
   if (first) setTimeout(() => first.focus({ preventScroll: true }), 380);
@@ -922,27 +1151,41 @@ function toast(msg) {
   toastTimer = setTimeout(() => el.classList.remove('show'), 2000);
 }
 
-initMobileLangButtons();
-initLangMenu();
+/* =========================================================
+   初始化
+   ========================================================= */
+initSettingsMenu();
+initMobileSettingsPanel();
 mountGiscus();
 
 document.documentElement.classList.remove('lang-en-pending');
 
-const langMenuEl = document.getElementById('langMenu');
-if (langMenuEl) {
-  if (idx === 0) langMenuEl.classList.add('show');
-  else langMenuEl.classList.remove('show');
+const settingsMenuEl = document.getElementById('settingsMenu');
+if (settingsMenuEl) {
+  if (idx === 0) settingsMenuEl.classList.add('show');
+  else settingsMenuEl.classList.remove('show');
 }
 
 updateNav();
 updateDocumentTitle();
 
-// 【优化】避免和 applyLanguage 里的 playSprings 重复
+(function initTheme() {
+  const resolved = resolveTheme(themePreference);
+  if (resolved === 'light') document.documentElement.dataset.theme = 'light';
+  else document.documentElement.removeAttribute('data-theme');
+  if (typeof window.setBgTheme === 'function') window.setBgTheme(resolved === 'light');
+  updateThemeButtons(themePreference);
+  syncGiscusTheme(resolved);
+})();
+
 if (idx !== 6) {
   playSprings(idx);
 }
 
-// 【新增】绑定 Logo 点击回到首页
+if (idx === 1) {
+  scheduleGuestbookScroll();
+}
+
 const siteLogo = document.getElementById('siteLogo');
 if (siteLogo) {
   siteLogo.addEventListener('click', (e) => {

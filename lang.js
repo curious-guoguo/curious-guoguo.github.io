@@ -1,5 +1,6 @@
 /* =========================================================
-   语言 / 国际化（i18n）独立模块
+   i18n 数据 + 主题状态 + giscus 同步
+   UI 交互（设置胶囊 / 移动端设置面板）已移至 main.js
    ========================================================= */
 
 function safeGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
@@ -9,6 +10,8 @@ const i18n = {
   zh: {
     nav_home: '首页', nav_guestbook: '留言板', nav_vote: '打榜', nav_about: '关于我', nav_arcade: '游乐场', nav_tools: '百宝箱', nav_secret: '隐藏关', nav_more: '更多',
     lang_label: '语言',
+    settings_label: '设置', settings_lang: '语言', settings_theme: '外观', settings_back: '返回',
+    theme_auto: '跟随系统', theme_light: '浅色', theme_dark: '深色',
     title_vote: '打榜投票',
     hero_sub: '写代码 · 打游戏 · 折腾各种东西',
     home_visit_1: '这里一共有', home_visit_2: '个 ID 访问，总共', home_visit_3: '次',
@@ -44,6 +47,8 @@ const i18n = {
   'zh-TW': {
     nav_home: '首頁', nav_guestbook: '留言板', nav_vote: '打榜', nav_about: '關於我', nav_arcade: '遊樂場', nav_tools: '百寶箱', nav_secret: '隱藏關', nav_more: '更多',
     lang_label: '語言',
+    settings_label: '設定', settings_lang: '語言', settings_theme: '外觀', settings_back: '返回',
+    theme_auto: '跟隨系統', theme_light: '淺色', theme_dark: '深色',
     title_vote: '打榜投票',
     hero_sub: '寫代碼 · 打遊戲 · 折騰各種東西',
     home_visit_1: '這裡一共有', home_visit_2: '個 ID 訪問，總共', home_visit_3: '次',
@@ -79,6 +84,8 @@ const i18n = {
   en: {
     nav_home: 'Home', nav_guestbook: 'Guestbook', nav_vote: 'Vote', nav_about: 'About', nav_arcade: 'Arcade', nav_tools: 'Toolbox', nav_secret: 'Secret', nav_more: 'More',
     lang_label: 'Language',
+    settings_label: 'Settings', settings_lang: 'Language', settings_theme: 'Appearance', settings_back: 'Back',
+    theme_auto: 'System', theme_light: 'Light', theme_dark: 'Dark',
     title_vote: 'Vote',
     hero_sub: 'Coding · Gaming · Tinkering with everything',
     home_visit_1: 'Total', home_visit_2: 'unique visitor IDs,', home_visit_3: 'views',
@@ -114,6 +121,8 @@ const i18n = {
   ja: {
     nav_home: 'ホーム', nav_guestbook: '掲示板', nav_vote: '投票', nav_about: 'プロフィール', nav_arcade: 'ゲーム', nav_tools: 'ツール', nav_secret: '隠しエリア', nav_more: 'もっと',
     lang_label: '言語',
+    settings_label: '設定', settings_lang: '言語', settings_theme: '外観', settings_back: '戻る',
+    theme_auto: 'システム', theme_light: 'ライト', theme_dark: 'ダーク',
     title_vote: '投票',
     hero_sub: 'コードを書く · ゲームをする · いろいろいじる',
     home_visit_1: 'これまでに', home_visit_2: '個の ID から、合計', home_visit_3: '回',
@@ -149,6 +158,8 @@ const i18n = {
   ko: {
     nav_home: '홈', nav_guestbook: '방명록', nav_vote: '투표', nav_about: '소개', nav_arcade: '게임', nav_tools: '도구함', nav_secret: '비밀 구역', nav_more: '더보기',
     lang_label: '언어',
+    settings_label: '설정', settings_lang: '언어', settings_theme: '테마', settings_back: '뒤로',
+    theme_auto: '시스템', theme_light: '라이트', theme_dark: '다크',
     title_vote: '투표',
     hero_sub: '코딩 · 게임 · 이것저것 만지기',
     home_visit_1: '지금까지', home_visit_2: '개의 ID가 방문, 총', home_visit_3: '회',
@@ -184,6 +195,8 @@ const i18n = {
   fr: {
     nav_home: 'Accueil', nav_guestbook: 'Livre d\'or', nav_vote: 'Vote', nav_about: 'À propos', nav_arcade: 'Arcade', nav_tools: 'Boîte à outils', nav_secret: 'Secret', nav_more: 'Plus',
     lang_label: 'Langue',
+    settings_label: 'Paramètres', settings_lang: 'Langue', settings_theme: 'Apparence', settings_back: 'Retour',
+    theme_auto: 'Système', theme_light: 'Clair', theme_dark: 'Sombre',
     title_vote: 'Vote',
     hero_sub: 'Coder · Jouer · Bricoler en tout genre',
     home_visit_1: 'Au total,', home_visit_2: 'ID uniques et', home_visit_3: 'vues',
@@ -229,9 +242,21 @@ const LANG_META = {
 
 const LANGS = Object.keys(LANG_META).map(code => ({ code, label: LANG_META[code].label }));
 
+const THEME_PREFS = [
+  { code: 'auto',  key: 'theme_auto' },
+  { code: 'dark',  key: 'theme_dark' },
+  { code: 'light', key: 'theme_light' }
+];
+
 function buildLangButtonsHTML() {
   return LANGS.map(l =>
     `<button type="button" data-lang="${l.code}" aria-pressed="false">${l.label}</button>`
+  ).join('');
+}
+
+function buildThemeButtonsHTML() {
+  return THEME_PREFS.map(p =>
+    `<button type="button" data-theme="${p.code}" aria-pressed="false" data-i18n="${p.key}">${i18n[currentLang][p.key]}</button>`
   ).join('');
 }
 
@@ -245,11 +270,15 @@ let currentLang = (storedLang && i18n[storedLang]) ? storedLang : 'zh';
 const PAGE_TITLE_KEYS = ['nav_home', 'nav_guestbook', 'title_vote', 'nav_about', 'nav_arcade', 'nav_tools', 'nav_secret'];
 
 function updateDocumentTitle() {
-  const key = PAGE_TITLE_KEYS[idx] || 'nav_home';
+  const safeIdx = (typeof idx === 'number' && idx >= 0 && idx < PAGE_TITLE_KEYS.length) ? idx : 0;
+  const key = PAGE_TITLE_KEYS[safeIdx] || 'nav_home';
   const label = (i18n[currentLang] && i18n[currentLang][key]) || i18n[currentLang].nav_home;
   document.title = `curious-guoguo | ${label}`;
 }
 
+/* =========================================================
+   giscus 语言 / 主题同步
+   ========================================================= */
 let lastGiscusLang = null;
 
 function syncGiscusLang() {
@@ -258,11 +287,20 @@ function syncGiscusLang() {
   try {
     const frame = document.querySelector('iframe.giscus-frame');
     if (frame && frame.contentWindow) {
+      frame.contentWindow.postMessage({ giscus: { setConfig: { lang } } }, 'https://giscus.app');
+      lastGiscusLang = lang;
+    }
+  } catch (e) {}
+}
+
+function syncGiscusTheme(theme) {
+  try {
+    const frame = document.querySelector('iframe.giscus-frame');
+    if (frame && frame.contentWindow) {
       frame.contentWindow.postMessage(
-        { giscus: { setConfig: { lang } } },
+        { giscus: { setConfig: { theme: theme === 'light' ? 'light' : 'dark' } } },
         'https://giscus.app'
       );
-      lastGiscusLang = lang;
     }
   } catch (e) {}
 }
@@ -289,7 +327,7 @@ function mountGiscus() {
     'data-reactions-enabled': '1',
     'data-emit-metadata': '0',
     'data-input-position': 'bottom',
-    'data-theme': 'preferred_color_scheme',
+    'data-theme': document.documentElement.dataset.theme === 'light' ? 'light' : 'dark',
     'data-lang': lang,
     'data-loading': 'lazy'
   };
@@ -302,6 +340,7 @@ function mountGiscus() {
       frame.addEventListener('load', () => {
         lastGiscusLang = null;
         syncGiscusLang();
+        syncGiscusTheme(resolveTheme(themePreference));
       }, { once: true });
     }
   });
@@ -310,6 +349,52 @@ function mountGiscus() {
   mount.appendChild(script);
 }
 
+/* =========================================================
+   主题状态（三态：auto / light / dark）
+   ========================================================= */
+const THEME_MEDIA = window.matchMedia('(prefers-color-scheme: dark)');
+let systemIsDark = THEME_MEDIA.matches;
+
+let storedTheme = safeGet('site_theme');
+let themePreference = (storedTheme === 'light' || storedTheme === 'dark') ? storedTheme : 'auto';
+
+function resolveTheme(pref) {
+  if (pref === 'light') return 'light';
+  if (pref === 'dark') return 'dark';
+  return systemIsDark ? 'dark' : 'light';
+}
+
+function updateThemeButtons(pref) {
+  document.querySelectorAll('button[data-theme]').forEach(btn => {
+    btn.setAttribute('aria-pressed', btn.dataset.theme === pref ? 'true' : 'false');
+  });
+}
+
+function applyTheme(pref) {
+  if (pref !== 'auto' && pref !== 'light' && pref !== 'dark') pref = 'auto';
+  themePreference = pref;
+  safeSet('site_theme', pref);
+  const resolved = resolveTheme(pref);
+
+  if (resolved === 'light') document.documentElement.dataset.theme = 'light';
+  else document.documentElement.removeAttribute('data-theme');
+
+  if (typeof window.setBgTheme === 'function') window.setBgTheme(resolved === 'light');
+
+  updateThemeButtons(pref);
+  syncGiscusTheme(resolved);
+}
+
+const onSystemThemeChange = (e) => {
+  systemIsDark = e.matches;
+  if (themePreference === 'auto') applyTheme('auto');
+};
+if (THEME_MEDIA.addEventListener) THEME_MEDIA.addEventListener('change', onSystemThemeChange);
+else if (THEME_MEDIA.addListener) THEME_MEDIA.addListener(onSystemThemeChange);
+
+/* =========================================================
+   语言应用
+   ========================================================= */
 function applyLanguage(lang) {
   if (!i18n[lang]) lang = 'zh';
   currentLang = lang;
@@ -337,12 +422,11 @@ function applyLanguage(lang) {
 
   const moreBtn = document.getElementById('mobileMoreBtn');
   if (moreBtn) moreBtn.setAttribute('aria-label', i18n[lang].nav_more);
-  const menuWrap = document.getElementById('langMenu');
-  if (menuWrap) menuWrap.setAttribute('aria-label', i18n[lang].lang_label);
 
-  document.querySelectorAll('button[data-lang]').forEach(btn => {
-    btn.setAttribute('aria-pressed', btn.dataset.lang === lang ? 'true' : 'false');
-  });
+  const settingsMenu = document.getElementById('settingsMenu');
+  if (settingsMenu) settingsMenu.setAttribute('aria-label', i18n[lang].settings_label);
+
+  updateLangButtons(lang);
 
   updateDocumentTitle();
   syncGiscusLang();
@@ -371,57 +455,9 @@ function applyLanguage(lang) {
 
     if (idx === 6) {
       requestAnimationFrame(startEscapeLoop);
-      // 这里补一次 playSprings，因为重建了卡片
       playSprings(idx);
     }
   }
 
   document.documentElement.classList.remove('lang-en-pending');
-}
-
-function initLangMenu() {
-  const menuHTML = `
-    <div id="langMenu" class="lang-menu-wrapper" tabindex="0" aria-label="Language">
-      <div class="lang-icon">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
-      </div>
-      <div class="lang-options">
-        ${buildLangButtonsHTML()}
-      </div>
-    </div>
-  `;
-  document.body.insertAdjacentHTML('beforeend', menuHTML);
-
-  const menu = document.getElementById('langMenu');
-  menu.querySelectorAll('button[data-lang]').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      applyLanguage(btn.dataset.lang);
-
-      if (e.detail !== 0) {
-        menu.classList.add('suppress-hover');
-        btn.blur();
-      }
-    });
-  });
-
-  menu.addEventListener('pointerleave', () => {
-    menu.classList.remove('suppress-hover');
-  });
-
-  menu.addEventListener('focusout', (e) => {
-    if (!menu.contains(e.relatedTarget) && !menu.matches(':hover')) {
-      menu.classList.remove('suppress-hover');
-    }
-  });
-
-  applyLanguage(currentLang);
-}
-
-function initMobileLangButtons() {
-  const container = document.querySelector('.lang-btns');
-  if (!container) return;
-  container.innerHTML = buildLangButtonsHTML();
-  container.querySelectorAll('button[data-lang]').forEach(btn => {
-    btn.addEventListener('click', () => applyLanguage(btn.dataset.lang));
-  });
 }
