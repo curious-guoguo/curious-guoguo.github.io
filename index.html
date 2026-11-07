@@ -2,16 +2,54 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="description" content="curious-guoguo 个人主页">
 <meta name="author" content="curious-guoguo">
 <title>curious-guoguo | 首页</title>
+<!-- 【新增】使用 Data URI 直接内嵌 Favicon，无需额外新建文件 -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='l1' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%238fc4ff'/%3E%3Cstop offset='100%25' stop-color='%23c4a0ff' stop-opacity='0.5'/%3E%3C/linearGradient%3E%3ClinearGradient id='l2' x1='100%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23ffb3d9'/%3E%3Cstop offset='100%25' stop-color='%238fc4ff' stop-opacity='0.5'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cg%3E%3Ccircle cx='35' cy='50' r='22' fill='none' stroke='url(%23l1)' stroke-width='10' stroke-linecap='round'/%3E%3Ccircle cx='65' cy='50' r='22' fill='none' stroke='url(%23l2)' stroke-width='10' stroke-linecap='round'/%3E%3Ccircle cx='50' cy='50' r='6' fill='%23fff'/%3E%3C/g%3E%3C/svg%3E">
+<script>
+  // 提前标记英文用户，避免首屏中文闪烁
+  try {
+    if (localStorage.getItem('site_lang') === 'en') {
+      document.documentElement.classList.add('lang-en-pending');
+      document.documentElement.lang = 'en';
+    }
+  } catch (e) {}
+</script>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- 高性能 WebGL 背景 -->
-<canvas id="bg-canvas"></canvas>
+<canvas id="bg-canvas" aria-hidden="true"></canvas>
+
+<!-- 【新增】站点 Logo (内联SVG，流体无限方案) -->
+<a href="#" class="site-logo" id="siteLogo" aria-label="Home">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+    <defs>
+      <linearGradient id="logo-loop1" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#8fc4ff" />
+        <stop offset="100%" stop-color="#c4a0ff" stop-opacity="0.5" />
+      </linearGradient>
+      <linearGradient id="logo-loop2" x1="100%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#ffb3d9" />
+        <stop offset="100%" stop-color="#8fc4ff" stop-opacity="0.5" />
+      </linearGradient>
+      <filter id="logo-glow">
+        <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+        <feMerge>
+          <feMergeNode in="coloredBlur"/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
+    </defs>
+    <g filter="url(#logo-glow)">
+      <circle cx="35" cy="50" r="22" fill="none" stroke="url(#logo-loop1)" stroke-width="10" stroke-linecap="round" />
+      <circle cx="65" cy="50" r="22" fill="none" stroke="url(#logo-loop2)" stroke-width="10" stroke-linecap="round" />
+      <circle cx="50" cy="50" r="6" fill="#ffffff" />
+    </g>
+  </svg>
+</a>
 
 <!-- 桌面端侧边栏 -->
 <aside class="sidebar" id="sidebar">
@@ -43,9 +81,8 @@
 <!-- 移动端遮罩层 -->
 <div class="mobile-drawer-overlay" id="mobileDrawerOverlay"></div>
 
-<!-- 移动端变形胶囊 (底栏 + 抽屉) -->
+<!-- 移动端变形胶囊 -->
 <nav class="mobile-bottom-nav" id="mobileBottomNav">
-  <!-- 快捷栏 -->
   <div class="nav-shortcuts">
     <a href="#" class="nav-item active" data-slide="0">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
@@ -59,14 +96,15 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
       <span data-i18n="nav_arcade">游乐场</span>
     </a>
-    <div class="nav-item" id="mobileMoreBtn">
+    <div class="nav-item" id="mobileMoreBtn" role="button" tabindex="0"
+         aria-expanded="false" aria-controls="mobileNavExpanded" aria-label="More">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
-      <span>更多</span>
+      <span data-i18n="nav_more">更多</span>
     </div>
   </div>
 
-  <!-- 展开后的抽屉内容 (3x3 网格) -->
-  <div class="nav-expanded">
+  <!-- 【无障碍】展开区初始隐藏，aria-hidden 与 JS 中的展开/收起状态同步 -->
+  <div class="nav-expanded" id="mobileNavExpanded" aria-hidden="true">
     <div class="drawer-divider"></div>
     <div class="grid-menu">
       <a href="#" data-slide="0" class="grid-item">
@@ -100,10 +138,10 @@
     </div>
     <div class="drawer-divider"></div>
     <div class="drawer-lang">
-      <span style="color:var(--ink-3); font-size:.9rem;">Language</span>
+      <span class="drawer-lang-label" data-i18n="lang_label">语言</span>
       <div class="lang-btns">
-        <button onclick="applyLanguage('zh')">中文</button>
-        <button onclick="applyLanguage('en')">EN</button>
+        <button type="button" data-lang="zh" aria-pressed="false">中文</button>
+        <button type="button" data-lang="en" aria-pressed="false">EN</button>
       </div>
     </div>
   </div>
@@ -122,12 +160,12 @@
         <div class="home-stat rise">
           <div class="visit">
             <span data-i18n="home_visit_1">这里一共有</span>
-            <img src="https://w.saobby.com/w/50x439dc" alt="访问ID数" loading="lazy" style="position: relative; top: 2px;">
+            <img src="https://w.saobby.com/w/50x439dc" alt="访问ID数" data-i18n-alt="alt_visit_id">
             <span data-i18n="home_visit_2">个 ID 访问，总共</span>
-            <img src="https://w.saobby.com/w/x6o8wm41" alt="访问次数" loading="lazy" style="position: relative; top: 2px;">
+            <img src="https://w.saobby.com/w/x6o8wm41" alt="访问次数" data-i18n-alt="alt_visit_count">
             <span data-i18n="home_visit_3">次</span>
           </div>
-          <div class="thanks" data-i18n="home_thanks">感谢 saobby 提供访问统计与投票服务</div>
+          <div class="thanks" data-i18n-html="home_thanks">感谢 <a href="https://www.saobby.com/" target="_blank" rel="noopener">saobby</a> 提供访问统计与投票服务</div>
         </div>
       </div>
     </div>
@@ -137,41 +175,27 @@
   <section class="slide">
     <h2 class="slide-title" data-i18n="nav_guestbook">留言板</h2>
     <div class="slide-body">
-      <div class="giscus" style="margin-top: 1rem;"></div>
-      <script src="https://giscus.app/client.js"
-              data-repo="curious-guoguo/curious-guoguo.github.io"
-              data-repo-id="R_kgDOSc14mw"
-              data-category="Announcements"
-              data-category-id="DIC_kwDOSc14m84DKhvT"
-              data-mapping="pathname"
-              data-strict="0"
-              data-reactions-enabled="1"
-              data-emit-metadata="0"
-              data-input-position="bottom"
-              data-theme="preferred_color_scheme"
-              data-lang="zh-CN"
-              data-loading="lazy"
-              crossorigin="anonymous"
-              async>
-      </script>
+      <div class="giscus" style="margin-top: 1rem;">
+        <noscript>留言板需要 JavaScript 支持。</noscript>
+      </div>
     </div>
   </section>
 
   <!-- 3 打榜 -->
   <section class="slide">
-    <h2 class="slide-title" data-i18n="nav_vote">打榜投票</h2>
+    <h2 class="slide-title" data-i18n="title_vote">打榜投票</h2>
     <div class="slide-body">
       <div class="vote-grid">
-        <a class="vote-card" href="https://vote.saobby.com/v/maNz2mYg/0">
-          <div class="vote-thumb"><img src="https://vote.saobby.com/i/maNz2mYg/0" alt="蒟蒻" loading="lazy"></div>
+        <a class="vote-card" href="https://vote.saobby.com/v/maNz2mYg/0" target="_blank" rel="noopener">
+          <div class="vote-thumb"><img src="https://vote.saobby.com/i/maNz2mYg/0" alt="蒟蒻" data-i18n-alt="vote_1" loading="lazy"></div>
           <div class="vote-info"><span class="vote-name" data-i18n="vote_1">蒟蒻</span><span class="vote-btn" data-i18n="vote_btn">去投票 →</span></div>
         </a>
-        <a class="vote-card" href="https://vote.saobby.com/v/maNz2mYg/1">
-          <div class="vote-thumb"><img src="https://vote.saobby.com/i/maNz2mYg/1" alt="老六" loading="lazy"></div>
+        <a class="vote-card" href="https://vote.saobby.com/v/maNz2mYg/1" target="_blank" rel="noopener">
+          <div class="vote-thumb"><img src="https://vote.saobby.com/i/maNz2mYg/1" alt="老六" data-i18n-alt="vote_2" loading="lazy"></div>
           <div class="vote-info"><span class="vote-name" data-i18n="vote_2">老六</span><span class="vote-btn" data-i18n="vote_btn">去投票 →</span></div>
         </a>
-        <a class="vote-card" href="https://vote.saobby.com/v/maNz2mYg/2">
-          <div class="vote-thumb"><img src="https://vote.saobby.com/i/maNz2mYg/2" alt="大佬六" loading="lazy"></div>
+        <a class="vote-card" href="https://vote.saobby.com/v/maNz2mYg/2" target="_blank" rel="noopener">
+          <div class="vote-thumb"><img src="https://vote.saobby.com/i/maNz2mYg/2" alt="大佬六" data-i18n-alt="vote_3" loading="lazy"></div>
           <div class="vote-info"><span class="vote-name" data-i18n="vote_3">大佬六</span><span class="vote-btn" data-i18n="vote_btn">去投票 →</span></div>
         </a>
       </div>
@@ -184,36 +208,36 @@
     <div class="slide-body">
       <div class="card-container">
         <a class="link-card" href="https://space.bilibili.com/3546821257333694" target="_blank" rel="noopener">
-          <div class="link-title" style="align-items: center;">
-            <img src="https://www.bilibili.com/favicon.ico" style="width: 20px; height: 20px; object-fit: contain; margin-right: 8px;" alt="Bilibili">
+          <div class="link-title">
+            <img src="https://www.bilibili.com/favicon.ico" class="card-favicon" alt="Bilibili">
             bilibili
           </div>
           <div class="desc" data-i18n="desc_bili">我的B站个人空间</div>
         </a>
         <a class="link-card" href="https://github.com/curious-guoguo" target="_blank" rel="noopener">
-          <div class="link-title" style="align-items: center;">
-            <img src="https://github.com/favicon.ico" style="width: 20px; height: 20px; object-fit: contain; margin-right: 8px;" alt="GitHub">
+          <div class="link-title">
+            <img src="https://github.com/favicon.ico" class="card-favicon" alt="GitHub">
             GitHub
           </div>
           <div class="desc" data-i18n="desc_github">我的开源代码仓库</div>
         </a>
         <a class="link-card" href="https://www.ccw.site/student/685528f84b57da1266fa5bab" target="_blank" rel="noopener">
-          <div class="link-title" style="align-items: center;">
-            <img src="https://m.ccw.site/community/images/head-logo-v3.png" style="height: 20px; width: auto; max-width: 60px; object-fit: contain; margin-right: 8px;" alt="CCW">
+          <div class="link-title">
+            <img src="https://m.ccw.site/community/images/head-logo-v3.png" class="card-logo-wide" alt="CCW">
             <span data-i18n="card_ccw">共创世界</span>
           </div>
           <div class="desc" data-i18n="desc_ccw">共创世界个人主页</div>
         </a>
         <a class="link-card" href="https://www.luogu.com.cn/user/949470" target="_blank" rel="noopener">
-          <div class="link-title" style="align-items: center;">
-            <img src="https://www.luogu.com.cn/favicon.ico" style="width: 20px; height: 20px; object-fit: contain; margin-right: 8px;" alt="Luogu">
+          <div class="link-title">
+            <img src="https://www.luogu.com.cn/favicon.ico" class="card-favicon" alt="Luogu">
             <span data-i18n="card_luogu">洛谷</span>
           </div>
           <div class="desc" data-i18n="desc_luogu">洛谷编程平台个人主页</div>
         </a>
         <a class="link-card" href="mailto:guoguogg2014@163.com">
-          <div class="link-title" style="align-items: center;">
-            <svg style="width: 20px; height: 20px; flex: 0 0 20px; color: var(--accent); margin-right: 8px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+          <div class="link-title">
+            <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
             <span data-i18n="card_email">联系邮箱</span>
           </div>
           <div class="desc">guoguogg2014@163.com</div>
@@ -227,38 +251,38 @@
     <h2 class="slide-title" data-i18n="nav_arcade">游乐场</h2>
     <div class="slide-body">
       <div class="card-container">
-        <div class="link-card" role="button" tabindex="0" onclick="copyLink('chrome://dino/')">
+        <div class="link-card" role="button" tabindex="0" data-copy="chrome://dino/">
           <div class="link-title" data-i18n="card_dino">chrome小恐龙</div>
-          <div class="desc" data-i18n="desc_dino">点击复制链接后自行打开</div>
+          <div class="desc" data-i18n="desc_dino">点击复制链接后用 Chrome 打开</div>
         </div>
         <a class="link-card" href="https://tafang123.com/" target="_blank" rel="noopener">
           <div class="link-title" data-i18n="card_td1">塔防（1）</div>
           <div class="desc" data-i18n="desc_td1">经典塔防小游戏</div>
         </a>
         <a class="link-card" href="https://yorg.io/" target="_blank" rel="noopener">
-          <div class="link-title" style="align-items: center;">
-            <img src="https://yorg.io/favicon.ico" style="width: 20px; height: 20px; object-fit: contain; margin-right: 8px;" alt="Yorg">
+          <div class="link-title">
+            <img src="https://yorg.io/favicon.ico" class="card-favicon" alt="Yorg">
             <span data-i18n="card_td2">塔防（2）</span>
           </div>
           <div class="desc" data-i18n="desc_td2">Yorg 塔防在线游玩</div>
         </a>
         <a class="link-card" href="https://yorg3.io/" target="_blank" rel="noopener">
-          <div class="link-title" style="align-items: center;">
-            <img src="https://yorg3.io/favicon.ico" style="width: 20px; height: 20px; object-fit: contain; margin-right: 8px;" alt="Yorg3">
+          <div class="link-title">
+            <img src="https://yorg3.io/favicon.ico" class="card-favicon" alt="Yorg3">
             <span data-i18n="card_td3">塔防（3）</span>
           </div>
           <div class="desc" data-i18n="desc_td3">Yorg3 塔防游戏</div>
         </a>
         <a class="link-card" href="https://florr.io/" target="_blank" rel="noopener">
-          <div class="link-title" style="align-items: center;">
-            <img src="https://florr.io/favicon.ico" style="width: 20px; height: 20px; object-fit: contain; margin-right: 8px;" alt="Florr">
+          <div class="link-title">
+            <img src="https://florr.io/favicon.ico" class="card-favicon" alt="Florr">
             <span data-i18n="card_florr">花朵</span>
           </div>
           <div class="desc" data-i18n="desc_florr">Florr.io 花朵生存游戏</div>
         </a>
         <a class="link-card" href="https://poki.com" target="_blank" rel="noopener">
-          <div class="link-title" style="align-items: center;">
-            <img src="https://poki.com/favicon.ico" style="width: 20px; height: 20px; object-fit: contain; margin-right: 8px;" alt="Poki">
+          <div class="link-title">
+            <img src="https://poki.com/favicon.ico" class="card-favicon" alt="Poki">
             poki
           </div>
           <div class="desc" data-i18n="desc_poki">在线免费小游戏平台</div>
@@ -277,22 +301,22 @@
     <div class="slide-body">
       <div class="card-container">
         <a class="link-card" href="https://tool.lu/" target="_blank" rel="noopener">
-          <div class="link-title" style="align-items: center;">
-            <img src="https://tool.lu/favicon.ico" style="width: 20px; height: 20px; object-fit: contain; margin-right: 8px;" alt="Tool.lu">
+          <div class="link-title">
+            <img src="https://tool.lu/favicon.ico" class="card-favicon" alt="Tool.lu">
             <span data-i18n="card_tool1">综合工具箱</span>
           </div>
           <div class="desc" data-i18n="desc_tool1">tool.lu 在线工具集</div>
         </a>
         <a class="link-card" href="https://ssoier.cn/" target="_blank" rel="noopener">
-          <div class="link-title" style="align-items: center;">
-            <img src="https://ssoier.cn/favicon.ico" style="width: 20px; height: 20px; object-fit: contain; margin-right: 8px;" alt="Ssoier">
+          <div class="link-title">
+            <img src="https://ssoier.cn/favicon.ico" class="card-favicon" alt="Ssoier">
             <span data-i18n="card_tool2">信奥工具</span>
           </div>
           <div class="desc" data-i18n="desc_tool2">ssoier 学习与工具站</div>
         </a>
         <a class="link-card" href="https://www.saobby.com/" target="_blank" rel="noopener">
-          <div class="link-title" style="align-items: center;">
-            <img src="https://www.saobby.com/favicon.ico" style="width: 20px; height: 20px; object-fit: contain; margin-right: 8px;" alt="Saobby">
+          <div class="link-title">
+            <img src="https://www.saobby.com/favicon.ico" class="card-favicon" alt="Saobby">
             <span data-i18n="card_tool3">建站工具</span>
           </div>
           <div class="desc" data-i18n="desc_tool3">saobby 建站服务平台</div>
@@ -302,15 +326,15 @@
           <div class="desc" data-i18n="desc_tool4">note.ms 在线文本分享</div>
         </a>
         <a class="link-card" href="https://easychuan.cn/" target="_blank" rel="noopener">
-          <div class="link-title" style="align-items: center;">
-            <img src="https://static.easychuan.cn/favicon.png" style="width: 20px; height: 20px; object-fit: contain; margin-right: 8px;" alt="EasyChuan">
+          <div class="link-title">
+            <img src="https://static.easychuan.cn/favicon.png" class="card-favicon" alt="EasyChuan">
             <span data-i18n="card_tool5">轻松传</span>
           </div>
           <div class="desc" data-i18n="desc_tool5">跨设备文件极速传输</div>
         </a>
         <a class="link-card" href="https://chat.deepseek.com/sign_in" target="_blank" rel="noopener">
-          <div class="link-title" style="align-items: center;">
-            <img src="https://fe-static.deepseek.com/chat/favicon.svg" style="width: 20px; height: 20px; object-fit: contain; margin-right: 8px;" alt="DeepSeek">
+          <div class="link-title">
+            <img src="https://fe-static.deepseek.com/chat/favicon.svg" class="card-favicon" alt="DeepSeek">
             DeepSeek AI
           </div>
           <div class="desc" data-i18n="desc_tool6">深度求索对话大模型</div>
@@ -324,21 +348,19 @@
     <h2 class="slide-title" data-i18n="nav_secret">隐藏关</h2>
     <div class="slide-body" id="otherSlideBody">
       <div class="card-container" id="otherContainer" style="position: relative;">
-
-        <!-- 千万别点 -->
-        <div class="link-card" id="trapCard" role="button" tabindex="0" style="position: relative; overflow: hidden;">
+        <div class="link-card" id="trapCard" role="button" tabindex="0"
+             aria-label="长按 3 秒解锁隐藏彩蛋"
+             style="position: relative; overflow: hidden;">
           <div class="link-title" style="color: #ff7b7b;" data-i18n="card_trap">千万别点</div>
           <div id="trapProgress" style="position: absolute; bottom: 0; left: 0; height: 4px; width: 0%; background: #ff4d4d; transition: width 0.05s linear;"></div>
         </div>
-
-        <!-- 动态节日卡片插入点 -->
         <div id="festival-cards-holder" style="display: contents;"></div>
-
       </div>
     </div>
   </section>
 </main>
 
+<script src="lang.js"></script>
 <script src="main.js"></script>
 </body>
 </html>

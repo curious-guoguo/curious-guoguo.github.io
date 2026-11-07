@@ -25,11 +25,48 @@ body {
   -webkit-touch-callout: none;
 }
 
+html.lang-en-pending [data-i18n],
+html.lang-en-pending [data-i18n-html] { visibility: hidden; }
+
 #bg-canvas {
   position: fixed; top: 0; left: 0;
-  width: 100vw; height: 100vh;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
   z-index: -2; pointer-events: none;
 }
+
+/* =========================================================
+   【新增】站点 Logo
+   ========================================================= */
+.site-logo {
+  position: fixed;
+  top: 24px;
+  left: 24px;
+  width: 46px;
+  height: 46px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.4s var(--bounce);
+  -webkit-tap-highlight-color: transparent;
+}
+.site-logo svg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.site-logo:hover {
+  transform: scale(1.15) rotate(5deg);
+}
+.site-logo:active {
+  transform: scale(0.95);
+}
+
+/* 卡片图标通用类 */
+.card-favicon { width: 20px; height: 20px; flex: 0 0 20px; object-fit: contain; }
+.card-logo-wide { height: 20px; width: auto; max-width: 60px; flex: 0 0 auto; object-fit: contain; }
 
 /* =========================================================
    桌面端侧边栏
@@ -66,13 +103,17 @@ body {
 .sidebar-menu .label { opacity: 0; transform: translateX(-6px); transition: opacity .2s .04s, transform .3s var(--bounce-soft); }
 .sidebar:hover .label { opacity: 1; transform: translateX(0); }
 
-/* 隐藏移动端元素（默认在桌面端） */
 .mobile-bottom-nav, .mobile-drawer-overlay { display: none; }
 
 /* =========================================================
    舞台 / 幻灯片
    ========================================================= */
-.deck { position: relative; width: 100vw; height: 100vh; overflow: hidden; isolation: isolate; }
+.deck {
+  position: relative; width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden; isolation: isolate;
+}
 
 .slide {
   position: absolute; inset: 0; display: flex; flex-direction: column;
@@ -80,6 +121,7 @@ body {
   opacity: 0; visibility: hidden; transform: translateY(16px) scale(.988);
   transition: opacity .42s ease, transform .55s var(--bounce-soft), visibility 0s .42s, padding-left .38s var(--bounce-soft);
   overflow: hidden; z-index: 1;
+  will-change: padding-left;
 }
 .slide.active {
   opacity: 1; visibility: visible; transform: none;
@@ -92,6 +134,8 @@ body {
   flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden;
   padding-bottom: 104px; padding-right: 6px;
   scrollbar-width: thin; scrollbar-color: rgba(140,180,255,.3) transparent;
+  user-select: text;
+  -webkit-user-select: text;
 }
 .slide-body::-webkit-scrollbar { width: 8px; }
 .slide-body::-webkit-scrollbar-track { background: transparent; }
@@ -122,6 +166,7 @@ body {
   border: 1px solid rgba(255,255,255,.15);
   box-shadow: 0 10px 30px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.2);
   transition: transform .38s var(--bounce), box-shadow .38s, border-color .38s, background .38s;
+  touch-action: manipulation;
 }
 .link-card:hover {
   transform: translateY(-6px) scale(1.012);
@@ -134,17 +179,25 @@ body {
 .card-icon { width: 21px; height: 21px; flex: 0 0 21px; color: var(--accent); }
 .link-card .desc { font-size: .84rem; color: var(--ink-3); margin-top: .55rem; line-height: 1.55; }
 
-/* 键盘可达性：role=button 卡片显示焦点环 */
 .link-card[role="button"]:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
+}
+
+#trapCard {
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
 }
 
 /* =========================================================
    首页 & 投票
    ========================================================= */
 .hero-body { display: flex; }
-.hero { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: .5rem; padding-bottom: 60px; }
+.hero {
+  flex: 1; display: flex; flex-direction: column; justify-content: center; gap: .5rem;
+  padding-bottom: 20px;
+}
 .hero-greet { font-size: clamp(1.2rem, 2vw, 1.6rem); letter-spacing: .38em; text-transform: uppercase; color: rgba(200, 218, 255, .55); font-weight: 600; margin-bottom: .2rem; }
 .hero-title { font-size: clamp(2.8rem, 7vw, 5.6rem); font-weight: 900; line-height: 1.06; letter-spacing: .01em; }
 .grad { background: linear-gradient(90deg, #8fc4ff, #c4a0ff 60%, #ffb3d9); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
@@ -158,7 +211,7 @@ body {
   box-shadow: 0 10px 30px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.2);
 }
 .visit { display: flex; align-items: center; flex-wrap: wrap; gap: .35rem; font-size: .92rem; color: var(--ink-2); }
-.visit img { height: 20px; vertical-align: middle; opacity: .92; }
+.visit img { height: 20px; width: auto; object-fit: contain; vertical-align: middle; opacity: .92; position: relative; top: 2px; }
 .thanks { font-size: .8rem; color: var(--ink-3); letter-spacing: .04em; }
 .thanks a { color: var(--accent); text-decoration: none; border-bottom: 1px dashed rgba(156,196,255,.5); }
 .thanks a:hover { color: #fff; }
@@ -178,8 +231,8 @@ body {
   border-color: rgba(255,255,255,.3);
   box-shadow: 0 20px 40px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.4);
 }
-.vote-thumb { height: 60px; width: fit-content; align-self: center; border-radius: 8px; overflow: hidden; }
-.vote-thumb img { display: block; height: 60px; width: auto; border-radius: 8px; transition: transform .6s var(--bounce-soft); }
+.vote-thumb { height: 60px; min-width: 80px; align-self: center; border-radius: 8px; overflow: hidden; }
+.vote-thumb img { display: block; height: 60px; width: 100%; object-fit: contain; border-radius: 8px; transition: transform .6s var(--bounce-soft); filter: invert(1); }
 .vote-card:hover .vote-thumb img { transform: scale(1.03); }
 .vote-info { display: flex; align-items: center; justify-content: center; gap: 1rem; padding-top: .8rem; }
 .vote-name { font-size: 1.5rem; font-weight: 700; color: #eaf2ff; letter-spacing: .02em; }
@@ -201,10 +254,19 @@ body {
 }
 .fatal-error-overlay.blue-screen { background: #0078D7; color: white; }
 .fatal-error-overlay.mac-screen { background: #000; color: white; }
-.fatal-error-overlay.404-screen { background: #fff; color: #000; }
+.fatal-error-overlay.screen-404 { background: #0a0f1a; color: #eef3ff; }
 
 .fatal-error-overlay h1 { font-size: 8rem; margin-bottom: 1rem; }
 .fatal-error-overlay p { font-size: 1.5rem; letter-spacing: .1em; }
+
+.mac-spinner {
+  width: 40px; height: 40px;
+  border: 4px solid #ccc;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
 
 .effect-overlay {
   position: fixed; inset: 0; z-index: 8000; pointer-events: none; transition: opacity 1s;
@@ -235,53 +297,147 @@ body {
    ========================================================= */
 .springing { transition: none !important; }
 .toast {
-  position: fixed; left: 50%; bottom: 96px; transform: translate(-50%, 18px);
+  position: fixed; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+  transform: translate(-50%, 18px);
   padding: .7rem 1.4rem; border-radius: 999px;
   background: rgba(18, 28, 48, .88); border: 1px solid rgba(255,255,255,.22);
   backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
   color: #dbe8ff; font-size: .88rem; z-index: 100000; opacity: 0; pointer-events: none;
-  transition: opacity .25s, transform .38s var(--bounce-soft);
+  transition: opacity .25s, transform .38s var(--bounce-soft), bottom .3s ease;
   box-shadow: 0 14px 44px rgba(0,0,0,.5);
 }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
+.toast.raised { bottom: 50vh; }
 
 /* =========================================================
    桌面端左上角悬停语言菜单
    ========================================================= */
 .lang-menu-wrapper {
-  position: fixed; top: 24px; left: 24px; height: 46px;
-  display: flex; align-items: center; padding: 0 14px; border-radius: 23px;
-  background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(24px) saturate(180%); -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.15); box-shadow: 0 10px 30px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.35);
-  cursor: pointer; overflow: hidden; z-index: 1000; transition: opacity 0.3s, visibility 0.3s;
-  opacity: 0; visibility: hidden;
+  position: fixed; top: 24px; left: 24px; /* 默认位置 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: 23px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 10px 30px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.35);
+  cursor: pointer;
+  overflow: hidden;
+  z-index: 1000;
+  transition: opacity 0.3s, visibility 0.3s;
+  opacity: 0;
+  visibility: hidden;
 }
 .lang-menu-wrapper.show { opacity: 1; visibility: visible; }
-.lang-icon { color: #fff; display: flex; align-items: center; justify-content: center; transition: transform 0.3s var(--bounce); }
-.lang-menu-wrapper:hover .lang-icon { transform: rotate(90deg); }
-.lang-options { display: flex; align-items: center; gap: 12px; opacity: 0; width: 0; transition: all 0.35s var(--bounce-soft); white-space: nowrap; margin-left: 0; }
-.lang-menu-wrapper:hover .lang-options { opacity: 1; width: 100px; margin-left: 12px; }
-.lang-options span { font-size: 0.85rem; color: rgba(220, 232, 255, 0.7); transition: color 0.2s; }
-.lang-options span:hover { color: #fff; font-weight: bold; }
+.lang-menu-wrapper:focus-within { opacity: 1; visibility: visible; }
+
+/* 【修改】给新增的 Logo 让出空间，向右位移 */
+@media (min-width: 769px) {
+  .lang-menu-wrapper {
+    left: 85px;
+  }
+}
+
+.lang-icon {
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s var(--bounce);
+  flex: 0 0 auto;
+}
+.lang-menu-wrapper:hover .lang-icon,
+.lang-menu-wrapper:focus-within .lang-icon { transform: rotate(90deg); }
+
+.lang-options {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  margin-top: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, max-height 0.35s var(--bounce-soft),
+              margin-top 0.3s, visibility 0s 0.35s;
+  white-space: nowrap;
+}
+.lang-menu-wrapper:hover .lang-options,
+.lang-menu-wrapper:focus-within .lang-options {
+  opacity: 1;
+  max-height: 300px;
+  margin-top: 10px;
+  visibility: visible;
+  transition: opacity 0.3s, max-height 0.35s var(--bounce-soft),
+              margin-top 0.3s, visibility 0s;
+}
+
+.lang-options button {
+  font-family: inherit;
+  font-size: 0.85rem;
+  color: rgba(220, 232, 255, 0.7);
+  background: none;
+  border: none;
+  padding: 4px 10px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: color 0.2s, background 0.2s;
+}
+.lang-options button:hover,
+.lang-options button:focus-visible {
+  color: #fff;
+  background: rgba(255, 255, 255, .08);
+  outline: none;
+}
+.lang-options button[aria-pressed="true"] {
+  color: #fff;
+  font-weight: bold;
+  background: rgba(156, 196, 255, .18);
+}
+
+.lang-menu-wrapper.suppress-hover:hover .lang-options,
+.lang-menu-wrapper.suppress-hover:focus-within .lang-options {
+  opacity: 0;
+  max-height: 0;
+  margin-top: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, max-height 0.35s var(--bounce-soft),
+              margin-top 0.3s, visibility 0s 0.35s;
+}
+.lang-menu-wrapper.suppress-hover:hover .lang-icon,
+.lang-menu-wrapper.suppress-hover:focus-within .lang-icon {
+  transform: none;
+}
+
+.drawer-lang-label { color: var(--ink-3); font-size: .9rem; }
 
 /* =========================================================
-   响应式适配 (核心：移动端变形胶囊底栏)
+   响应式适配
    ========================================================= */
 @media (max-width: 900px) {
   .card-container { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: .85rem; }
 }
 
 @media (max-width: 768px) {
-  /* 隐藏桌面端元素 */
   .sidebar, .lang-menu-wrapper { display: none !important; }
 
-  /* 适配移动端布局留白 */
+  /* 【新增】移动端 Logo 适配 */
+  .site-logo {
+    top: 20px;
+    left: 20px;
+    width: 40px;
+    height: 40px;
+  }
+
   .slide { padding-left: 20px; padding-right: 20px; padding-top: 30px; }
   .slide-body { padding-bottom: calc(100px + env(safe-area-inset-bottom)); }
   .home-stat { padding: .8rem 1rem; }
   .vote-card { width: 100%; }
 
-  /* 【变形胶囊底栏】 */
   .mobile-bottom-nav {
     display: flex;
     flex-direction: column;
@@ -295,34 +451,37 @@ body {
     border-radius: 32px;
     z-index: 1000;
     overflow: hidden;
-    max-height: 64px; /* 默认收缩状态 */
+    max-height: 66px;
     transition: max-height 0.4s var(--bounce-soft);
   }
 
-  /* 展开状态：限制在视口内，避免溢出 */
   .mobile-bottom-nav.expanded {
     max-height: calc(100vh - 32px - env(safe-area-inset-bottom));
+    max-height: calc(100dvh - 32px - env(safe-area-inset-bottom));
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
-  /* 顶部快捷按钮区 */
   .nav-shortcuts {
     display: flex;
     height: 64px;
     justify-content: space-around;
     align-items: center;
     padding: 0 8px;
-    flex-shrink: 0; /* 防止被挤压 */
+    flex-shrink: 0;
     overflow: hidden;
     transition: height .35s var(--bounce-soft), padding .35s var(--bounce-soft), opacity .25s;
   }
 
-  /* 展开时：收起上方 4 个快捷按钮，只显示 2×4 网格 + 语言切换 */
   .mobile-bottom-nav.expanded .nav-shortcuts {
     height: 0;
     padding-top: 0;
     padding-bottom: 0;
     opacity: 0;
+    visibility: hidden;
     pointer-events: none;
+    transition: height .35s var(--bounce-soft), padding .35s var(--bounce-soft),
+                opacity .25s, visibility 0s linear .25s;
   }
 
   .nav-item {
@@ -337,20 +496,19 @@ body {
   .nav-item.active svg { transform: scale(1.1); color: var(--accent); }
   .nav-item:active { opacity: 0.7; transform: scale(0.95); }
 
-  /* 展开的内容区（safe-area 已在胶囊容器上处理，此处不再重复） */
   .nav-expanded {
     padding: 0 24px 24px;
     opacity: 0;
-    visibility: hidden;            /* 同时移出 tab 顺序和无障碍树 */
+    visibility: hidden;
     pointer-events: none;
-    transition: opacity .3s, visibility 0s linear .3s; /* 淡出完再隐藏 */
+    transition: opacity .3s, visibility 0s linear .3s;
   }
 
   .mobile-bottom-nav.expanded .nav-expanded {
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
-    transition: opacity .3s .1s, visibility 0s; /* 等高度撑开一点再淡入内容 */
+    transition: opacity .3s .1s, visibility 0s;
   }
 
   .drawer-divider {
@@ -359,7 +517,6 @@ body {
     margin: 16px 0;
   }
 
-  /* ---------- 2×4 网格（7 项自动排成 4 行） ---------- */
   .grid-menu {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -404,15 +561,23 @@ body {
     outline-offset: 2px;
   }
 
-  /* ---------- 语言切换 ---------- */
+  /* =======================================================
+     【修复】移动端语言菜单布局问题
+     ======================================================= */
   .drawer-lang {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
     padding: 0 8px;
   }
 
-  .lang-btns { display: flex; gap: 12px; }
+  .lang-btns { 
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px; 
+    width: 100%;
+  }
 
   .lang-btns button {
     font: inherit;
@@ -420,9 +585,12 @@ body {
     background: rgba(255, 255, 255, .08);
     border: 1px solid rgba(255, 255, 255, .2);
     color: #fff;
-    padding: 6px 16px;
+    padding: 8px 0;
     border-radius: 99px;
     font-size: .9rem;
+    white-space: nowrap;
+    text-align: center;
+    width: 100%;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
     transition: background .2s;
@@ -430,12 +598,17 @@ body {
 
   .lang-btns button:active { background: rgba(255, 255, 255, .2); }
 
+  .lang-btns button[aria-pressed="true"] {
+    background: rgba(156, 196, 255, .3);
+    border-color: rgba(156, 196, 255, .55);
+    font-weight: 600;
+  }
+
   .lang-btns button:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 2px;
   }
 
-  /* ---------- 尊重"减少动效" ---------- */
   @media (prefers-reduced-motion: reduce) {
     .nav-expanded,
     .mobile-bottom-nav.expanded .nav-expanded,
@@ -447,11 +620,24 @@ body {
     }
   }
 
-  /* 遮罩层 */
   .mobile-drawer-overlay {
     display: block; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
     backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
     z-index: 900; opacity: 0; visibility: hidden; transition: all 0.3s ease;
   }
   .mobile-drawer-overlay.show { opacity: 1; visibility: visible; }
+}
+
+/* 全局 reduced-motion 兜底 */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .mac-spinner {
+    animation-duration: 1s !important;
+    animation-iteration-count: infinite !important;
+  }
 }

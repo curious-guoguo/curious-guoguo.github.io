@@ -1,139 +1,28 @@
-/* =========================================================
-   1. 国际化 (i18n) 字典与语言菜单逻辑
-   ========================================================= */
-const i18n = {
-  zh: {
-    nav_home: '首页', nav_guestbook: '留言板', nav_vote: '打榜', nav_about: '关于我', nav_arcade: '游乐场', nav_tools: '百宝箱', nav_secret: '隐藏关',
-    hero_sub: '写代码 · 打游戏 · 折腾各种东西',
-    home_visit_1: '这里一共有', home_visit_2: '个 ID 访问，总共', home_visit_3: '次',
-    home_thanks: '感谢 saobby 提供访问统计与投票服务',
-    vote_1: '蒟蒻', vote_2: '老六', vote_3: '大佬六', vote_btn: '去投票 →',
-    desc_bili: '我的B站个人空间', desc_github: '我的开源代码仓库', desc_ccw: '共创世界个人主页', desc_luogu: '洛谷编程平台个人主页',
-    card_ccw: '共创世界', card_luogu: '洛谷', card_email: '联系邮箱',
-    card_dino: 'chrome小恐龙', desc_dino: '点击复制链接后自行打开',
-    card_td1: '塔防（1）', desc_td1: '经典塔防小游戏',
-    card_td2: '塔防（2）', desc_td2: 'Yorg 塔防在线游玩',
-    card_td3: '塔防（3）', desc_td3: 'Yorg3 塔防游戏',
-    card_florr: '花朵', desc_florr: 'Florr.io 花朵生存游戏',
-    desc_poki: '在线免费小游戏平台', desc_slay: '多人在线射击 IO 游戏',
-    card_tool1: '综合工具箱', desc_tool1: 'tool.lu 在线工具集',
-    card_tool2: '信奥工具', desc_tool2: 'ssoier 学习与工具站',
-    card_tool3: '建站工具', desc_tool3: 'saobby 建站服务平台',
-    card_tool4: '云端剪贴板', desc_tool4: 'note.ms 在线文本分享',
-    card_tool5: '轻松传', desc_tool5: '跨设备文件极速传输',
-    desc_tool6: '深度求索对话大模型',
-    card_trap: '千万别点',
-    f_new_year: '🎆 元旦快乐', f_april_fool: '🤡 愚人节快乐', f_easter: '🐰 复活节', f_mother: '🌷 母亲节', f_father: '👔 父亲节', f_halloween_eve: '🎃 万圣节前夜', f_halloween: '🎃 万圣节', f_thanksgiving: '🦃 感恩节', f_xmas_eve: '🎄 平安夜', f_xmas: '🎄 圣诞节',
-    d_new_year: '新年烟花，点亮夜空', d_april_fool: '你永远也抓不到我！', d_easter: '寻找属于你的彩蛋', d_mother: '妈妈辛苦了', d_father: '爸爸辛苦了', d_halloween_eve: '百鬼夜行，群魔乱舞', d_halloween: '不给糖就捣蛋', d_thanksgiving: '感恩节大餐', d_xmas_eve: '圣诞前夕，雪花飘落', d_xmas: 'Merry Christmas!'
-  },
-  en: {
-    nav_home: 'Home', nav_guestbook: 'Guestbook', nav_vote: 'Vote', nav_about: 'About', nav_arcade: 'Arcade', nav_tools: 'Toolbox', nav_secret: 'Secret',
-    hero_sub: 'Coding · Gaming · Tinkering with everything',
-    home_visit_1: 'Total', home_visit_2: 'unique IDs and', home_visit_3: 'views',
-    home_thanks: 'Powered by saobby',
-    vote_1: 'Novice', vote_2: 'Veteran', vote_3: 'Master', vote_btn: 'Vote →',
-    desc_bili: 'My Bilibili Space', desc_github: 'My Open Source Repos', desc_ccw: 'CCW Profile', desc_luogu: 'Luogu Profile',
-    card_ccw: 'CCW', card_luogu: 'Luogu', card_email: 'Email',
-    card_dino: 'Chrome Dino', desc_dino: 'Click to copy link and open',
-    card_td1: 'Tower Defense (1)', desc_td1: 'Classic mini-game',
-    card_td2: 'Tower Defense (2)', desc_td2: 'Yorg Tower Defense',
-    card_td3: 'Tower Defense (3)', desc_td3: 'Yorg3 Tower Defense',
-    card_florr: 'Florr', desc_florr: 'Florr.io survival game',
-    desc_poki: 'Free online games', desc_slay: 'Multiplayer IO shooter',
-    card_tool1: 'Toolbox', desc_tool1: 'tool.lu online tools',
-    card_tool2: 'OI Tools', desc_tool2: 'ssoier learning tools',
-    card_tool3: 'Website Builder', desc_tool3: 'saobby builder',
-    card_tool4: 'Cloud Clipboard', desc_tool4: 'note.ms clipboard',
-    card_tool5: 'Easy Chuan', desc_tool5: 'Cross-device file transfer',
-    desc_tool6: 'DeepSeek Chat Model',
-    card_trap: 'DO NOT CLICK',
-    f_new_year: '🎆 Happy New Year', f_april_fool: '🤡 April Fool', f_easter: '🐰 Easter', f_mother: '🌷 Mother\'s Day', f_father: '👔 Father\'s Day', f_halloween_eve: '🎃 Halloween Eve', f_halloween: '🎃 Halloween', f_thanksgiving: '🦃 Thanksgiving', f_xmas_eve: '🎄 Christmas Eve', f_xmas: '🎄 Christmas',
-    d_new_year: 'Fireworks lighting up the night', d_april_fool: 'You can never catch me!', d_easter: 'Find your easter egg', d_mother: 'Happy Mother\'s Day', d_father: 'Happy Father\'s Day', d_halloween_eve: 'Spooky night', d_halloween: 'Trick or Treat', d_thanksgiving: 'Thanksgiving feast', d_xmas_eve: 'Snowflakes falling', d_xmas: 'Merry Christmas!'
-  }
-};
-
-// 校验 localStorage 中的语言值，非法时回退到中文
-let storedLang = localStorage.getItem('site_lang');
-let currentLang = (storedLang && i18n[storedLang]) ? storedLang : 'zh';
-
-function applyLanguage(lang) {
-  if (!i18n[lang]) lang = 'zh';
-  currentLang = lang;
-  localStorage.setItem('site_lang', lang);
-
-  document.querySelectorAll('[data-i18n]').forEach(el => {
-    const key = el.getAttribute('data-i18n');
-    if (i18n[lang][key]) {
-      el.textContent = i18n[lang][key];
-    }
-  });
-
-  // 页面标题跟随语言
-  document.title = `curious-guoguo | ${i18n[lang].nav_home}`;
-
-  // giscus 留言板语言同步（若已加载）
-  try {
-    const giscusFrame = document.querySelector('iframe.giscus-frame');
-    if (giscusFrame && giscusFrame.contentWindow) {
-      giscusFrame.contentWindow.postMessage(
-        { giscus: { setConfig: { lang: lang === 'zh' ? 'zh-CN' : 'en' } } },
-        'https://giscus.app'
-      );
-    }
-  } catch (e) { /* 忽略跨域或未加载 */ }
-
-  // 重建节日卡片，保留解锁状态（修复：切语言不再丢失已解锁的隐藏节日）
-  const holder = document.getElementById('festival-cards-holder');
-  if (holder) {
-    holder.innerHTML = '';
-    if (typeof isUnlocked !== 'undefined' && isUnlocked) {
-      FESTIVALS.forEach(f => {
-        renderFestivalCard(f);
-        const card = document.getElementById(`card-${f.id}`);
-        if (card && card.style.display === 'none') card.style.display = 'block';
-      });
-    } else {
-      initHolidays();
-    }
-    if (typeof idx !== 'undefined' && idx === 6) playSprings(idx);
-  }
-}
-
-// 桌面端语言菜单
-function initLangMenu() {
-  const menuHTML = `
-    <div id="langMenu" class="lang-menu-wrapper">
-      <div class="lang-icon">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
-      </div>
-      <div class="lang-options">
-        <span onclick="applyLanguage('zh')">中文</span>
-        <span onclick="applyLanguage('en')">EN</span>
-      </div>
-    </div>
-  `;
-  document.body.insertAdjacentHTML('beforeend', menuHTML);
-  applyLanguage(currentLang);
-}
+let idx = 0;
+let springs = [];
+let isUnlocked = false;
 
 
 /* =========================================================
    2. 高性能 WebGL 背景
    ========================================================= */
 (function initWebGL() {
-  // 兜底：即使 WebGL 不可用，也不让后续调用崩溃
   window.setBgBrightness = () => {};
 
   const canvas = document.getElementById('bg-canvas');
-  const gl = canvas.getContext('webgl');
+  if (!canvas) return;
+  const gl = canvas.getContext('webgl', { antialias: false, alpha: false });
   if (!gl) return;
+
+  const hp = gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.HIGH_FLOAT);
+  const precision = hp && hp.precision > 0 ? 'highp' : 'mediump';
 
   const vsSource = `
     attribute vec2 position;
     void main() { gl_Position = vec4(position, 0.0, 1.0); }
   `;
   const fsSource = `
-    precision highp float;
+    precision ${precision} float;
     uniform float u_time;
     uniform vec2 u_resolution;
     uniform float u_brightness;
@@ -196,57 +85,148 @@ function initLangMenu() {
     }
   `;
 
-  function createShader(gl, type, source) {
-    const shader = gl.createShader(type);
-    gl.shaderSource(shader, source);
-    gl.compileShader(shader);
-    return shader;
+  function compile(type, src) {
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+      console.error('Shader compile failed:', gl.getShaderInfoLog(s));
+      gl.deleteShader(s);
+      return null;
+    }
+    return s;
   }
 
-  const vs = createShader(gl, gl.VERTEX_SHADER, vsSource);
-  const fs = createShader(gl, gl.FRAGMENT_SHADER, fsSource);
-  const program = gl.createProgram();
-  gl.attachShader(program, vs);
-  gl.attachShader(program, fs);
-  gl.linkProgram(program);
-  gl.useProgram(program);
-
-  const positions = new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]);
-  const buffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-  gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
-
-  const posAttr = gl.getAttribLocation(program, 'position');
-  gl.enableVertexAttribArray(posAttr);
-  gl.vertexAttribPointer(posAttr, 2, gl.FLOAT, false, 0, 0);
-
-  const uTime = gl.getUniformLocation(program, 'u_time');
-  const uRes = gl.getUniformLocation(program, 'u_resolution');
-  const uBrightness = gl.getUniformLocation(program, 'u_brightness');
-
-  function resize() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    gl.viewport(0, 0, canvas.width, canvas.height);
-  }
-  window.addEventListener('resize', resize);
-  resize();
-
-  let startTime = performance.now();
+  let program = null, uTime = null, uRes = null, uBrightness = null;
+  let vbo = null;
+  let elapsed = 0;
+  let lastTime = 0;
   let targetBrightness = 1.0;
   let currentBrightness = 1.0;
+  let rafId = null;
+  let glLost = false;
+  let visible = !document.hidden;
+
+  function buildResources() {
+    const vs = compile(gl.VERTEX_SHADER, vsSource);
+    const fs = compile(gl.FRAGMENT_SHADER, fsSource);
+    if (!vs || !fs) {
+      if (vs) gl.deleteShader(vs);
+      if (fs) gl.deleteShader(fs);
+      return false;
+    }
+    program = gl.createProgram();
+    gl.attachShader(program, vs);
+    gl.attachShader(program, fs);
+    gl.linkProgram(program);
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+      console.error('Program link failed:', gl.getProgramInfoLog(program));
+      gl.deleteProgram(program);
+      program = null;
+      return false;
+    }
+    gl.useProgram(program);
+
+    if (vbo) { gl.deleteBuffer(vbo); vbo = null; }
+
+    const positions = new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]);
+    vbo = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+    gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
+
+    const posAttr = gl.getAttribLocation(program, 'position');
+    gl.enableVertexAttribArray(posAttr);
+    gl.vertexAttribPointer(posAttr, 2, gl.FLOAT, false, 0, 0);
+
+    uTime = gl.getUniformLocation(program, 'u_time');
+    uRes = gl.getUniformLocation(program, 'u_resolution');
+    uBrightness = gl.getUniformLocation(program, 'u_brightness');
+    return true;
+  }
+
+  function resize() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.floor(window.innerWidth * dpr);
+    canvas.height = Math.floor(window.innerHeight * dpr);
+    gl.viewport(0, 0, canvas.width, canvas.height);
+  }
+
+  function startLoop() {
+    if (rafId === null) {
+      lastTime = 0;
+      rafId = requestAnimationFrame(render);
+    }
+  }
+
+  function stopLoop() {
+    if (rafId !== null) {
+      cancelAnimationFrame(rafId);
+      rafId = null;
+    }
+  }
+
+  function render(time) {
+    rafId = null;
+    if (!visible || glLost || !program) return;
+
+    if (lastTime) elapsed += Math.min((time - lastTime) / 1000, 0.1);
+    lastTime = time;
+
+    currentBrightness += (targetBrightness - currentBrightness) * 0.05;
+    gl.uniform1f(uBrightness, currentBrightness);
+    gl.uniform1f(uTime, elapsed);
+    gl.uniform2f(uRes, canvas.width, canvas.height);
+    gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+    rafId = requestAnimationFrame(render);
+  }
+
+  canvas.addEventListener('webglcontextlost', (e) => {
+    e.preventDefault();
+    glLost = true;
+    stopLoop();
+    program = null;
+    vbo = null;
+    uTime = uRes = uBrightness = null;
+  });
+  canvas.addEventListener('webglcontextrestored', () => {
+    program = null;
+    vbo = null;
+    uTime = uRes = uBrightness = null;
+    if (buildResources()) {
+      resize();
+      glLost = false;
+      lastTime = 0;
+      startLoop();
+    }
+  });
+
+  let resizeTimer = null;
+  function scheduleResize() {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(resize, 100);
+  }
+  window.addEventListener('resize', scheduleResize);
 
   window.setBgBrightness = (val) => { targetBrightness = val; };
 
-  function render(time) {
-    currentBrightness += (targetBrightness - currentBrightness) * 0.05;
-    gl.uniform1f(uBrightness, currentBrightness);
-    gl.uniform1f(uTime, (time - startTime) * 0.001);
-    gl.uniform2f(uRes, canvas.width, canvas.height);
-    gl.drawArrays(gl.TRIANGLES, 0, 6);
-    requestAnimationFrame(render);
-  }
-  requestAnimationFrame(render);
+  document.addEventListener('visibilitychange', () => {
+    visible = !document.hidden;
+    if (!visible) {
+      stopLoop();
+    } else if (!glLost && program) {
+      startLoop();
+    }
+  });
+
+  window.addEventListener('pagehide', stopLoop);
+  window.addEventListener('pageshow', (e) => {
+    if (e.persisted && !glLost && program) startLoop();
+  });
+
+  if (!buildResources()) return;
+  resize();
+  startLoop();
 })();
 
 
@@ -255,16 +235,21 @@ function initLangMenu() {
    ========================================================= */
 const slides = Array.from(document.querySelectorAll('.slide'));
 const menuLinks = Array.from(document.querySelectorAll('.sidebar-menu a'));
-const mobileBottomLinks = Array.from(document.querySelectorAll('.mobile-bottom-nav a[data-slide]'));
 const drawerLinks = Array.from(document.querySelectorAll('.grid-menu a'));
 
-// 移动端变形胶囊相关
 const mobileMoreBtn = document.getElementById('mobileMoreBtn');
 const mobileBottomNav = document.getElementById('mobileBottomNav');
 const mobileDrawerOverlay = document.getElementById('mobileDrawerOverlay');
 
-let idx = 0;
-let springs = [];
+const shortcutLinks = mobileBottomNav.querySelectorAll('.nav-shortcuts .nav-item[data-slide]');
+
+(function restoreSlideIndex() {
+  const saved = parseInt(safeGet('site_slide'), 10);
+  if (!Number.isFinite(saved) || saved <= 0 || saved >= slides.length) return;
+  slides[idx].classList.remove('active');
+  idx = saved;
+  slides[idx].classList.add('active');
+})();
 
 class Spring {
   constructor(el, delay = 0) {
@@ -310,14 +295,33 @@ class Spring {
   }
 }
 
+let prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+if (motionQuery.addEventListener) {
+  motionQuery.addEventListener('change', (e) => { prefersReduced = e.matches; });
+} else if (motionQuery.addListener) {
+  motionQuery.addListener((e) => { prefersReduced = e.matches; });
+}
+
 function playSprings(i) {
   springs.forEach(s => s.cancel());
   springs = [];
   const slide = slides[i];
   if (!slide) return;
-  const els = slide.querySelectorAll('.link-card, .vote-card, .rise');
+
+  const els = Array.from(slide.querySelectorAll('.link-card, .vote-card, .rise'))
+    .filter(el => {
+      if (el.id === 'card-april_fool') return false;
+      if (el.id === 'trapCard') return false;
+      return el.offsetParent !== null;
+    });
+
+  if (prefersReduced) {
+    els.forEach(el => { el.style.opacity = '1'; el.style.transform = ''; });
+    return;
+  }
+
   els.forEach((el, k) => {
-    if (el.style.display === 'none') return;
     const sp = new Spring(el, 50 + k * 38);
     springs.push(sp);
     sp.start();
@@ -325,17 +329,13 @@ function playSprings(i) {
 }
 
 function updateNav() {
-  // 桌面侧边栏高亮
   menuLinks.forEach((a, k) => a.classList.toggle('active', k === idx));
 
-  // 移动端快捷栏高亮
-  const shortcutLinks = mobileBottomNav.querySelectorAll('.nav-shortcuts .nav-item[data-slide]');
   shortcutLinks.forEach(a => {
     const t = parseInt(a.dataset.slide, 10);
     a.classList.toggle('active', t === idx);
   });
 
-  // 如果当前页面不在快捷栏，高亮“更多”
   if (idx !== 0 && idx !== 1 && idx !== 4) {
     mobileMoreBtn.classList.add('active');
   } else {
@@ -343,8 +343,35 @@ function updateNav() {
   }
 }
 
+function updateToastPosition() {
+  const el = document.querySelector('.toast');
+  if (!el) return;
+  const nav = document.getElementById('mobileBottomNav');
+  el.classList.toggle('raised', !!(nav && nav.classList.contains('expanded')));
+}
+
+function closeMobileDrawer() {
+  const wasExpanded = mobileBottomNav.classList.contains('expanded');
+  const active = document.activeElement;
+  const focusInside = !!(active && active.closest && active.closest('#mobileNavExpanded'));
+
+  mobileBottomNav.classList.remove('expanded');
+  mobileDrawerOverlay.classList.remove('show');
+  mobileMoreBtn.setAttribute('aria-expanded', 'false');
+  const expanded = document.getElementById('mobileNavExpanded');
+  if (expanded) expanded.setAttribute('aria-hidden', 'true');
+
+  if (wasExpanded && focusInside) mobileMoreBtn.focus({ preventScroll: true });
+  updateToastPosition();
+}
+
 function go(target) {
-  if (target < 0 || target >= slides.length || target === idx) return;
+  if (target < 0 || target >= slides.length) return;
+
+  closeMobileDrawer();
+
+  if (target === idx) return;
+
   springs.forEach(s => s.cancel());
   springs = [];
   slides[idx].classList.remove('active');
@@ -353,19 +380,21 @@ function go(target) {
   idx = target;
   slides[idx].classList.add('active');
 
-  // 切换页面时，收起移动端胶囊
-  mobileBottomNav.classList.remove('expanded');
-  mobileDrawerOverlay.classList.remove('show');
+  safeSet('site_slide', String(idx));
 
   updateNav();
+  updateDocumentTitle();
   playSprings(idx);
 
-  // 桌面端语言菜单只在首页显示
   const langMenu = document.getElementById('langMenu');
   if (langMenu) {
     if (idx === 0) langMenu.classList.add('show');
     else langMenu.classList.remove('show');
   }
+
+  if (target === 1) setTimeout(syncGiscusLang, 500);
+
+  if (target === 6) requestAnimationFrame(startEscapeLoop);
 }
 
 
@@ -375,10 +404,14 @@ function go(target) {
 class AudioSynth {
   constructor() { this.ctx = null; this.currentNodes = []; }
   init() {
-    if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-    if (this.ctx.state === 'suspended') this.ctx.resume();
+    try {
+      if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+      if (this.ctx.state === 'suspended') this.ctx.resume();
+    } catch (e) {
+      this.ctx = null;
+    }
   }
-  stop() { this.currentNodes.forEach(n => { try { n.stop(); } catch(e) {} }); this.currentNodes = []; }
+  stop() { this.currentNodes.forEach(n => { try { n.stop(); } catch (e) {} }); this.currentNodes = []; }
   playTone(freq, duration, type = 'square', startTime = 0) {
     if (!this.ctx) return;
     const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
@@ -387,10 +420,19 @@ class AudioSynth {
     gain.gain.setValueAtTime(0, now); gain.gain.linearRampToValueAtTime(0.1, now + 0.05);
     gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
     osc.connect(gain); gain.connect(this.ctx.destination);
-    osc.start(now); osc.stop(now + duration); this.currentNodes.push(osc);
+    osc.start(now); osc.stop(now + duration);
+    this.currentNodes.push(osc);
+    osc.onended = () => {
+      this.currentNodes = this.currentNodes.filter(n => n !== osc);
+    };
+  }
+  close() {
+    if (this.ctx) { try { this.ctx.close(); } catch (e) {} this.ctx = null; }
   }
 }
 const synth = new AudioSynth();
+window.addEventListener('pagehide', () => synth.close());
+
 const NOTES = { 'C4': 261.63, 'D4': 293.66, 'E4': 329.63, 'F4': 349.23, 'G4': 392.00, 'A4': 440.00, 'B4': 493.88, 'C5': 523.25, 'D5': 587.33, 'E5': 659.25, 'F5': 698.46, 'G5': 783.99, 'A5': 880.00, 'B5': 987.77 };
 
 function playJingleBells() {
@@ -431,13 +473,32 @@ const trapProgress = document.getElementById('trapProgress');
 const cardsHolder = document.getElementById('festival-cards-holder');
 
 let pressTimer = null, progressInterval = null, pressStartTime = 0;
-let isLongPressed = false, isUnlocked = false;
+let isLongPressed = false;
+let activePointerId = null;
+let pointerStartX = 0, pointerStartY = 0, pointerMoved = false;
 
 function initHolidays() {
   const today = new Date();
   const activeHolidays = FESTIVALS.filter(f => f.check(today));
-  activeHolidays.forEach(f => renderFestivalCard(f));
+  activeHolidays.forEach(f => {
+    renderFestivalCard(f);
+    if (f.isEscape) {
+      const card = document.getElementById(`card-${f.id}`);
+      if (card) card.style.display = 'block';
+    }
+  });
 }
+
+let lastHolidayCheckDay = new Date().toDateString();
+setInterval(() => {
+  const today = new Date().toDateString();
+  if (today === lastHolidayCheckDay) return;
+  lastHolidayCheckDay = today;
+  if (!isUnlocked) {
+    cardsHolder.innerHTML = '';
+    initHolidays();
+  }
+}, 60 * 1000);
 
 function renderFestivalCard(f) {
   if (document.getElementById(`card-${f.id}`)) return;
@@ -454,13 +515,28 @@ function renderFestivalCard(f) {
     card.style.zIndex = '9999';
     card.style.width = '200px';
     card.style.display = 'none';
+    card.style.left = '0';
+    card.style.top = '0';
+    card.style.willChange = 'transform';
+    card.style.transform =
+      `translate3d(${Math.max(20, window.innerWidth - 240)}px, ${Math.max(20, window.innerHeight - 160)}px, 0)`;
     card.innerHTML = `<div class="link-title" style="color: #c4a0ff;">${nameStr}</div><div class="desc">${descStr}</div>`;
   } else {
+    card.setAttribute('role', 'button');
+    card.tabIndex = 0;
     card.innerHTML = `<div class="link-title" style="color: #ff9d00;">${nameStr}</div><div class="desc">${descStr}</div>`;
     card.addEventListener('click', () => playFestivalEffect(f));
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        playFestivalEffect(f);
+      }
+    });
   }
   cardsHolder.appendChild(card);
 }
+
+let brightnessToken = 0;
 
 function playFestivalEffect(f) {
   synth.stop(); window.setBgBrightness(1.0);
@@ -469,47 +545,66 @@ function playFestivalEffect(f) {
   f.action();
   if (f.emojis.length === 0) return;
 
+  const token = ++brightnessToken;
+
   const overlay = document.createElement('div');
   overlay.className = 'effect-overlay';
   document.body.appendChild(overlay);
   const animClass = f.bounce ? 'bouncing-emoji' : 'falling-emoji';
 
-  for (let i = 0; i < 60; i++) {
-    setTimeout(() => {
-      const span = document.createElement('span');
-      span.className = animClass;
-      span.textContent = f.emojis[Math.floor(Math.random() * f.emojis.length)];
-      if (f.bounce) {
-        span.style.left = '-50px'; span.style.top = '0px';
-        span.style.animationDuration = (Math.random() * 1 + 1.5) + 's'; span.style.animationDelay = '0s';
-      } else {
-        span.style.left = Math.random() * 100 + 'vw'; span.style.fontSize = (Math.random() * 2 + 1) + 'rem';
-        span.style.animationDuration = (Math.random() * 2 + 2) + 's';
-      }
-      overlay.appendChild(span);
-    }, i * 80);
+  const frag = document.createDocumentFragment();
+  const COUNT = 60;
+  for (let i = 0; i < COUNT; i++) {
+    const span = document.createElement('span');
+    span.className = animClass;
+    span.textContent = f.emojis[Math.floor(Math.random() * f.emojis.length)];
+    if (f.bounce) {
+      span.style.left = '-50px';
+      span.style.top = '0px';
+      span.style.animationDuration = (Math.random() * 1 + 1.5).toFixed(2) + 's';
+    } else {
+      span.style.left = Math.random() * 100 + 'vw';
+      span.style.fontSize = (Math.random() * 2 + 1).toFixed(2) + 'rem';
+      span.style.animationDuration = (Math.random() * 2 + 2).toFixed(2) + 's';
+    }
+    span.style.animationDelay = (i * 0.05).toFixed(2) + 's';
+    span.style.animationFillMode = 'forwards';
+    frag.appendChild(span);
   }
+  overlay.appendChild(frag);
 
   setTimeout(() => {
+    if (!overlay.isConnected) return;
     overlay.style.opacity = '0';
-    setTimeout(() => { overlay.remove(); window.setBgBrightness(1.0); }, 1000);
-  }, 5000);
+    setTimeout(() => {
+      if (!overlay.isConnected) return;
+      overlay.remove();
+      if (token === brightnessToken) window.setBgBrightness(1.0);
+    }, 1000);
+  }, 6000);
 }
 
-function handlePressStart(e) {
-  if (e.type === 'mousedown' && e.button !== 0) return;
-  if (e.type === 'touchstart') e.preventDefault();
+function cancelTrapPress() {
+  clearTimeout(pressTimer);
+  clearInterval(progressInterval);
+  trapProgress.style.width = '0%';
+}
 
-  isLongPressed = false; pressStartTime = Date.now(); trapProgress.style.width = '0%';
+function startTrapPress() {
+  isLongPressed = false;
+  pressStartTime = Date.now();
+  trapProgress.style.width = '0%';
 
-  let start = Date.now();
+  const start = Date.now();
   progressInterval = setInterval(() => {
-    let percent = Math.min(((Date.now() - start) / 3000) * 100, 100);
+    const percent = Math.min(((Date.now() - start) / 3000) * 100, 100);
     trapProgress.style.width = percent + '%';
   }, 20);
 
   pressTimer = setTimeout(() => {
-    isLongPressed = true; clearInterval(progressInterval); trapProgress.style.width = '100%';
+    isLongPressed = true;
+    clearInterval(progressInterval);
+    trapProgress.style.width = '100%';
     if (!isUnlocked) {
       isUnlocked = true;
       FESTIVALS.forEach(f => {
@@ -517,62 +612,107 @@ function handlePressStart(e) {
         const card = document.getElementById(`card-${f.id}`);
         if (card && card.style.display === 'none') card.style.display = 'block';
       });
-      toast(currentLang === 'zh' ? '发现全部隐藏彩蛋！' : 'Hidden eggs unlocked!');
+      toast(i18n[currentLang].toast_eggs_unlocked);
       playSprings(idx);
     }
     setTimeout(() => { trapProgress.style.width = '0%'; }, 300);
   }, 3000);
 }
 
-function handlePressEnd(e) {
-  if (e.type === 'touchend') e.preventDefault();
-  clearTimeout(pressTimer); clearInterval(progressInterval);
+function endTrapPress() {
+  clearTimeout(pressTimer);
+  clearInterval(progressInterval);
   if (!isLongPressed) {
     trapProgress.style.width = '0%';
     if (Date.now() - pressStartTime < 3000) triggerRandomEvent();
   }
 }
 
-trapCard.addEventListener('mousedown', handlePressStart);
-trapCard.addEventListener('touchstart', handlePressStart, { passive: false });
-trapCard.addEventListener('mouseup', handlePressEnd);
-trapCard.addEventListener('touchend', handlePressEnd);
-trapCard.addEventListener('mouseleave', () => {
-  if (!isLongPressed) {
-    clearTimeout(pressTimer); clearInterval(progressInterval); trapProgress.style.width = '0%';
+trapCard.addEventListener('pointerdown', (e) => {
+  if (e.pointerType === 'mouse' && e.button !== 0) return;
+  activePointerId = e.pointerId;
+  pointerStartX = e.clientX;
+  pointerStartY = e.clientY;
+  pointerMoved = false;
+  startTrapPress();
+});
+
+trapCard.addEventListener('pointermove', (e) => {
+  if (e.pointerId !== activePointerId) return;
+  if (Math.hypot(e.clientX - pointerStartX, e.clientY - pointerStartY) > 10) {
+    pointerMoved = true;
+    cancelTrapPress();
   }
 });
 
-// 键盘无障碍：Enter / Space 等价短按
+trapCard.addEventListener('pointerup', (e) => {
+  if (e.pointerId !== activePointerId) return;
+  activePointerId = null;
+  if (pointerMoved) return;
+  endTrapPress();
+});
+
+trapCard.addEventListener('pointercancel', () => {
+  activePointerId = null;
+  cancelTrapPress();
+});
+
+trapCard.addEventListener('pointerleave', () => {
+  if (!isLongPressed) cancelTrapPress();
+  activePointerId = null;
+});
+
+trapCard.addEventListener('contextmenu', e => e.preventDefault());
+
 trapCard.addEventListener('keydown', (e) => {
   if ((e.key === 'Enter' || e.key === ' ') && !e.repeat) {
     e.preventDefault();
-    triggerRandomEvent();
+    startTrapPress();
+  }
+});
+trapCard.addEventListener('keyup', (e) => {
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    endTrapPress();
   }
 });
 
-// 其他 role=button 卡片（例如 chrome 小恐龙）的键盘支持
-document.querySelectorAll('.link-card[role="button"]').forEach(card => {
-  card.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      card.click();
-    }
-  });
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const card = e.target.closest && e.target.closest('.link-card[role="button"]');
+  if (!card || card.id === 'trapCard') return;
+  e.preventDefault();
+  card.click();
 });
+
+document.querySelectorAll('[data-copy]').forEach(el => {
+  el.addEventListener('click', () => copyLink(el.dataset.copy));
+});
+
+let enteredFullscreen = false;
 
 function triggerRandomEvent() {
   const rickroll = 'https://www.bilibili.com/video/BV1GJ411x7h7';
   const rand = Math.floor(Math.random() * 4);
+
   const reqFullscreen = () => {
     const el = document.documentElement;
-    if (el.requestFullscreen) el.requestFullscreen().catch(() => {});
-    else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen().catch(() => {});
+    if (document.fullscreenElement) return;
+    let p = null;
+    if (el.requestFullscreen) p = el.requestFullscreen();
+    else if (el.webkitRequestFullscreen) p = el.webkitRequestFullscreen();
+    if (p && p.then) p.then(() => { enteredFullscreen = true; }).catch(() => {});
+    else enteredFullscreen = true;
   };
 
-  if (rand === 0) window.open(rickroll, '_blank');
-  else if (rand === 1) { reqFullscreen(); showErrorOverlay('blue'); }
-  else if (rand === 2) { reqFullscreen(); showErrorOverlay('mac'); }
+  if (rand === 0) {
+    const w = window.open(rickroll, '_blank');
+    if (!w) toast(i18n[currentLang].toast_popup_blocked);
+  }
+  else if (rand === 1 || rand === 2) {
+    reqFullscreen();
+    showErrorOverlay(rand === 1 ? 'blue' : 'mac');
+  }
   else showErrorOverlay('404');
 }
 
@@ -581,29 +721,50 @@ function showErrorOverlay(type) {
   const overlay = document.createElement('div');
   overlay.className = 'fatal-error-overlay';
   let html = '';
-  if (type === 'blue') { overlay.classList.add('blue-screen'); html = `<h1>:(</h1><p>${currentLang === 'zh' ? '你的电脑遇到问题，需要重新启动。' : 'Your PC ran into a problem and needs to restart.'}</p>`; }
-  else if (type === 'mac') { overlay.classList.add('mac-screen'); html = `<div style="width:40px;height:40px;border:4px solid #ccc;border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:20px;"></div><p>${currentLang === 'zh' ? '系统无响应，正在重启...' : 'System not responding, restarting...'}</p>`; }
-  else { overlay.classList.add('404-screen'); html = `<h1>404</h1><p>${currentLang === 'zh' ? '网页已崩溃，数据丢失。' : 'Page crashed, data lost.'}</p>`; }
+  if (type === 'blue') {
+    overlay.classList.add('blue-screen');
+    html = `<h1>:(</h1><p>${i18n[currentLang].err_blue}</p>`;
+  }
+  else if (type === 'mac') {
+    overlay.classList.add('mac-screen');
+    html = `<div class="mac-spinner"></div><p>${i18n[currentLang].err_mac}</p>`;
+  }
+  else {
+    overlay.classList.add('screen-404');
+    html = `<h1>404</h1><p>${i18n[currentLang].err_404}</p>`;
+  }
   overlay.innerHTML = html;
 
-  // 允许关闭（点击任意处 / 8 秒后自动）
   let closed = false;
   const closeOverlay = () => {
     if (closed) return;
     closed = true;
-    // 去除 CSS 动画，避免 forwards 锁定 opacity 导致无法淡出
     overlay.style.animation = 'none';
     overlay.style.transition = 'opacity .35s ease';
     overlay.style.opacity = '0';
+    // 【优化】支持键盘关闭
+    document.removeEventListener('keydown', onKey);
     setTimeout(() => {
       overlay.remove();
-      if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+      if (enteredFullscreen && document.fullscreenElement) {
+        document.exitFullscreen().catch(() => {});
+      }
+      enteredFullscreen = false;
     }, 360);
   };
+  
+  // 【优化】按 Esc 或 Enter 关闭报错层
+  const onKey = (e) => {
+    if (e.key === 'Escape' || e.key === 'Enter') closeOverlay();
+  };
+
   overlay.addEventListener('click', closeOverlay);
+  document.addEventListener('keydown', onKey);
   setTimeout(closeOverlay, 8000);
 
   document.body.appendChild(overlay);
+  overlay.tabIndex = 0;
+  overlay.focus();
 }
 
 
@@ -611,16 +772,30 @@ function showErrorOverlay(type) {
    6. 愚人节磁铁排斥逃跑
    ========================================================= */
 let mouseX = 0, mouseY = 0, currentAngle = Math.PI, isEscaping = false;
+let escapeGeneration = 0;
 
 function startEscapeLoop() {
   if (isEscaping) return;
+  const eggEscape = document.getElementById('card-april_fool');
+  if (!eggEscape || eggEscape.style.display === 'none' || !eggEscape.isConnected) return;
   isEscaping = true;
+  const generation = ++escapeGeneration;
+
+  const w = eggEscape.offsetWidth || 200;
+  const h = eggEscape.offsetHeight || 90;
 
   function update() {
-    const eggEscape = document.getElementById('card-april_fool');
-    if (!eggEscape || eggEscape.style.display === 'none') { isEscaping = false; return; }
+    if (generation !== escapeGeneration) return;
 
-    const rect = eggEscape.getBoundingClientRect();
+    const el = document.getElementById('card-april_fool');
+    if (
+      !el || el.style.display === 'none' || !el.isConnected ||
+      document.hidden || !el.closest('.slide.active')
+    ) {
+      isEscaping = false;
+      return;
+    }
+
     const centerX = window.innerWidth / 2, centerY = window.innerHeight / 2;
     let dx = mouseX - centerX, dy = mouseY - centerY;
     if (Math.abs(dx) < 1 && Math.abs(dy) < 1) { dx = 1; dy = 0; }
@@ -635,15 +810,32 @@ function startEscapeLoop() {
     const targetCx = mouseX + Math.cos(currentAngle) * R;
     const targetCy = mouseY + Math.sin(currentAngle) * R;
 
-    eggEscape.style.transition = 'none';
-    eggEscape.style.left = `${targetCx - rect.width / 2}px`;
-    eggEscape.style.top = `${targetCy - rect.height / 2}px`;
-    eggEscape.style.transform = 'none';
+    const margin = 8;
+    const left = Math.min(Math.max(targetCx - w / 2, margin), window.innerWidth - w - margin);
+    const top = Math.min(Math.max(targetCy - h / 2, margin), window.innerHeight - h - margin);
+
+    el.style.transition = 'none';
+    el.style.transform = `translate3d(${left}px, ${top}px, 0)`;
+    el.style.opacity = '1';
 
     requestAnimationFrame(update);
   }
   requestAnimationFrame(update);
 }
+
+// 【优化】简化 restartEscapeLoop 逻辑
+function restartEscapeLoop() {
+  if (!isEscaping) return;
+  isEscaping = false;
+  startEscapeLoop();
+}
+
+let escapeResizeTimer = null;
+window.addEventListener('resize', () => {
+  if (!isEscaping) return;
+  clearTimeout(escapeResizeTimer);
+  escapeResizeTimer = setTimeout(restartEscapeLoop, 150);
+});
 
 window.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; startEscapeLoop(); });
 window.addEventListener('touchmove', (e) => { if (!e.touches.length) return; mouseX = e.touches[0].clientX; mouseY = e.touches[0].clientY; startEscapeLoop(); }, { passive: true });
@@ -660,8 +852,6 @@ menuLinks.forEach(a => {
   });
 });
 
-// 底栏快捷点击
-const shortcutLinks = mobileBottomNav.querySelectorAll('.nav-shortcuts .nav-item[data-slide]');
 shortcutLinks.forEach(a => {
   a.addEventListener('click', e => {
     e.preventDefault();
@@ -670,7 +860,6 @@ shortcutLinks.forEach(a => {
   });
 });
 
-// 抽屉内菜单点击
 drawerLinks.forEach(a => {
   a.addEventListener('click', e => {
     e.preventDefault();
@@ -679,28 +868,42 @@ drawerLinks.forEach(a => {
   });
 });
 
-// 展开/收缩变形胶囊
 mobileMoreBtn.addEventListener('click', (e) => {
   e.stopPropagation();
   mobileBottomNav.classList.add('expanded');
   mobileDrawerOverlay.classList.add('show');
+  mobileMoreBtn.setAttribute('aria-expanded', 'true');
+  const expanded = document.getElementById('mobileNavExpanded');
+  if (expanded) expanded.setAttribute('aria-hidden', 'false');
+
+  const first = document.querySelector('#mobileNavExpanded a, #mobileNavExpanded button');
+  if (first) setTimeout(() => first.focus({ preventScroll: true }), 380);
+
+  updateToastPosition();
 });
 
-// 点击外部遮罩收回
-mobileDrawerOverlay.addEventListener('click', () => {
-  mobileBottomNav.classList.remove('expanded');
-  mobileDrawerOverlay.classList.remove('show');
+mobileMoreBtn.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    mobileMoreBtn.click();
+  }
+});
+
+mobileDrawerOverlay.addEventListener('click', closeMobileDrawer);
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeMobileDrawer();
 });
 
 
 window.copyLink = function (text) {
-  const done = () => toast(currentLang === 'zh' ? '已复制链接：' + text : 'Link copied: ' + text);
+  const done = () => toast(i18n[currentLang].toast_copied.replace('{url}', text));
   const fallback = () => {
     const ta = document.createElement('textarea');
     ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
     document.body.appendChild(ta); ta.select();
     try { document.execCommand('copy'); done(); }
-    catch (err) { toast(currentLang === 'zh' ? '复制失败，请手动复制' : 'Copy failed'); }
+    catch (err) { toast(i18n[currentLang].toast_copy_failed); }
     ta.remove();
   };
   if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(done).catch(fallback);
@@ -711,20 +914,39 @@ let toastTimer = null;
 function toast(msg) {
   let el = document.querySelector('.toast');
   if (!el) { el = document.createElement('div'); el.className = 'toast'; document.body.appendChild(el); }
-  el.textContent = msg; void el.offsetWidth; el.classList.add('show');
-  clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove('show'), 2000);
+  el.textContent = msg;
+  updateToastPosition();
+  void el.offsetWidth;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2000);
 }
 
-// 提前初始化（applyLanguage 已含节日卡片初始化，initHolidays 幂等，可保留）
+initMobileLangButtons();
 initLangMenu();
-initHolidays();
+mountGiscus();
+
+document.documentElement.classList.remove('lang-en-pending');
 
 const langMenuEl = document.getElementById('langMenu');
-if (langMenuEl) langMenuEl.classList.add('show');
+if (langMenuEl) {
+  if (idx === 0) langMenuEl.classList.add('show');
+  else langMenuEl.classList.remove('show');
+}
 
 updateNav();
-playSprings(idx);
+updateDocumentTitle();
 
-window.addEventListener('load', () => {
-  // 动画已在前面立即播放
-});
+// 【优化】避免和 applyLanguage 里的 playSprings 重复
+if (idx !== 6) {
+  playSprings(idx);
+}
+
+// 【新增】绑定 Logo 点击回到首页
+const siteLogo = document.getElementById('siteLogo');
+if (siteLogo) {
+  siteLogo.addEventListener('click', (e) => {
+    e.preventDefault();
+    go(0);
+  });
+}
