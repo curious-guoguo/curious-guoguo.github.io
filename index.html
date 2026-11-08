@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#05070d">
 <meta name="description" content="curious-guoguo 个人主页">
 <meta name="author" content="curious-guoguo">
 <title>curious-guoguo | 首页</title>
@@ -16,12 +17,15 @@
     var pref = localStorage.getItem('site_theme') || 'auto';
     var isDark = pref === 'dark' || (pref === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
     if (!isDark) document.documentElement.dataset.theme = 'light';
+    var tcMeta = document.querySelector('meta[name="theme-color"]');
+    if (tcMeta) tcMeta.setAttribute('content', isDark ? '#05070d' : '#e9edf5');
   } catch (e) {}
 </script>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+<div class="bg-base" aria-hidden="true"></div>
 <canvas id="bg-canvas" aria-hidden="true"></canvas>
 
 <a href="#" class="site-logo" id="siteLogo" aria-label="Home">

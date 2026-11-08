@@ -381,6 +381,9 @@ function applyTheme(pref) {
 
   if (typeof window.setBgTheme === 'function') window.setBgTheme(resolved === 'light');
 
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute('content', resolved === 'light' ? '#e9edf5' : '#05070d');
+
   updateThemeButtons(pref);
   syncGiscusTheme(resolved);
 }

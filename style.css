@@ -36,12 +36,24 @@ body {
 html.lang-en-pending [data-i18n],
 html.lang-en-pending [data-i18n-html] { visibility: hidden; }
 
+/* Safari 状态栏 / 灵动岛两侧的采样锚点：必须是 fixed + 纯色 background-color */
+.bg-base {
+  position: fixed;
+  inset: 0;
+  z-index: -3;
+  background-color: #05070d;
+  pointer-events: none;
+}
+
 #bg-canvas {
   position: fixed; top: 0; left: 0;
   width: 100vw;
   height: 100vh;
   height: 100dvh;
   z-index: -2; pointer-events: none;
+
+  /* 双保险：canvas 自身也挂纯色，Safari 若跳过 canvas 则采 .bg-base */
+  background-color: #05070d;
 }
 
 /* =========================================================
@@ -767,6 +779,12 @@ html[data-theme="light"] body {
     radial-gradient(ellipse 80% 50% at 90% 100%, rgba(196, 160, 255, 0.15), transparent 60%),
     linear-gradient(160deg, #e9edf5 0%, #edf0f6 45%, #e6ebf3 100%);
   color: var(--ink);
+}
+
+/* Safari 灵动岛采样锚点（浅色） */
+html[data-theme="light"] .bg-base,
+html[data-theme="light"] #bg-canvas {
+  background-color: #e9edf5;
 }
 
 html[data-theme="light"] .sidebar,
