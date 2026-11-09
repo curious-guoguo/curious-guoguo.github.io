@@ -440,7 +440,8 @@ function go(target) {
     scheduleGuestbookScroll();
   }
 
-  if (target === 6) requestAnimationFrame(startEscapeLoop);
+  /* ★ 隐藏关索引由 6 → 7 */
+  if (target === 7) requestAnimationFrame(startEscapeLoop);
 }
 
 
@@ -1178,7 +1179,8 @@ updateDocumentTitle();
   syncGiscusTheme(resolved);
 })();
 
-if (idx !== 6) {
+/* ★ 隐藏关索引由 6 → 7 */
+if (idx !== 7) {
   playSprings(idx);
 }
 

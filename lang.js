@@ -8,7 +8,7 @@ function safeSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
 
 const i18n = {
   zh: {
-    nav_home: '首页', nav_guestbook: '留言板', nav_vote: '打榜', nav_about: '关于我', nav_arcade: '游乐场', nav_tools: '百宝箱', nav_secret: '隐藏关', nav_more: '更多',
+    nav_home: '首页', nav_guestbook: '留言板', nav_vote: '打榜', nav_about: '关于我', nav_arcade: '游乐场', nav_tools: '百宝箱', nav_links: '友情链接', nav_secret: '隐藏关', nav_more: '更多',
     lang_label: '语言',
     settings_label: '设置', settings_lang: '语言', settings_theme: '外观', settings_back: '返回',
     theme_auto: '跟随系统', theme_light: '浅色', theme_dark: '深色',
@@ -20,6 +20,7 @@ const i18n = {
     vote_1: '蒟蒻', vote_2: '老六', vote_3: '大佬六', vote_btn: '去投票 →',
     desc_bili: '我的B站个人空间', desc_github: '我的开源代码仓库', desc_ccw: '共创世界个人主页', desc_luogu: '洛谷编程平台个人主页',
     card_ccw: '共创世界', card_luogu: '洛谷', card_email: '联系邮箱',
+    card_kxyjs: 'kxyjs', desc_kxyjs: '开心每一天',
     card_dino: 'chrome小恐龙', desc_dino: '点击复制链接后用 Chrome 打开',
     card_td1: '塔防（1）', desc_td1: '经典塔防小游戏',
     card_td2: '塔防（2）', desc_td2: 'Yorg 塔防在线游玩',
@@ -45,7 +46,7 @@ const i18n = {
     err_404: '网页已崩溃，数据丢失。'
   },
   'zh-TW': {
-    nav_home: '首頁', nav_guestbook: '留言板', nav_vote: '打榜', nav_about: '關於我', nav_arcade: '遊樂場', nav_tools: '百寶箱', nav_secret: '隱藏關', nav_more: '更多',
+    nav_home: '首頁', nav_guestbook: '留言板', nav_vote: '打榜', nav_about: '關於我', nav_arcade: '遊樂場', nav_tools: '百寶箱', nav_links: '友情連結', nav_secret: '隱藏關', nav_more: '更多',
     lang_label: '語言',
     settings_label: '設定', settings_lang: '語言', settings_theme: '外觀', settings_back: '返回',
     theme_auto: '跟隨系統', theme_light: '淺色', theme_dark: '深色',
@@ -57,6 +58,7 @@ const i18n = {
     vote_1: '蒟蒻', vote_2: '老六', vote_3: '大佬六', vote_btn: '去投票 →',
     desc_bili: '我的B站個人空間', desc_github: '我的開源代碼倉庫', desc_ccw: '共創世界個人主頁', desc_luogu: '洛谷編程平台個人主頁',
     card_ccw: '共創世界', card_luogu: '洛谷', card_email: '聯繫郵箱',
+    card_kxyjs: 'kxyjs', desc_kxyjs: '開心每一天',
     card_dino: 'chrome小恐龍', desc_dino: '點擊複製鏈接後用 Chrome 打開',
     card_td1: '塔防（1）', desc_td1: '經典塔防小遊戲',
     card_td2: '塔防（2）', desc_td2: 'Yorg 塔防在線遊玩',
@@ -82,7 +84,7 @@ const i18n = {
     err_404: '網頁已崩潰，數據丟失。'
   },
   en: {
-    nav_home: 'Home', nav_guestbook: 'Guestbook', nav_vote: 'Vote', nav_about: 'About', nav_arcade: 'Arcade', nav_tools: 'Toolbox', nav_secret: 'Secret', nav_more: 'More',
+    nav_home: 'Home', nav_guestbook: 'Guestbook', nav_vote: 'Vote', nav_about: 'About', nav_arcade: 'Arcade', nav_tools: 'Toolbox', nav_links: 'Links', nav_secret: 'Secret', nav_more: 'More',
     lang_label: 'Language',
     settings_label: 'Settings', settings_lang: 'Language', settings_theme: 'Appearance', settings_back: 'Back',
     theme_auto: 'System', theme_light: 'Light', theme_dark: 'Dark',
@@ -94,6 +96,7 @@ const i18n = {
     vote_1: 'Novice', vote_2: 'Veteran', vote_3: 'Master', vote_btn: 'Vote →',
     desc_bili: 'My Bilibili Space', desc_github: 'My Open Source Repos', desc_ccw: 'CCW Profile', desc_luogu: 'Luogu Profile',
     card_ccw: 'CCW', card_luogu: 'Luogu', card_email: 'Email',
+    card_kxyjs: 'kxyjs', desc_kxyjs: 'Happy every day',
     card_dino: 'Chrome Dino', desc_dino: 'Copy link and open in Chrome',
     card_td1: 'Tower Defense (1)', desc_td1: 'Classic mini-game',
     card_td2: 'Tower Defense (2)', desc_td2: 'Yorg Tower Defense',
@@ -119,7 +122,7 @@ const i18n = {
     err_404: 'Page crashed, data lost.'
   },
   ja: {
-    nav_home: 'ホーム', nav_guestbook: '掲示板', nav_vote: '投票', nav_about: 'プロフィール', nav_arcade: 'ゲーム', nav_tools: 'ツール', nav_secret: '隠しエリア', nav_more: 'もっと',
+    nav_home: 'ホーム', nav_guestbook: '掲示板', nav_vote: '投票', nav_about: 'プロフィール', nav_arcade: 'ゲーム', nav_tools: 'ツール', nav_links: 'リンク', nav_secret: '隠しエリア', nav_more: 'もっと',
     lang_label: '言語',
     settings_label: '設定', settings_lang: '言語', settings_theme: '外観', settings_back: '戻る',
     theme_auto: 'システム', theme_light: 'ライト', theme_dark: 'ダーク',
@@ -131,6 +134,7 @@ const i18n = {
     vote_1: '初心者', vote_2: 'ベテラン', vote_3: '達人', vote_btn: '投票する →',
     desc_bili: 'Bilibili のマイページ', desc_github: 'オープンソースリポジトリ', desc_ccw: 'CCW プロフィール', desc_luogu: '洛谷プロフィール',
     card_ccw: 'CCW', card_luogu: '洛谷', card_email: 'メール',
+    card_kxyjs: 'kxyjs', desc_kxyjs: '毎日楽しく',
     card_dino: 'Chrome 恐竜', desc_dino: 'リンクをコピーして Chrome で開く',
     card_td1: 'タワーディフェンス (1)', desc_td1: 'クラシックなミニゲーム',
     card_td2: 'タワーディフェンス (2)', desc_td2: 'Yorg タワーディフェンス',
@@ -156,7 +160,7 @@ const i18n = {
     err_404: 'ページがクラッシュしました。データが失われました。'
   },
   ko: {
-    nav_home: '홈', nav_guestbook: '방명록', nav_vote: '투표', nav_about: '소개', nav_arcade: '게임', nav_tools: '도구함', nav_secret: '비밀 구역', nav_more: '더보기',
+    nav_home: '홈', nav_guestbook: '방명록', nav_vote: '투표', nav_about: '소개', nav_arcade: '게임', nav_tools: '도구함', nav_links: '링크', nav_secret: '비밀 구역', nav_more: '더보기',
     lang_label: '언어',
     settings_label: '설정', settings_lang: '언어', settings_theme: '테마', settings_back: '뒤로',
     theme_auto: '시스템', theme_light: '라이트', theme_dark: '다크',
@@ -168,6 +172,7 @@ const i18n = {
     vote_1: '초보', vote_2: '고수', vote_3: '달인', vote_btn: '투표하기 →',
     desc_bili: 'Bilibili 개인 공간', desc_github: '오픈소스 저장소', desc_ccw: 'CCW 프로필', desc_luogu: '루오구 프로필',
     card_ccw: 'CCW', card_luogu: '루오구', card_email: '이메일',
+    card_kxyjs: 'kxyjs', desc_kxyjs: '매일 행복하세요',
     card_dino: 'Chrome 공룡', desc_dino: '링크 복사 후 Chrome에서 열기',
     card_td1: '타워 디펜스 (1)', desc_td1: '클래식 미니게임',
     card_td2: '타워 디펜스 (2)', desc_td2: 'Yorg 타워 디펜스',
@@ -193,7 +198,7 @@ const i18n = {
     err_404: '페이지가 충돌했습니다. 데이터가 손실되었습니다.'
   },
   fr: {
-    nav_home: 'Accueil', nav_guestbook: 'Livre d\'or', nav_vote: 'Vote', nav_about: 'À propos', nav_arcade: 'Arcade', nav_tools: 'Boîte à outils', nav_secret: 'Secret', nav_more: 'Plus',
+    nav_home: 'Accueil', nav_guestbook: 'Livre d\'or', nav_vote: 'Vote', nav_about: 'À propos', nav_arcade: 'Arcade', nav_tools: 'Boîte à outils', nav_links: 'Liens', nav_secret: 'Secret', nav_more: 'Plus',
     lang_label: 'Langue',
     settings_label: 'Paramètres', settings_lang: 'Langue', settings_theme: 'Apparence', settings_back: 'Retour',
     theme_auto: 'Système', theme_light: 'Clair', theme_dark: 'Sombre',
@@ -205,6 +210,7 @@ const i18n = {
     vote_1: 'Novice', vote_2: 'Vétéran', vote_3: 'Maître', vote_btn: 'Voter →',
     desc_bili: 'Mon espace Bilibili', desc_github: 'Mes dépôts open source', desc_ccw: 'Profil CCW', desc_luogu: 'Profil Luogu',
     card_ccw: 'CCW', card_luogu: 'Luogu', card_email: 'E-mail',
+    card_kxyjs: 'kxyjs', desc_kxyjs: 'Joyeux chaque jour',
     card_dino: 'Chrome Dino', desc_dino: 'Copiez le lien et ouvrez-le dans Chrome',
     card_td1: 'Tower Defense (1)', desc_td1: 'Mini-jeu classique',
     card_td2: 'Tower Defense (2)', desc_td2: 'Yorg Tower Defense',
@@ -267,7 +273,8 @@ window.addEventListener('error', () => {
 let storedLang = safeGet('site_lang');
 let currentLang = (storedLang && i18n[storedLang]) ? storedLang : 'zh';
 
-const PAGE_TITLE_KEYS = ['nav_home', 'nav_guestbook', 'title_vote', 'nav_about', 'nav_arcade', 'nav_tools', 'nav_secret'];
+/* ★ 新增 nav_links；隐藏关索引变为 7 */
+const PAGE_TITLE_KEYS = ['nav_home', 'nav_guestbook', 'title_vote', 'nav_about', 'nav_arcade', 'nav_tools', 'nav_links', 'nav_secret'];
 
 function updateDocumentTitle() {
   const safeIdx = (typeof idx === 'number' && idx >= 0 && idx < PAGE_TITLE_KEYS.length) ? idx : 0;
@@ -456,7 +463,8 @@ function applyLanguage(lang) {
       if (newEgg) newEgg.style.transform = oldEggTransform;
     }
 
-    if (idx === 6) {
+    /* ★ 隐藏关索引由 6 → 7 */
+    if (idx === 7) {
       requestAnimationFrame(startEscapeLoop);
       playSprings(idx);
     }

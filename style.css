@@ -86,6 +86,23 @@ html.lang-en-pending [data-i18n-html] { visibility: hidden; }
 .card-favicon { width: 20px; height: 20px; flex: 0 0 20px; object-fit: contain; }
 .card-logo-wide { height: 20px; width: auto; max-width: 60px; flex: 0 0 auto; object-fit: contain; }
 
+/* ★ 友情链接图标加载失败时的兜底 */
+.card-fallback {
+  display: none;
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  background: linear-gradient(135deg, rgba(140,180,255,.35), rgba(196,160,255,.35));
+  color: #dce9ff;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  user-select: none;
+}
+
 /* =========================================================
    桌面端侧边栏
    ========================================================= */
@@ -928,3 +945,9 @@ html[data-theme="light"] .toast {
 html[data-theme="light"] .slide-body::-webkit-scrollbar-thumb { background: rgba(90, 140, 220, .25); }
 html[data-theme="light"] .slide-body::-webkit-scrollbar-thumb:hover { background: rgba(90, 140, 220, .42); }
 html[data-theme="light"] .fatal-error-overlay.screen-404 { background: #e9edf5; color: #1a2332; }
+
+/* ★ 友情链接兜底图标 · 浅色模式 */
+html[data-theme="light"] .card-fallback {
+  background: linear-gradient(135deg, rgba(120, 170, 255, .25), rgba(180, 150, 255, .25));
+  color: #3a5a9a;
+}
