@@ -21,6 +21,7 @@ const i18n = {
     desc_bili: '我的B站个人空间', desc_github: '我的开源代码仓库', desc_ccw: '共创世界个人主页', desc_luogu: '洛谷编程平台个人主页',
     card_ccw: '共创世界', card_luogu: '洛谷', card_email: '联系邮箱',
     card_kxyjs: 'kxyjs', desc_kxyjs: '开心每一天',
+    card_suziyue: 'suziyue1227', desc_suziyue: '终端风个人主页',
     card_dino: 'chrome小恐龙', desc_dino: '点击复制链接后用 Chrome 打开',
     card_td1: '塔防（1）', desc_td1: '经典塔防小游戏',
     card_td2: '塔防（2）', desc_td2: 'Yorg 塔防在线游玩',
@@ -59,6 +60,7 @@ const i18n = {
     desc_bili: '我的B站個人空間', desc_github: '我的開源代碼倉庫', desc_ccw: '共創世界個人主頁', desc_luogu: '洛谷編程平台個人主頁',
     card_ccw: '共創世界', card_luogu: '洛谷', card_email: '聯繫郵箱',
     card_kxyjs: 'kxyjs', desc_kxyjs: '開心每一天',
+    card_suziyue: 'suziyue1227', desc_suziyue: '終端風個人主頁',
     card_dino: 'chrome小恐龍', desc_dino: '點擊複製鏈接後用 Chrome 打開',
     card_td1: '塔防（1）', desc_td1: '經典塔防小遊戲',
     card_td2: '塔防（2）', desc_td2: 'Yorg 塔防在線遊玩',
@@ -97,6 +99,7 @@ const i18n = {
     desc_bili: 'My Bilibili Space', desc_github: 'My Open Source Repos', desc_ccw: 'CCW Profile', desc_luogu: 'Luogu Profile',
     card_ccw: 'CCW', card_luogu: 'Luogu', card_email: 'Email',
     card_kxyjs: 'kxyjs', desc_kxyjs: 'Happy every day',
+    card_suziyue: 'suziyue1227', desc_suziyue: 'Terminal-style personal site',
     card_dino: 'Chrome Dino', desc_dino: 'Copy link and open in Chrome',
     card_td1: 'Tower Defense (1)', desc_td1: 'Classic mini-game',
     card_td2: 'Tower Defense (2)', desc_td2: 'Yorg Tower Defense',
@@ -135,6 +138,7 @@ const i18n = {
     desc_bili: 'Bilibili のマイページ', desc_github: 'オープンソースリポジトリ', desc_ccw: 'CCW プロフィール', desc_luogu: '洛谷プロフィール',
     card_ccw: 'CCW', card_luogu: '洛谷', card_email: 'メール',
     card_kxyjs: 'kxyjs', desc_kxyjs: '毎日楽しく',
+    card_suziyue: 'suziyue1227', desc_suziyue: 'ターミナル風個人サイト',
     card_dino: 'Chrome 恐竜', desc_dino: 'リンクをコピーして Chrome で開く',
     card_td1: 'タワーディフェンス (1)', desc_td1: 'クラシックなミニゲーム',
     card_td2: 'タワーディフェンス (2)', desc_td2: 'Yorg タワーディフェンス',
@@ -173,6 +177,7 @@ const i18n = {
     desc_bili: 'Bilibili 개인 공간', desc_github: '오픈소스 저장소', desc_ccw: 'CCW 프로필', desc_luogu: '루오구 프로필',
     card_ccw: 'CCW', card_luogu: '루오구', card_email: '이메일',
     card_kxyjs: 'kxyjs', desc_kxyjs: '매일 행복하세요',
+    card_suziyue: 'suziyue1227', desc_suziyue: '터미널 스타일 개인 사이트',
     card_dino: 'Chrome 공룡', desc_dino: '링크 복사 후 Chrome에서 열기',
     card_td1: '타워 디펜스 (1)', desc_td1: '클래식 미니게임',
     card_td2: '타워 디펜스 (2)', desc_td2: 'Yorg 타워 디펜스',
@@ -211,6 +216,7 @@ const i18n = {
     desc_bili: 'Mon espace Bilibili', desc_github: 'Mes dépôts open source', desc_ccw: 'Profil CCW', desc_luogu: 'Profil Luogu',
     card_ccw: 'CCW', card_luogu: 'Luogu', card_email: 'E-mail',
     card_kxyjs: 'kxyjs', desc_kxyjs: 'Joyeux chaque jour',
+    card_suziyue: 'suziyue1227', desc_suziyue: 'Site personnel style terminal',
     card_dino: 'Chrome Dino', desc_dino: 'Copiez le lien et ouvrez-le dans Chrome',
     card_td1: 'Tower Defense (1)', desc_td1: 'Mini-jeu classique',
     card_td2: 'Tower Defense (2)', desc_td2: 'Yorg Tower Defense',
@@ -273,7 +279,6 @@ window.addEventListener('error', () => {
 let storedLang = safeGet('site_lang');
 let currentLang = (storedLang && i18n[storedLang]) ? storedLang : 'zh';
 
-/* ★ 新增 nav_links；隐藏关索引变为 7 */
 const PAGE_TITLE_KEYS = ['nav_home', 'nav_guestbook', 'title_vote', 'nav_about', 'nav_arcade', 'nav_tools', 'nav_links', 'nav_secret'];
 
 function updateDocumentTitle() {
@@ -283,9 +288,6 @@ function updateDocumentTitle() {
   document.title = `curious-guoguo | ${label}`;
 }
 
-/* =========================================================
-   giscus 语言 / 主题同步
-   ========================================================= */
 let lastGiscusLang = null;
 
 function syncGiscusLang() {
@@ -356,14 +358,11 @@ function mountGiscus() {
   mount.appendChild(script);
 }
 
-/* =========================================================
-   主题状态（三态：auto / light / dark）
-   ========================================================= */
 const THEME_MEDIA = window.matchMedia('(prefers-color-scheme: dark)');
 let systemIsDark = THEME_MEDIA.matches;
 
 let storedTheme = safeGet('site_theme');
-let themePreference = (storedTheme === 'light' || storedTheme === 'dark') ? storedTheme : 'auto';
+let themePreference = (storedTheme === 'light' || storedTheme === 'dark') ? storedTheme : 'dark';
 
 function resolveTheme(pref) {
   if (pref === 'light') return 'light';
@@ -378,7 +377,7 @@ function updateThemeButtons(pref) {
 }
 
 function applyTheme(pref) {
-  if (pref !== 'auto' && pref !== 'light' && pref !== 'dark') pref = 'auto';
+  if (pref !== 'auto' && pref !== 'light' && pref !== 'dark') pref = 'dark';
   themePreference = pref;
   safeSet('site_theme', pref);
   const resolved = resolveTheme(pref);
@@ -402,9 +401,6 @@ const onSystemThemeChange = (e) => {
 if (THEME_MEDIA.addEventListener) THEME_MEDIA.addEventListener('change', onSystemThemeChange);
 else if (THEME_MEDIA.addListener) THEME_MEDIA.addListener(onSystemThemeChange);
 
-/* =========================================================
-   语言应用
-   ========================================================= */
 function applyLanguage(lang) {
   if (!i18n[lang]) lang = 'zh';
   currentLang = lang;
@@ -463,7 +459,6 @@ function applyLanguage(lang) {
       if (newEgg) newEgg.style.transform = oldEggTransform;
     }
 
-    /* ★ 隐藏关索引由 6 → 7 */
     if (idx === 7) {
       requestAnimationFrame(startEscapeLoop);
       playSprings(idx);

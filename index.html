@@ -14,7 +14,7 @@
       document.documentElement.classList.add('lang-en-pending');
       document.documentElement.lang = 'en';
     }
-    var pref = localStorage.getItem('site_theme') || 'auto';
+    var pref = localStorage.getItem('site_theme') || 'dark';
     var isDark = pref === 'dark' || (pref === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
     if (!isDark) document.documentElement.dataset.theme = 'light';
     var tcMeta = document.querySelector('meta[name="theme-color"]');
@@ -352,7 +352,7 @@
     <div class="slide-body">
       <div class="card-container">
 
-        <!-- 后续新增站点：复制这个 <a> 块，改 href / src / 标题 / 描述 -->
+        <!-- 后续新增站点：复制一个 <a> 块，改 href / src / 标题 / 描述即可 -->
         <a class="link-card" href="https://kxyjs.8044321.xyz" target="_blank" rel="noopener">
           <div class="link-title">
             <img src="https://kxyjs.8044321.xyz/favicon.png" class="card-favicon" alt="kxyjs"
@@ -361,6 +361,16 @@
             <span data-i18n="card_kxyjs">kxyjs</span>
           </div>
           <div class="desc" data-i18n="desc_kxyjs">开心每一天</div>
+        </a>
+
+        <a class="link-card" href="https://suziyue1227.github.io" target="_blank" rel="noopener">
+          <div class="link-title">
+            <img src="https://suziyue1227.github.io/favicon.ico" class="card-favicon" alt="suziyue1227"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
+            <span class="card-fallback" aria-hidden="true">S</span>
+            <span data-i18n="card_suziyue">suziyue1227</span>
+          </div>
+          <div class="desc" data-i18n="desc_suziyue">GitHub 个人主页</div>
         </a>
 
       </div>
