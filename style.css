@@ -896,6 +896,10 @@ html[data-theme="light"] .vote-card:hover .vote-btn {
   color: #1a2332;
 }
 html[data-theme="light"] .vote-thumb img { filter: none; }
+html[data-theme="light"] .visit img {
+  filter: invert(1) brightness(0.75);
+  opacity: 1;
+}
 html[data-theme="light"] .thanks { color: rgba(80, 100, 140, .7); }
 html[data-theme="light"] .thanks a {
   color: #5a7fd4;

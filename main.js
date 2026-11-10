@@ -112,7 +112,7 @@ let isUnlocked = false;
 
   let targetTheme = 0;
   try {
-    const pref = safeGet('site_theme') || 'auto';
+    const pref = safeGet('site_theme') || 'dark';
     const isDark = pref === 'dark' || (pref === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
     targetTheme = isDark ? 0 : 1;
   } catch (e) {}
