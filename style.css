@@ -896,14 +896,17 @@ html[data-theme="light"] .vote-card:hover .vote-btn {
   color: #1a2332;
 }
 html[data-theme="light"] .vote-thumb img { filter: none; }
-html[data-theme="light"] .visit img {
-  filter: invert(1) brightness(0.75);
-  opacity: 1;
-}
 html[data-theme="light"] .thanks { color: rgba(80, 100, 140, .7); }
 html[data-theme="light"] .thanks a {
   color: #5a7fd4;
   border-bottom-color: rgba(90, 127, 212, .5);
+}
+
+/* ★ 浅色：首页访问统计图片反色 */
+html[data-theme="light"] .visit img {
+  filter: invert(1);
+  opacity: 1;
+  mix-blend-mode: multiply;
 }
 
 html[data-theme="light"] .nav-item { color: rgba(40, 60, 90, .7); }
@@ -973,4 +976,130 @@ html[data-theme="light"] .fatal-error-overlay.screen-404 { background: #e9edf5; 
 html[data-theme="light"] .card-fallback {
   background: linear-gradient(135deg, rgba(120, 170, 255, .25), rgba(180, 150, 255, .25));
   color: #3a5a9a;
+}
+
+/* =========================================================
+   ★ HullQin 桌游浮层
+   ========================================================= */
+.boardgames-overlay {
+  position: fixed; inset: 0; z-index: 10000;
+  background: rgba(0, 0, 0, .5);
+  backdrop-filter: blur(10px) saturate(160%);
+  -webkit-backdrop-filter: blur(10px) saturate(160%);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0;
+  transition: opacity .3s ease;
+}
+.boardgames-overlay.show { opacity: 1; }
+
+.boardgames-panel {
+  width: min(720px, 92vw);
+  max-height: 85vh;
+  display: flex; flex-direction: column;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, .08);
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, .18);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, .5), inset 0 1px 0 rgba(255, 255, 255, .35);
+  overflow: hidden;
+  will-change: transform, opacity;
+}
+
+.boardgames-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, .1);
+  flex: 0 0 auto;
+}
+.boardgames-head h3 {
+  font-size: 1.15rem; font-weight: 700; color: #eaf2ff; letter-spacing: .02em;
+}
+.boardgames-close {
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, .18);
+  background: rgba(255, 255, 255, .06);
+  color: #dce9ff;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s, color .2s, transform .2s;
+}
+.boardgames-close:hover { background: rgba(255, 255, 255, .16); color: #fff; }
+.boardgames-close:active { transform: scale(.92); }
+
+.boardgames-grid {
+  flex: 1; min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 14px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
+}
+.boardgames-grid::-webkit-scrollbar { width: 8px; }
+.boardgames-grid::-webkit-scrollbar-track { background: transparent; }
+.boardgames-grid::-webkit-scrollbar-thumb {
+  background: rgba(140, 180, 255, .28); border-radius: 4px;
+}
+.boardgames-grid::-webkit-scrollbar-thumb:hover { background: rgba(140, 180, 255, .45); }
+
+.boardgames-item {
+  display: flex; align-items: center; justify-content: center;
+  padding: 14px 10px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, .06);
+  border: 1px solid rgba(255, 255, 255, .12);
+  color: #dce9ff;
+  text-decoration: none;
+  font-size: .92rem; font-weight: 600;
+  text-align: center;
+  transition: background .2s, border-color .2s, transform .25s var(--bounce), color .2s;
+}
+.boardgames-item:hover {
+  background: rgba(255, 255, 255, .14);
+  border-color: rgba(255, 255, 255, .3);
+  color: #fff;
+  transform: translateY(-2px);
+}
+.boardgames-item:active { transform: translateY(0) scale(.98); }
+
+/* ★ 浅色：桌游浮层 */
+html[data-theme="light"] .boardgames-panel {
+  background: rgba(255, 255, 255, .72);
+  border-color: rgba(255, 255, 255, .95);
+  box-shadow:
+    0 30px 80px rgba(80, 110, 180, .25),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
+}
+html[data-theme="light"] .boardgames-head { border-bottom-color: rgba(80, 110, 180, .12); }
+html[data-theme="light"] .boardgames-head h3 { color: #1a2332; }
+html[data-theme="light"] .boardgames-close {
+  border-color: rgba(100, 140, 220, .2);
+  background: rgba(255, 255, 255, .7);
+  color: #1e3a6a;
+}
+html[data-theme="light"] .boardgames-close:hover { background: rgba(255, 255, 255, .95); color: #1a2332; }
+html[data-theme="light"] .boardgames-grid::-webkit-scrollbar-thumb { background: rgba(90, 140, 220, .25); }
+html[data-theme="light"] .boardgames-grid::-webkit-scrollbar-thumb:hover { background: rgba(90, 140, 220, .42); }
+html[data-theme="light"] .boardgames-item {
+  background: rgba(255, 255, 255, .6);
+  border-color: rgba(100, 140, 220, .14);
+  color: #1e3a6a;
+}
+html[data-theme="light"] .boardgames-item:hover {
+  background: rgba(255, 255, 255, .88);
+  border-color: rgba(100, 140, 220, .3);
+  color: #1a2332;
+}
+
+/* ★ 移动端：桌游浮层 */
+@media (max-width: 768px) {
+  .boardgames-panel { width: 94vw; max-height: 88vh; border-radius: 22px; }
+  .boardgames-head { padding: 14px 16px; }
+  .boardgames-head h3 { font-size: 1.05rem; }
+  .boardgames-grid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 8px; padding: 12px;
+  }
+  .boardgames-item { padding: 12px 6px; font-size: .85rem; border-radius: 12px; }
 }

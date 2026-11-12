@@ -378,7 +378,6 @@ function closeMobileDrawer() {
   const expanded = document.getElementById('mobileNavExpanded');
   if (expanded) expanded.setAttribute('aria-hidden', 'true');
 
-  // 移动端设置面板返回九宫格
   const settingsPanel = document.getElementById('mobileSettingsPanel');
   const gridMenu = document.getElementById('mobileGridMenu');
   const settingsBtn = document.getElementById('mobileSettingsBtn');
@@ -394,7 +393,6 @@ function closeMobileDrawer() {
   updateToastPosition();
 }
 
-/* ★ 留言板自动滚到底部 */
 function scrollGuestbookToBottom() {
   const slide = slides[1];
   if (!slide || !slide.classList.contains('active')) return;
@@ -440,7 +438,6 @@ function go(target) {
     scheduleGuestbookScroll();
   }
 
-  /* ★ 隐藏关索引由 6 → 7 */
   if (target === 7) requestAnimationFrame(startEscapeLoop);
 }
 
@@ -888,8 +885,122 @@ window.addEventListener('touchmove', (e) => { if (!e.touches.length) return; mou
 
 
 /* =========================================================
+   ★ HullQin 桌游合集：卡片原位放大浮层
+   ========================================================= */
+const HULLQIN_BASE = 'https://game.hullqin.cn/';
+const HULLQIN_GAMES = [
+  { name: '卡坦岛',     path: 'ktd'   },
+  { name: '璀璨宝石',   path: 'ccbs'  },
+  { name: '卡卡颂',     path: 'kks'   },
+  { name: '飞行棋',     path: 'fxq'   },
+  { name: 'UNO',        path: 'uno'   },
+  { name: '谁是卧底',   path: 'sswd'  },
+  { name: '阿瓦隆',     path: 'awl'   },
+  { name: '一夜狼',     path: 'yyl'   },
+  { name: '狼人杀',     path: 'lrs'   },
+  { name: '行动代号',   path: 'xddh'  },
+  { name: '拉密',       path: 'lm'    },
+  { name: '德国心脏病', path: 'dgxzb' },
+  { name: '爆炸猫',     path: 'bzm'   },
+  { name: '毒药',       path: 'dy'    },
+  { name: '出包魔法师', path: 'cbmfs' },
+  { name: '达芬奇密码', path: 'dwqmm' },
+  { name: '五子棋',     path: 'wzq'   },
+  { name: '围棋',       path: 'wq'    },
+  { name: '象棋',       path: 'xq'    },
+  { name: '国际象棋',   path: 'gjxq'  },
+  { name: '军棋',       path: 'jq'    },
+  { name: '跳棋',       path: 'tq'    },
+  { name: '黑白棋',     path: 'hbq'   },
+  { name: '斗地主',     path: 'ddz'   },
+  { name: '井字棋',     path: 'jzq'   },
+  { name: '路墙棋',     path: 'lqq'   },
+  { name: '炸飞机',     path: 'zfj'   },
+  { name: '摇色子',     path: 'ysz'   },
+  { name: '酒吧游戏',   path: 'jbyx'  }
+];
+
+let boardGamesOverlay = null;
+
+function buildBoardGamesGridHTML() {
+  return HULLQIN_GAMES.map(g =>
+    `<a class="boardgames-item" href="${HULLQIN_BASE}${g.path}" target="_blank" rel="noopener">${g.name}</a>`
+  ).join('');
+}
+
+function openBoardGamesModal(fromCard) {
+  if (boardGamesOverlay) return;
+
+  const fromRect = fromCard.getBoundingClientRect();
+
+  const overlay = document.createElement('div');
+  overlay.className = 'boardgames-overlay';
+  overlay.innerHTML = `
+    <div class="boardgames-panel" role="dialog" aria-modal="true">
+      <div class="boardgames-head">
+        <h3>${i18n[currentLang].hullqin_modal_title || '桌游合集'}</h3>
+        <button type="button" class="boardgames-close" aria-label="${i18n[currentLang].hullqin_modal_close || '关闭'}">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+      <div class="boardgames-grid">${buildBoardGamesGridHTML()}</div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  boardGamesOverlay = overlay;
+
+  const panel = overlay.querySelector('.boardgames-panel');
+  const toRect = panel.getBoundingClientRect();
+
+  panel.style.transition = 'none';
+  panel.style.transformOrigin = 'top left';
+  const scaleX = Math.max(fromRect.width / toRect.width, 0.05);
+  const scaleY = Math.max(fromRect.height / toRect.height, 0.05);
+  const dx = fromRect.left - toRect.left;
+  const dy = fromRect.top - toRect.top;
+  panel.style.transform = `translate(${dx}px, ${dy}px) scale(${scaleX}, ${scaleY})`;
+  panel.style.opacity = '0';
+
+  requestAnimationFrame(() => {
+    overlay.classList.add('show');
+    panel.style.transition = 'transform .42s cubic-bezier(.22,1.2,.36,1), opacity .28s ease';
+    panel.style.transform = 'translate(0, 0) scale(1, 1)';
+    panel.style.opacity = '1';
+  });
+
+  const close = () => {
+    if (!boardGamesOverlay) return;
+    panel.style.transition = 'transform .32s ease, opacity .22s ease';
+    panel.style.transform = `translate(${dx}px, ${dy}px) scale(${scaleX}, ${scaleY})`;
+    panel.style.opacity = '0';
+    overlay.classList.remove('show');
+    document.removeEventListener('keydown', onKey);
+    setTimeout(() => {
+      overlay.remove();
+      boardGamesOverlay = null;
+    }, 340);
+  };
+
+  const onKey = (e) => {
+    if (e.key === 'Escape') close();
+  };
+  document.addEventListener('keydown', onKey);
+
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) close();
+  });
+  overlay.querySelector('.boardgames-close').addEventListener('click', close);
+}
+
+(function initBoardGamesCard() {
+  const card = document.getElementById('boardGamesCard');
+  if (!card) return;
+  card.addEventListener('click', () => openBoardGamesModal(card));
+})();
+
+
+/* =========================================================
    ★ UI：语言按钮刷新 + 桌面设置胶囊 + 移动设置面板
-   （从 lang.js 迁入，UI 交互归 main.js）
    ========================================================= */
 
 function updateLangButtons(lang) {
@@ -953,7 +1064,6 @@ function initSettingsMenu() {
     menu.classList.add('is-open');
   });
 
-  /* 全局 mousemove：侧面移出立即收起，上下方向 2s */
   document.addEventListener('mousemove', (e) => {
     if (!menu.classList.contains('is-open')) return;
     if (menu.contains(document.activeElement)) return;
@@ -963,13 +1073,11 @@ function initSettingsMenu() {
     const padTop = 20;
     const extraBottom = 260;
 
-    // 侧面（x 超左右边界）：立即收起
     if (e.clientX < rect.left - padX || e.clientX > rect.right + padX) {
       closeMenuNow();
       return;
     }
 
-    // 上下方向：安全区内保持，出区 2 秒后收起
     if (e.clientY >= rect.top - padTop && e.clientY <= rect.bottom + extraBottom) {
       cancelHide();
     } else {
@@ -977,7 +1085,6 @@ function initSettingsMenu() {
     }
   });
 
-  /* 二级：同一时间只展开一组 */
   menu.querySelectorAll('.settings-group').forEach(group => {
     group.addEventListener('mouseenter', () => {
       cancelHide();
@@ -988,7 +1095,6 @@ function initSettingsMenu() {
     });
   });
 
-  /* 按钮点击 */
   menu.querySelectorAll('button[data-lang]').forEach(btn => {
     btn.addEventListener('click', (e) => {
       applyLanguage(btn.dataset.lang);
@@ -1094,7 +1200,6 @@ mobileMoreBtn.addEventListener('click', (e) => {
   const expanded = document.getElementById('mobileNavExpanded');
   if (expanded) expanded.setAttribute('aria-hidden', 'false');
 
-  // 每次打开抽屉都回到九宫格
   const settingsPanel = document.getElementById('mobileSettingsPanel');
   const gridMenu = document.getElementById('mobileGridMenu');
   const settingsBtn = document.getElementById('mobileSettingsBtn');
@@ -1179,7 +1284,6 @@ updateDocumentTitle();
   syncGiscusTheme(resolved);
 })();
 
-/* ★ 隐藏关索引由 6 → 7 */
 if (idx !== 7) {
   playSprings(idx);
 }
