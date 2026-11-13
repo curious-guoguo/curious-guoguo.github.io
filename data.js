@@ -257,9 +257,9 @@ window.SITE_DATA = {
         desc: { zh: '开心每一天', 'zh-TW': '開心每一天', en: 'Happy every day', ja: 'Happy every day', ko: 'Happy every day', fr: 'Happy every day' },
         icon: 'https://kxyjs.8044321.xyz/favicon.png', iconFallback: 'K',
         items: [
-          { label: { zh: 'kxyjs 官网', 'zh-TW': 'kxyjs 官網', en: 'kxyjs Official', ja: 'kxyjs Official', ko: 'kxyjs Official', fr: 'kxyjs Official' }, url: 'https://kxyjs.8044321.xyz' },
+          { label: { zh: 'IDC.VIN 官网', 'zh-TW': 'IDC.VIN 官網', en: IDC.VIN Official', ja: 'IDC.VIN Official', ko: 'IDC.VIN Official', fr: 'IDC.VIN Official' }, url: 'https://kxyjs.8044321.xyz' },
           { label: { zh: 'GitHub Pages 官网', 'zh-TW': 'GitHub Pages 官網', en: 'GitHub Pages Official', ja: 'GitHub Pages 公式', ko: 'GitHub Pages 공식', fr: 'GitHub Pages Officiel' }, url: 'https://kxyjs.github.io' },
-          { label: { zh: 'Hydro 评测站', 'zh-TW': 'Hydro 評測站', en: 'Hydro Judge', ja: 'Hydro Judge', ko: 'Hydro Judge', fr: 'Hydro Judge' }, url: 'https://hydro.ac/d/kxyjs' }
+          { label: { zh: 'Hydro 官网', 'zh-TW': 'Hydro 官網', en: 'Hydro Officia', ja: 'Hydro Official', ko: 'Hydro Official', fr: 'Hydro  Official' }, url: 'https://hydro.ac/d/kxyjs' }
         ] },
       { title: 'suziyue1227',
         desc: { zh: '终端风个人主页', 'zh-TW': '終端風個人主頁', en: 'Terminal-style personal site', ja: 'Terminal-style personal site', ko: 'Terminal-style personal site', fr: 'Terminal-style personal site' },
@@ -269,7 +269,7 @@ window.SITE_DATA = {
         desc: { zh: '支持发布文章、分享工具', 'zh-TW': '支援發布文章、分享工具', en: 'Publishing articles & sharing tools', ja: 'Publishing articles & sharing tools', ko: 'Publishing articles & sharing tools', fr: 'Publishing articles & sharing tools' },
         icon: 'https://circlexhy.de5.net/icon.png', iconFallback: 'C',
         items: [
-          { label: { zh: 'circlexhy 官网', 'zh-TW': 'circlexhy 官網', en: 'circlexhy Official', ja: 'circlexhy Official', ko: 'circlexhy Official', fr: 'circlexhy Official' }, url: 'https://circlexhy.de5.net/', icon: 'https://circlexhy.de5.net/icon.png' },
+          { label: { zh: 'DNSHE 官网', 'zh-TW': 'DNSHE 官網', en: 'DNSHE Official', ja: 'DNSHE Official', ko: 'DNSHE Official', fr: 'DNSHE Official' }, url: 'https://circlexhy.de5.net/', icon: 'https://circlexhy.de5.net/icon.png' },
           { label: { zh: 'GitHub Pages 官网', 'zh-TW': 'GitHub Pages 官網', en: 'GitHub Pages Official', ja: 'GitHub Pages 公式', ko: 'GitHub Pages 공식', fr: 'GitHub Pages Officiel' }, url: 'https://circlexhy.github.io/', icon: 'https://circlexhy.github.io/untitled.svg' }
         ] }
     ]
