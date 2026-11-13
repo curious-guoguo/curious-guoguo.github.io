@@ -257,9 +257,9 @@ window.SITE_DATA = {
         desc: { zh: '开心每一天', 'zh-TW': '開心每一天', en: 'Happy every day', ja: 'Happy every day', ko: 'Happy every day', fr: 'Happy every day' },
         icon: 'https://kxyjs.8044321.xyz/favicon.png', iconFallback: 'K',
         items: [
-          { label: { zh: 'IDC.VIN 官网', 'zh-TW': 'IDC.VIN 官網', en: IDC.VIN Official', ja: 'IDC.VIN Official', ko: 'IDC.VIN Official', fr: 'IDC.VIN Official' }, url: 'https://kxyjs.8044321.xyz' },
+          { label: { zh: 'IDC.VIN 官网', 'zh-TW': 'IDC.VIN 官網', en: 'IDC.VIN Official', ja: 'IDC.VIN Official', ko: 'IDC.VIN Official', fr: 'IDC.VIN Official' }, url: 'https://kxyjs.8044321.xyz' },
           { label: { zh: 'GitHub Pages 官网', 'zh-TW': 'GitHub Pages 官網', en: 'GitHub Pages Official', ja: 'GitHub Pages 公式', ko: 'GitHub Pages 공식', fr: 'GitHub Pages Officiel' }, url: 'https://kxyjs.github.io' },
-          { label: { zh: 'Hydro 官网', 'zh-TW': 'Hydro 官網', en: 'Hydro Officia', ja: 'Hydro Official', ko: 'Hydro Official', fr: 'Hydro  Official' }, url: 'https://hydro.ac/d/kxyjs' }
+          { label: { zh: 'Hydro 官网', 'zh-TW': 'Hydro 官網', en: 'Hydro Official', ja: 'Hydro Official', ko: 'Hydro Official', fr: 'Hydro Official' }, url: 'https://hydro.ac/d/kxyjs' }
         ] },
       { title: 'suziyue1227',
         desc: { zh: '终端风个人主页', 'zh-TW': '終端風個人主頁', en: 'Terminal-style personal site', ja: 'Terminal-style personal site', ko: 'Terminal-style personal site', fr: 'Terminal-style personal site' },
