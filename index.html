@@ -10,7 +10,6 @@
 <link rel="icon" href="logo.svg" type="image/svg+xml">
 <script>
   try {
-    // 【修复点】将 storedLang 改为 prefLang，避免与 core.js 中的 let 变量冲突
     var prefLang = localStorage.getItem('site_lang');
     if (prefLang && prefLang !== 'zh') {
       document.documentElement.classList.add('lang-pending');
@@ -63,7 +62,7 @@
       <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
       <span class="label" data-i18n="nav_links">友情链接</span></a></li>
     <li><a href="#" data-slide="7">
-      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="5.5"></circle><path d="M21 2l-9.6 9.6"></path><path d="M15.5 7.5l3 3L22 7l-3-3"></path></svg>
       <span class="label" data-i18n="nav_secret">隐藏关</span></a></li>
   </ul>
 </aside>
@@ -123,7 +122,7 @@
         <span data-i18n="nav_links">友情链接</span>
       </a>
       <a href="#" data-slide="7" class="grid-item">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="5.5"></circle><path d="M21 2l-9.6 9.6"></path><path d="M15.5 7.5l3 3L22 7l-3-3"></path></svg>
         <span data-i18n="nav_secret">隐藏关</span>
       </a>
       <button type="button" class="grid-item grid-item-settings" id="mobileSettingsBtn" aria-expanded="false">

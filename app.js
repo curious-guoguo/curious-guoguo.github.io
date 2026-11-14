@@ -17,41 +17,139 @@ const shortcutLinks = mobileBottomNav
 
 /* =========================================================
    投票卡布局
+   ---------------------------------------------------------
+   主卡宽 = max(容器×50%(移动端) / 容器×1/3(桌面), info宽)，封顶容器
+   主卡高 = 主卡宽 ÷ 主卡AR
+   次卡高 = 主卡高
+   次卡卡片宽 = 主卡宽（统一）
+   次卡图宽 = 主卡高 × 次卡AR（不畸变，居中留白）
    ========================================================= */
 function applyVoteLayout(grid) {
   if (!grid) return;
   const cards = Array.from(grid.querySelectorAll('.vote-card'));
   if (!cards.length) return;
 
-  cards.forEach((c, i) => c.classList.toggle('primary', i === 0));
-
   const imgs = cards.map(c => c.querySelector('img'));
-  const loadPromises = imgs.map(img => new Promise(resolve => {
+
+  function infoWidth(card) {
+    const info = card.querySelector('.vote-info');
+    if (!info) return 0;
+    const name = info.querySelector('.vote-name');
+    const btn = info.querySelector('.vote-btn');
+    const cs = getComputedStyle(info);
+    const gap = parseFloat(cs.columnGap || cs.gap || 0) || 0;
+    return Math.ceil((name ? name.getBoundingClientRect().width : 0) +
+                     (btn ? btn.getBoundingClientRect().width : 0) + gap);
+  }
+  function padX(card) {
+    const cs = getComputedStyle(card);
+    return (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.paddingRight) || 0);
+  }
+
+  // 只依赖容器 + 文本宽度，不依赖图片
+  function calcCardW() {
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+    const pct = isMobile ? 1 : 0.5;
+    const containerW = grid.clientWidth || grid.getBoundingClientRect().width || window.innerWidth;
+    let maxInfo = 0, maxPad = 0;
+    cards.forEach(card => {
+      maxInfo = Math.max(maxInfo, infoWidth(card));
+      maxPad = Math.max(maxPad, padX(card));
+    });
+    return Math.min(Math.max(containerW * pct, maxInfo + maxPad), containerW);
+  }
+
+  // 同步写入卡片宽度（图片加载前就生效）
+  function applyWidths() {
+    if (!grid.isConnected) return;
+    const w = calcCardW();
+    cards.forEach(card => { card.style.width = w + 'px'; });
+  }
+
+  applyWidths();
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(applyWidths).catch(applyWidths);
+  }
+
+  // 图片加载完成后，只处理 thumb 高度 / img 尺寸
+  Promise.all(imgs.map(img => new Promise(resolve => {
     if (!img) return resolve();
     if (img.complete && img.naturalWidth > 0) return resolve();
     img.addEventListener('load', resolve, { once: true });
     img.addEventListener('error', resolve, { once: true });
-  }));
+  }))).then(() => {
+    if (!grid.isConnected) return;
 
-  Promise.all(loadPromises).then(() => {
-    let maxAr = 0;
-    let primaryCard = cards[0];
-    imgs.forEach((img, i) => {
-      if (!img) return;
-      const w = img.naturalWidth || 1;
-      const h = img.naturalHeight || 1;
-      const ar = w / h;
-      cards[i].style.setProperty('--img-ar', ar);
-      if (ar > maxAr) { maxAr = ar; primaryCard = cards[i]; }
+    applyWidths();               // 字体加载时序不确定，这里再校正一次宽度
+    const cardW = calcCardW();
+
+    const ars = imgs.map(img => {
+      const w = (img && img.naturalWidth) || 0;
+      const h = (img && img.naturalHeight) || 0;
+      return (w > 0 && h > 0) ? w / h : 0;
     });
-    cards.forEach(c => c.classList.remove('primary'));
-    if (primaryCard) primaryCard.classList.add('primary');
+
+    let primaryIndex = 0, maxAr = 0;
+    ars.forEach((ar, i) => { if (ar > maxAr) { maxAr = ar; primaryIndex = i; } });
+    if (maxAr === 0) primaryIndex = 0;
+
+    cards.forEach((c, i) => c.classList.toggle('primary', i === primaryIndex));
+    const pAr = ars[primaryIndex] > 0 ? ars[primaryIndex] : 1;
+    const pPad = padX(cards[primaryIndex]);
+    const pThumbW = Math.max(cardW - pPad, 10);
+    const pThumbH = pThumbW / pAr;
+
+    cards.forEach((card, i) => {
+      const thumb = card.querySelector('.vote-thumb');
+      const img = imgs[i];
+      if (!thumb || !img) return;
+      const pad = padX(card);
+
+      if (i === primaryIndex) {
+        thumb.style.width = pThumbW + 'px';
+        thumb.style.height = pThumbH + 'px';
+        thumb.style.minWidth = '0';
+        thumb.style.alignSelf = 'center';
+        img.style.width = '100%';
+        img.style.height = '100%';
+        img.style.objectFit = 'contain';
+      } else {
+        const ar = ars[i] > 0 ? ars[i] : 1;
+        const sThumbH = pThumbH;
+        const sImgW = sThumbH * ar;
+        const sThumbW = Math.max(cardW - pad, 10);
+        thumb.style.width = sThumbW + 'px';
+        thumb.style.height = sThumbH + 'px';
+        thumb.style.minWidth = '0';
+        thumb.style.display = 'flex';
+        thumb.style.alignItems = 'center';
+        thumb.style.justifyContent = 'center';
+        thumb.style.alignSelf = 'center';
+        img.style.width = Math.min(sImgW, sThumbW) + 'px';
+        img.style.height = '100%';
+        img.style.objectFit = 'contain';
+      }
+    });
   });
 }
+
+let voteResizeTimer = null;
+window.addEventListener('resize', () => {
+  clearTimeout(voteResizeTimer);
+  voteResizeTimer = setTimeout(() => {
+    document.querySelectorAll('.vote-grid').forEach(g => applyVoteLayout(g));
+  }, 150);
+});
 
 /* =========================================================
    卡片渲染
    ========================================================= */
+function invertClass(c) {
+  if (c.invert === 'dark') return ' invert-dark';
+  if (c.invert === 'light') return ' invert-light';
+  return '';
+}
+
 function iconHTML(c) {
   if (c.iconType === 'email') {
     return `<svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>`;
@@ -59,7 +157,7 @@ function iconHTML(c) {
   if (!c.icon) return '';
   const fallback = c.iconFallback ? `<span class="card-fallback" aria-hidden="true">${c.iconFallback}</span>` : '';
   const onerr = c.iconFallback ? `onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';"` : '';
-  return `<img src="${c.icon}" class="${c.iconClass || 'card-favicon'}" alt="" ${onerr}>${fallback}`;
+  return `<img src="${c.icon}" class="${c.iconClass || 'card-favicon'}${invertClass(c)}" alt="" ${onerr}>${fallback}`;
 }
 function titleHTML(c) {
   return c.titleKey ? `<span data-i18n="${c.titleKey}">${t(c.titleKey)}</span>` : (c.title ? tx(c.title) : '');
@@ -136,7 +234,7 @@ function renderCards() {
       }
       const fallback = c.iconFallback ? `<span class="card-fallback" aria-hidden="true">${c.iconFallback}</span>` : '';
       const onerr = c.iconFallback ? `onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';"` : '';
-      const icon = c.icon ? `<img src="${c.icon}" class="${c.iconClass || 'card-favicon'}" alt="" ${onerr}>${fallback}` : '';
+      const icon = c.icon ? `<img src="${c.icon}" class="${c.iconClass || 'card-favicon'}${invertClass(c)}" alt="" ${onerr}>${fallback}` : '';
       return `<a class="link-card" href="${c.url}" target="_blank" rel="noopener">
         <div class="link-title">${icon}<span>${tx(c.title)}</span></div>
         ${c.desc != null ? `<div class="desc">${tx(c.desc)}</div>` : ''}
@@ -234,6 +332,9 @@ function playSprings(i) {
 function updateNav() {
   menuLinks.forEach((a, k) => a.classList.toggle('active', k === idx));
   shortcutLinks.forEach(a => a.classList.toggle('active', parseInt(a.dataset.slide, 10) === idx));
+  document.querySelectorAll('#mobileGridMenu .grid-item[data-slide]').forEach(a => {
+    a.classList.toggle('active', parseInt(a.dataset.slide, 10) === idx);
+  });
   if (mobileMoreBtn) {
     if (idx !== 0 && idx !== 1 && idx !== 4) mobileMoreBtn.classList.add('active');
     else mobileMoreBtn.classList.remove('active');
@@ -345,6 +446,7 @@ function go(target) {
   }
   if (target === 1) { setTimeout(syncGiscusLang, 500); scheduleGuestbookScroll(); }
   if (target === 7) requestAnimationFrame(startEscapeLoop);
+  syncEscapeCardVisibility();
 }
 
 /* =========================================================
@@ -406,10 +508,6 @@ function initHolidays() {
   const today = new Date();
   SITE_DATA.festivals.filter(f => f.check(today)).forEach(f => {
     renderFestivalCard(f);
-    if (f.isEscape) {
-      const card = document.getElementById(`card-${f.id}`);
-      if (card) card.style.display = 'block';
-    }
   });
 }
 let lastHolidayCheckDay = new Date().toDateString();
@@ -438,6 +536,7 @@ function renderFestivalCard(f) {
     card.style.willChange = 'transform';
     card.style.transform = `translate3d(${Math.max(20, window.innerWidth - 240)}px, ${Math.max(20, window.innerHeight - 160)}px, 0)`;
     card.innerHTML = `<div class="link-title" style="color: #c4a0ff;">${nameStr}</div><div class="desc">${descStr}</div>`;
+    card.dataset.ready = '1';
   } else {
     card.setAttribute('role', 'button');
     card.tabIndex = 0;
@@ -448,6 +547,13 @@ function renderFestivalCard(f) {
     });
   }
   cardsHolder.appendChild(card);
+}
+
+/* 愚人节卡片仅在「隐藏关」页显示 */
+function syncEscapeCardVisibility() {
+  const card = document.getElementById('card-april_fool');
+  if (!card) return;
+  card.style.display = (idx === 7 && card.dataset.ready === '1') ? 'block' : 'none';
 }
 
 let brightnessToken = 0;
@@ -522,13 +628,10 @@ function startTrapPress() {
     if (trapProgress) trapProgress.style.width = '100%';
     if (!isUnlocked) {
       isUnlocked = true;
-      SITE_DATA.festivals.forEach(f => {
-        renderFestivalCard(f);
-        const card = document.getElementById(`card-${f.id}`);
-        if (card && card.style.display === 'none') card.style.display = 'block';
-      });
+      SITE_DATA.festivals.forEach(f => { renderFestivalCard(f); });
       toast(t('toast_eggs_unlocked'));
       playSprings(idx);
+      syncEscapeCardVisibility();
     }
     setTimeout(() => { if (trapProgress) trapProgress.style.width = '0%'; }, 300);
   }, 3000);
@@ -694,8 +797,16 @@ window.addEventListener('resize', () => {
   clearTimeout(escapeResizeTimer);
   escapeResizeTimer = setTimeout(restartEscapeLoop, 150);
 });
-window.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; startEscapeLoop(); });
-window.addEventListener('touchmove', (e) => { if (!e.touches.length) return; mouseX = e.touches[0].clientX; mouseY = e.touches[0].clientY; startEscapeLoop(); }, { passive: true });
+
+/* 桌面：鼠标移动追踪；触摸端：只在点击时更新坐标，滑动不追踪 */
+window.addEventListener('pointermove', (e) => {
+  if (e.pointerType !== 'mouse') return;
+  mouseX = e.clientX; mouseY = e.clientY; startEscapeLoop();
+}, { passive: true });
+window.addEventListener('pointerdown', (e) => {
+  if (e.pointerType === 'mouse') return;
+  mouseX = e.clientX; mouseY = e.clientY; startEscapeLoop();
+}, { passive: true });
 
 /* =========================================================
    桌游浮层
@@ -810,14 +921,14 @@ function initSettingsMenu() {
         <div class="settings-group" data-group="lang">
           <button type="button" class="settings-trigger">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
-            <span>${t('settings_lang')}</span>
+            <span data-i18n="settings_lang">${t('settings_lang')}</span>
           </button>
           <div class="settings-sub">${buildLangButtonsHTML()}</div>
         </div>
         <div class="settings-group" data-group="theme">
           <button type="button" class="settings-trigger">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a7 7 0 0 0 0 14c1.5 0 2-1 2-2s-.5-1-2-1a5 5 0 0 1 0-10z" fill="currentColor" stroke="none"></path></svg>
-            <span>${t('settings_theme')}</span>
+            <span data-i18n="settings_theme">${t('settings_theme')}</span>
           </button>
           <div class="settings-sub">${buildThemeButtonsHTML()}</div>
         </div>
@@ -912,14 +1023,11 @@ function applyLanguage(lang) {
   if (!holder) return;
   holder.innerHTML = '';
   if (isUnlocked) {
-    SITE_DATA.festivals.forEach(f => {
-      renderFestivalCard(f);
-      const card = document.getElementById(`card-${f.id}`);
-      if (card && card.style.display === 'none') card.style.display = 'block';
-    });
+    SITE_DATA.festivals.forEach(f => { renderFestivalCard(f); });
   } else {
     initHolidays();
   }
+  syncEscapeCardVisibility();
   if (idx === 7) {
     requestAnimationFrame(startEscapeLoop);
     playSprings(idx);
@@ -952,6 +1060,7 @@ function applyLanguage(lang) {
   if (idx === 7) requestAnimationFrame(startEscapeLoop);
   else playSprings(idx);
   if (idx === 1) scheduleGuestbookScroll();
+  syncEscapeCardVisibility();
 
   const settingsMenuEl = document.getElementById('settingsMenu');
   if (settingsMenuEl) {
